@@ -22,7 +22,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	spawn(function()
 		while AutoSave do
 			wait(5)
-			SaveSettings(MainFile, LibrarySettings)
+			writefile(MainFile, HttpService:JSONEncode(LibrarySettings))
 		end
 	end)
 end
