@@ -1,1 +1,1 @@
-Eternal, old dead minecraft hacked client that i tried to recreate on roblox
+Lime Client, An old version of a hacked client called Exire before the rebrand.
