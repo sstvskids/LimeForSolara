@@ -460,11 +460,15 @@ function Library:CreateMain()
 			ToggleButtonHolder.MouseButton2Click:Connect(function()
 				ToggleMenuOpened = not ToggleMenuOpened
 				if ToggleMenuOpened then
+					ToggleMenu.AutomaticSize = Enum.AutomaticSize.Y
 					TweenService:Create(OpenMenu, TweenInfo.new(0.4), {Rotation = 90}):Play()
-					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Visible = true, Size = ToggleMenuNew}):Play()
+					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Size = ToggleMenuNew}):Play()
+					ToggleMenu.Visible = true
 				else
+					ToggleMenu.AutomaticSize = Enum.AutomaticSize.None
+					ToggleMenu.Visible = false
 					TweenService:Create(OpenMenu, TweenInfo.new(0.4), {Rotation = 0}):Play()
-					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Visible = false, Size = ToggleMenuOld}):Play()
+					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Size = ToggleMenuOld}):Play()
 				end
 			end)
 
