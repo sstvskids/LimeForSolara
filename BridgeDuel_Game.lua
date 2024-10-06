@@ -25,6 +25,7 @@ game:GetService("ReplicatedStorage").Packages.Knit.Services.ModerationService.RF
 game:GetService("ReplicatedStorage").Packages.Knit.Services.NetworkService.RF.SendReport:InvokeServer()
 game:GetService("ReplicatedStorage").Packages.Knit.Services.GuildService.RF.KickPlayer:InvokeServer()
 game:GetService("ReplicatedStorage").Packages.Knit.Services.CombatService.RE.KnockBackApplied:FireServer()
+workspace.Parent:GetService("Workspace").Map.RedBase:GetChildren()[119]
 --]]
 
 function IsAlive(v)
@@ -118,9 +119,9 @@ spawn(function()
 							if tick() - First > Timer then
 								EatGapple = true
 								First = tick()
-								Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
+								print("Failed to eat")
 							else
-								print("Holding Gapple")
+								Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
 							end
 						end
 					end
@@ -158,7 +159,7 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, Range, SortMode, TeamCheck, Block = nil, nil, nil, nil, nil
+	local Loop, Range, SortMode, TeamCheck, Block, Swing = nil, nil, nil, nil, nil, false
 	local Sword = nil
 
 	local KillAura = CombatTab:CreateToggle({
@@ -166,29 +167,42 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = RunService.RenderStepped:Connect(function()
-					local Target = GetNearestPlayer(Range, SortMode, TeamCheck)
-					if Target then
-						Sword = CheckTool("Sword")
-						if Sword then
-							if Block == "Packet" then
+					if IsAlive(LocalPlayer) then
+						local Target = GetNearestPlayer(Range, SortMode, TeamCheck)
+						if Target then
+							Sword = CheckTool("Sword")
+							if Sword then
+								if Block == "Packet" then
+									local args = {
+										[1] = true,
+										[2] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								elseif Block == "None" then
+									local args = {
+										[1] = false,
+										[2] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								end
+								if Swing and Block == "None" then
+									Sword:Activate()
+								end
 								local args = {
-									[1] = true,
-									[2] = Sword.Name
+									[1] = Target.Character,
+									[2] = HitCritical,
+									[3] = Sword.Name
 								}
-								game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-							elseif Block == "None" then
-								local args = {
-									[1] = false,
-									[2] = Sword.Name
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+							else
+								if Block == "Packet" then
+									local args = {
+										[1] = false,
+										[2] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								end
 							end
-							local args = {
-								[1] = Target.Character,
-								[2] = HitCritical,
-								[3] = Sword.Name
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
 						else
 							if Block == "Packet" then
 								local args = {
@@ -199,13 +213,9 @@ spawn(function()
 							end
 						end
 					else
-						if Block == "Packet" then
-							local args = {
-								[1] = false,
-								[2] = Sword.Name
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-						end
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
 					end
 				end)
 			else
@@ -246,6 +256,16 @@ spawn(function()
 			end
 		end
 	})
+	local KillAuraSwing = KillAura:CreateMiniToggle({
+		Name = "Swing",
+		Callback = function(callback)
+			if callback then
+				Swing = true
+			else
+				Swing = false
+			end
+		end
+	})
 	local KillAuraTeam = KillAura:CreateMiniToggle({
 		Name = "Team",
 		Callback = function(callback)
@@ -269,16 +289,46 @@ spawn(function()
 				if Remote then
 					Remote.OnClientEvent:Connect(function()
 						spawn(function()
-							Humanoid.Jump = true
+							
 						end)
 					end)
 				end
 			else
 				Remote = nil
-				local OldBodyVelocity = HumanoidRootPart:FindFirstChildWhichIsA("BodyVelocity")
-				if OldBodyVelocity then
-					OldBodyVelocity:Destroy()
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local HumanoidRootPart = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+	local TeamBase = nil
+	local AutoWin = ExploitTab:CreateToggle({
+		Name = "Auto Win",
+		Callback = function(callback)
+			if callback then
+				local MapFolder = game.Workspace:FindFirstChildWhichIsA("Folder")
+				if MapFolder and MapFolder.Name:match("Map") then
+					for _, base in pairs(MapFolder:GetChildren()) do
+						if base:IsA("Model") and base.Name:match(TeamBase) then
+							for _, hole in pairs(base:GetChildren()) do
+								if hole and hole:FindFirstChild("TouchInterest") then
+									TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(hole.Position)}):Play()
+								end
+							end
+						end
+					end
 				end
+			end
+		end
+	})
+	local AutoWinBase = AutoWin:CreateDropdown({
+		Name = "Base",
+		List = {"Red", "Blue"},
+		Default = "Red",
+		Callback = function(callback)
+			if callback then
+				TeamBase = callback
 			end
 		end
 	})
@@ -332,8 +382,8 @@ spawn(function()
 						end
 					end
 					game.Workspace.Gravity = 0
-					local Motion = LocalPlayer.Character.Humanoid.MoveDirection * Speed
-					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Motion.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Motion.Z)
+					local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * Speed
+					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
 				end)
 			else
@@ -380,7 +430,51 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, Speed, AutoJump
+	local HumanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	local Loop, SpeedVal, AutoJump = nil, nil, false
+	
+	local Speed = MoveTab:CreateToggle({
+		Name = "Speed",
+		Callback = function(callback)
+			if callback then
+				Loop = RunService.Heartbeat:Connect(function()
+					local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * SpeedVal
+					HumanoidRootPart.Velocity = Vector3.new(Velocity.X, HumanoidRootPart.Velocity.Y, Velocity.Z)
+					if AutoJump then
+						spawn(function()
+							Humanoid.Jump = true
+						end)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				HumanoidRootPart.Velocity = Vector3.new(HumanoidRootPart.Velocity.X, HumanoidRootPart.Velocity.Y, HumanoidRootPart.Velocity.Z)
+			end
+		end
+	})
+	local SpeedSpeedValue = Speed:CreateSlider({
+		Name = "Speed",
+		Min = 0,
+		Max = 32, 
+		Default = 28,
+		Callback = function(callback)
+			if callback then
+				SpeedVal = callback
+			end
+		end
+	})
+	local SpeedAutoJump = Speed:CreateMiniToggle({
+		Name = "Auto Jump",
+		Callback = function(callback)
+			if callback then
+				AutoJump = true
+			else
+				AutoJump = false
+			end
+		end
+	})
 end)
 
 spawn(function()
@@ -450,27 +544,33 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = RunService.Heartbeat:Connect(function()
-					if ShowLastPos then
-						PositionHighlight.Transparency = 0.75
+					if IsAlive(LocalPlayer) then
+						if ShowLastPos then
+							PositionHighlight.Transparency = 0.75
+						else
+							PositionHighlight.Transparency = 1
+						end
+						Humanoid:GetPropertyChangedSignal("FloorMaterial"):Connect(function()
+							if Humanoid.FloorMaterial ~= Enum.Material.Air then
+								LastPosition = HumanoidRootPart.Position
+								PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
+							end
+						end)
+						if HumanoidRootPart.Position.Y < 18 then
+							if Mode == "TP" then
+								HumanoidRootPart.CFrame = CFrame.new(LastPosition)
+							elseif Mode == "Tween" then
+								local TweenY = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(HumanoidRootPart.Position.X, LastPosition.Y + 9, HumanoidRootPart.Position.Z)})
+								TweenY:Play()
+								TweenY.Completed:Wait(1)
+								local TweenX = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+								TweenX:Play()
+							end
+						end
 					else
-						PositionHighlight.Transparency = 1
-					end
-					Humanoid:GetPropertyChangedSignal("FloorMaterial"):Connect(function()
-						if Humanoid.FloorMaterial ~= Enum.Material.Air then
-							LastPosition = HumanoidRootPart.Position
-							PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
-						end
-					end)
-					if HumanoidRootPart.Position.Y < -136 then
-						if Mode == "TP" then
-							HumanoidRootPart.CFrame = CFrame.new(LastPosition)
-						elseif Mode == "Tween" then
-							local TweenY = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(HumanoidRootPart.Position.X, LastPosition.Y + 9, HumanoidRootPart.Position.Z)})
-							TweenY:Play()
-							TweenY.Completed:Wait(1)
-							local TweenX = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
-							TweenX:Play()
-						end
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
 					end
 				end)
 			else
