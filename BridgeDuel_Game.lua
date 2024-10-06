@@ -103,6 +103,10 @@ function PlaySound(id)
 end
 
 spawn(function()
+	
+end)
+
+spawn(function()
 	local Loop, MinHealth = nil, nil
 	local Timer, First = 3, 0
 	local EatGapple = false
@@ -355,8 +359,6 @@ spawn(function()
 			if callback then
 				YPos = 0
 				HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
-				Humanoid.Health = Humanoid.Health - 1
-				PlaySound(9120444275)
 				Loop = RunService.Heartbeat:Connect(function()
 					if Phase then
 						for i,v in pairs(LocalPlayer.Character:GetChildren()) do
