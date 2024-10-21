@@ -116,7 +116,7 @@ spawn(function()
 	})
 end)
 
-local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock = nil, nil, nil
+local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled = nil, nil, nil, false
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword = nil
@@ -124,6 +124,7 @@ spawn(function()
 	local KillAura = CombatTab:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
+			IsKillAuraEnabled = callback
 			if callback then
 				Loop = RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer) then
@@ -239,35 +240,40 @@ end)
 
 spawn(function()
 	local HumanoidRootPart = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-	local Loop, Range, OldCamera = nil, nil, game.Workspace.CurrentCamera.CameraType
+	local Loop, TPRange, OldCameraType, OldCameraSubject = nil, nil, game.Workspace.CurrentCamera.CameraType, game.Workspace.CurrentCamera.CameraSubject 
 	local Sword = nil
 	local TeleportAura = CombatTab:CreateToggle({
 		Name = "Teleport Aura",
 		Callback = function(callback)
 			if callback then
 				Loop = RunService.Heartbeat:Connect(function()
-					game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
-					if IsAlive(LocalPlayer) then
-						local Target = GetNearestPlayer(Range, KillAuraSortMode, KillAuraTeamCheck)
-						if Target then
-							Sword = CheckTool("Sword")
-							if Sword then
-								if KillAuraBlock == "None" then
-									Sword:Activate()
-								end
-								local TargetPosition = Target.Character:FindFirstChild("HumanoidRootPart")
-								if TargetPosition then
-									local InfiniteTween = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(TargetPosition.Position.X, TargetPosition.Position.Y - 5, TargetPosition.Position.Z)})
-									InfiniteTween:Play()
+					if IsKillAuraEnabled then
+						if IsAlive(LocalPlayer) then
+							local Target = GetNearestPlayer(TPRange, KillAuraSortMode, KillAuraTeamCheck)
+							if Target and Target.Character:FindFirstChild("HumanoidRootPart") and Target.Character.HumanoidRootPart.Position.Y < -16 then
+								Sword = CheckTool("Sword")
+								if Sword then
+									game.Workspace.CurrentCamera.CameraSubject = Target.Character:FindFirstChildOfClass("Humanoid")
+									game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Watch
+									if KillAuraBlock == "None" then
+										Sword:Activate()
+									end
+									local TargetPosition = Target.Character:FindFirstChild("HumanoidRootPart")
+									if TargetPosition then
+										local InfiniteTween = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.08), {CFrame = CFrame.new(TargetPosition.Position.X, TargetPosition.Position.Y - 6, TargetPosition.Position.Z)})
+										InfiniteTween:Play()
+									end
+								else
+									game.Workspace.CurrentCamera.CameraSubject = OldCameraSubject
+									game.Workspace.CurrentCamera.CameraType = OldCameraType
 								end
 							else
-								game.Workspace.CurrentCamera.CameraType = OldCamera
+								game.Workspace.CurrentCamera.CameraSubject = OldCameraSubject
+								game.Workspace.CurrentCamera.CameraType = OldCameraType
+								repeat
+									task.wait()
+								until IsAlive(LocalPlayer)
 							end
-						else
-							game.Workspace.CurrentCamera.CameraType = OldCamera
-							repeat
-								task.wait()
-							until IsAlive(LocalPlayer)
 						end
 					end
 				end)
@@ -275,18 +281,19 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				game.Workspace.CurrentCamera.CameraType = OldCamera
+				game.Workspace.CurrentCamera.CameraSubject = OldCameraSubject
+				game.Workspace.CurrentCamera.CameraType = OldCameraType
 			end
 		end
 	})
 	local TeleportAuraRange = TeleportAura:CreateSlider({
 		Name = "Range",
 		Min = 0,
-		Max = 200,
-		Default = 185,
+		Max = 40,
+		Default = 40,
 		Callback = function(callback)
 			if callback then
-				Range = callback
+				TPRange = callback
 			end
 		end
 	})
@@ -555,10 +562,10 @@ spawn(function()
 							if Mode == "TP" then
 								HumanoidRootPart.CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
 							elseif Mode == "Tween" then
-								local TweenY = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(HumanoidRootPart.Position.X, LastPosition.Y + 9, HumanoidRootPart.Position.Z)})
+								local TweenY = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.1), {CFrame = CFrame.new(HumanoidRootPart.Position.X, LastPosition.Y + 9, HumanoidRootPart.Position.Z)})
 								TweenY:Play()
 								TweenY.Completed:Wait(1)
-								local TweenX = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+								local TweenX = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
 								TweenX:Play()
 							end
 						end
