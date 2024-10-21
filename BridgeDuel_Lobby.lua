@@ -246,18 +246,18 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = RunService.Heartbeat:Connect(function()
+					game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 					if IsAlive(LocalPlayer) then
 						local Target = GetNearestPlayer(Range, KillAuraSortMode, KillAuraTeamCheck)
 						if Target then
 							Sword = CheckTool("Sword")
 							if Sword then
-								game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 								if KillAuraBlock == "None" then
 									Sword:Activate()
 								end
 								local TargetPosition = Target.Character:FindFirstChild("HumanoidRootPart")
 								if TargetPosition then
-									local InfiniteTween = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.4), {CFrame = CFrame.new(TargetPosition.Position.X, TargetPosition.Position.Y - 5, TargetPosition.Position.Z)})
+									local InfiniteTween = TweenService:Create(HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(TargetPosition.Position.X, TargetPosition.Position.Y - 5, TargetPosition.Position.Z)})
 									InfiniteTween:Play()
 								end
 							else
@@ -283,7 +283,7 @@ spawn(function()
 		Name = "Range",
 		Min = 0,
 		Max = 200,
-		Default = 120,
+		Default = 185,
 		Callback = function(callback)
 			if callback then
 				Range = callback
