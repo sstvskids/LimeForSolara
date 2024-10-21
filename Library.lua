@@ -11,6 +11,13 @@ local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local LibrarySettings = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
 local AutoSave, MainFile = false, nil
 
+local function LoadSettings(path)
+	return isfile(path) and HttpService:JSONDecode(readfile(path)) or nil
+end
+local function SaveSettings(path, settings)
+	writefile(path, HttpService:JSONEncode(settings))
+end
+
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	if game.PlaceId == 11630038968 then
 		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
