@@ -9,15 +9,28 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local LibrarySettings = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
-local AutoSave = false
+local AutoSave, MainFile = false, nil
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
-	local MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+	if game.PlaceId == 11630038968 then
+		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
+			MainFile = ConfigFolder .. "/" .. "BridgeDuelGame.lua"
+		else
+			MainFile = ConfigFolder .. "/" .. "BridgeDuelLobby.lua"
+		end
+	elseif game.PlaceId == 6872265039 then
+		MainFile = ConfigFolder .. "/" .. "Bedwars.lua"
+	elseif game.PlaceId == 8542259458 then
+		MainFile = ConfigFolder .. "/" .. "Skywars.lua"
+	else
+		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+	end
+	
 	local LoadedSettings = LoadSettings(MainFile)
 	if isfile(MainFile) and HttpService:JSONDecode(readfile(MainFile)) or nil then
 		LibrarySettings = LoadedSettings 
 	end
-	
+
 	AutoSave = true
 	spawn(function()
 		while AutoSave do
@@ -408,7 +421,7 @@ function Library:CreateMain()
 					end
 				end
 			end)
-			
+
 			spawn(function()
 				while true do
 					wait()
