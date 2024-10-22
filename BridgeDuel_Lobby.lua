@@ -321,6 +321,65 @@ spawn(function()
 	})
 end)
 
+--[[
+spawn(function()
+	local HumanoidRootPart, OldHipHeight = LocalPlayer.Character:WaitForChild("HumanoidRootPart"), Humanoid.HipHeight
+	local AnimationDisabler, FlagReducer = false, false
+	local Loop
+
+	local Disabler = ExploitTab:CreateToggle({
+		Name = "Disabler",
+		Callback = function(callback)
+			if callback then
+				Loop = RunService.Heartbeat:Connect(function()
+					if AnimationDisabler then
+						for _, track in pairs(Humanoid:GetPlayingAnimationTracks()) do
+							track:Stop()
+						end
+					end
+					if FlagReducer then
+						if not isnetworkowner(HumanoidRootPart) then
+							Humanoid.HipHeight = Humanoid.HipHeight + 12
+						else
+							Humanoid.HipHeight = OldHipHeight
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+				for _, track in pairs(Humanoid:GetPlayingAnimationTracks()) do
+					track:Play()
+				end
+				Humanoid.HipHeight = OldHipHeight
+			end
+		end
+	})
+
+	local DisablerAnimations = Disabler:CreateMiniToggle({
+		Name = "Animations",
+		Callback = function(callback)
+			if callback then
+				AnimationDisabler = true
+			else
+				AnimationDisabler = false
+			end
+		end
+	})
+	local DisablerFlag = Disabler:CreateMiniToggle({
+		Name = "Flag",
+		Callback = function(callback)
+			if callback then
+				FlagReducer = true
+			else
+				FlagReducer = false
+			end
+		end
+	})
+end)
+--]]
+
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 	local Loop, Speed, YPos = nil, nil, 0
@@ -346,7 +405,8 @@ spawn(function()
 				Humanoid.Health = Humanoid.Health - 1
 				PlaySound(9120444275)
 				Loop = RunService.Heartbeat:Connect(function()
-					--[[
+					if IsAlive(LocalPlayer) then
+											--[[
 					if Phase then
 						for i,v in pairs(LocalPlayer.Character:GetChildren()) do
 							if v:IsA("MeshPart") then
@@ -371,10 +431,15 @@ spawn(function()
 						end
 					end
 					--]]
-					game.Workspace.Gravity = 0
-					local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * Speed
-					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
+						game.Workspace.Gravity = 0
+						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * Speed
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
+					end
 				end)
 			else
 				--[[
@@ -424,6 +489,34 @@ spawn(function()
 end)
 
 spawn(function()
+	local OldWalkSpeed = Humanoid.WalkSpeed
+	local Loop = nil
+	local NoSlow = MoveTab:CreateToggle({
+		Name = "No Slow",
+		Callback = function(callback)
+			if callback then
+				Loop = Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+					if IsAlive(LocalPlayer) then
+						if Humanoid.WalkSpeed ~= OldWalkSpeed then
+							Humanoid.WalkSpeed = OldWalkSpeed
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				Humanoid.WalkSpeed = OldWalkSpeed
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local HumanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 	local Loop, SpeedVal, AutoJump = nil, nil, false
 	
@@ -432,12 +525,18 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = RunService.Heartbeat:Connect(function()
-					local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * SpeedVal
-					HumanoidRootPart.Velocity = Vector3.new(Velocity.X, HumanoidRootPart.Velocity.Y, Velocity.Z)
-					if AutoJump then
-						spawn(function()
-							Humanoid.Jump = true
-						end)
+					if IsAlive(LocalPlayer) then
+						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * SpeedVal
+						HumanoidRootPart.Velocity = Vector3.new(Velocity.X, HumanoidRootPart.Velocity.Y, Velocity.Z)
+						if AutoJump then
+							spawn(function()
+								Humanoid.Jump = true
+							end)
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
 					end
 				end)
 			else
@@ -480,21 +579,27 @@ spawn(function()
 		Callback = function(callback)
 			Loop = callback
 			if callback then
-				repeat
-					wait(1 / CPS)
-					Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-					if Tool then
-						if Tool.Name:match("Blocks") then
-							if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-								Tool:Activate()
-							end
-						elseif AutoClickerMode then
-							if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-								Tool:Activate()
+				if IsAlive(LocalPlayer) then
+					repeat
+						wait(1 / CPS)
+						Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+						if Tool then
+							if Tool.Name:match("Blocks") then
+								if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+									Tool:Activate()
+								end
+							elseif AutoClickerMode then
+								if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+									Tool:Activate()
+								end
 							end
 						end
-					end
-				until not Loop
+					until not Loop
+				else
+					repeat
+						task.wait()
+					until IsAlive(LocalPlayer)
+				end
 			end
 		end
 	})
@@ -610,6 +715,77 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Mode = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local function GetPlace(pos)
+		local NewPos = Vector3.new(math.floor((pos.X / 3) + 0.5) * 3, math.floor((pos.Y / 3) + 0.5) * 3, math.floor((pos.Z / 3) + 0.5) * 3)
+		return NewPos
+	end
+	
+	local HumanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	local DefaultPos = Vector3.new(0, 0, 0)
+	local Loop, Expand = nil, 1
+	local Scaffold = WorldTab:CreateToggle({
+		Name = "Scaffold",
+		Callback = function(callback)
+			if callback then
+				Loop = RunService.RenderStepped:Connect(function()
+					if IsAlive(LocalPlayer) then
+						for i = 1, Expand do
+							local PlacePos = GetPlace(HumanoidRootPart.Position + Humanoid.MoveDirection * (i * 3.5) - Vector3.yAxis * ((HumanoidRootPart.Size.Y / 2) + Humanoid.HipHeight + 1.5))
+							DefaultPos = PlacePos
+							local args = {
+								[1] = PlacePos
+							}
+
+							game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				DefaultPos = Vector3.new(0, 0, 0)
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local OldTime, NewTime = game:GetService("Lighting").ClockTime, nil
+	local Loop
+	local TimeChanger = WorldTab:CreateToggle({
+		Name = "Time Changer",
+		Callback = function(callback)
+			if callback then
+				Loop = RunService.Heartbeat:Connect(function()
+					game:GetService("Lighting").ClockTime = NewTime
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				game:GetService("Lighting").ClockTime = OldTime
+			end
+		end
+	})
+	local TimeChangerClock = TimeChanger:CreateSlider({
+		Name = "Time",
+		Min = 0,
+		Max = 24,
+		Default = OldTime,
+		Callback = function(callback)
+			if callback then
+				NewTime = callback
 			end
 		end
 	})
