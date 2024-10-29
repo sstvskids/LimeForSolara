@@ -32,7 +32,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	else
 		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
 	end
-	
+
 	local LoadedSettings = LoadSettings(MainFile)
 	if isfile(MainFile) and HttpService:JSONDecode(readfile(MainFile)) or nil then
 		LibrarySettings = LoadedSettings 
@@ -467,6 +467,22 @@ function Library:CreateMain()
 					--]]
 				end
 			end
+			
+			spawn(function()
+				while true do
+					wait(1)
+					if ToggleButton.AutoDisable then
+						if ToggleButton.AutoDisable and ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+				end
+			end)
 
 			ToggleButtonHolder.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
