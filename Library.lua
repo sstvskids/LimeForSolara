@@ -21,9 +21,9 @@ end
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	if game.PlaceId == 11630038968 then
 		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
-			MainFile = ConfigFolder .. "/" .. "BridgeDuelGame.lua"
+			MainFile = ConfigFolder .. "/" .. "BDGame.lua"
 		else
-			MainFile = ConfigFolder .. "/" .. "BridgeDuelLobby.lua"
+			MainFile = ConfigFolder .. "/" .. "BDLobby.lua"
 		end
 	elseif game.PlaceId == 6872265039 then
 		MainFile = ConfigFolder .. "/" .. "Bedwars.lua"
@@ -109,22 +109,43 @@ function Library:CreateMain()
 		ScreenGui.Parent = CoreGui
 	end
 
-	local MainFrame = Instance.new("Frame")
-	MainFrame.Parent = ScreenGui
-	MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	MainFrame.BackgroundTransparency = 1.000
-	MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	MainFrame.Size = UDim2.new(1, 0, 1, 0)
-	MainFrame.Visible = false
+	local MainFrame = nil
+	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+		if MainFrame == nil then
+			MainFrame = Instance.new("ScrollingFrame")
+			MainFrame.Parent = ScreenGui
+			MainFrame.Active = true
+			MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			MainFrame.BackgroundTransparency = 1.000
+			MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			MainFrame.BorderSizePixel = 0
+			MainFrame.Size = UDim2.new(1, 0, 1, 0)
+			MainFrame.ZIndex = 1
+			MainFrame.CanvasPosition = Vector2.new(240, 0)
+			MainFrame.CanvasSize = UDim2.new(1.60000002, 0, 0, 0)
+			MainFrame.ScrollBarThickness = 8
+			MainFrame.Visible = false
+		end
+	elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+		if MainFrame == nil then
+			MainFrame = Instance.new("Frame")
+			MainFrame.Parent = ScreenGui
+			MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			MainFrame.BackgroundTransparency = 1.000
+			MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			MainFrame.Size = UDim2.new(1, 0, 1, 0)
+			MainFrame.Visible = false
+		end
+	end
 
 	spawn(function()
-		local Spaces = 18
 		local OldX = 0
-
-		for _, child in ipairs(MainFrame:GetChildren()) do
-			if child:IsA("GuiObject") then
-				child.Position = UDim2.new(0, OldX, 0, 0)
-				OldX = OldX + child.Size.X.Offset + Spaces
+		if MainFrame ~= nil and MainFrame.Parent then
+			for _, child in ipairs(MainFrame:GetChildren()) do
+				if child:IsA("GuiObject") then
+					child.Position = UDim2.new(0, OldX, 0, 0)
+					OldX = OldX + child.Size.X.Offset + 18
+				end
 			end
 		end
 	end)
@@ -229,32 +250,36 @@ function Library:CreateMain()
 		end
 	end
 
-	--[[
-	local MainOpen = Instance.new("TextButton")
-	MainOpen.Parent = ScreenGui
-	MainOpen.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainOpen.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	MainOpen.BackgroundTransparency = 0.550
-	MainOpen.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	MainOpen.BorderSizePixel = 0
-	MainOpen.Position = UDim2.new(0.984627843, 0, 0.976650417, 0)
-	MainOpen.Size = UDim2.new(0, 25, 0, 25)
-	MainOpen.ZIndex = 5
-	MainOpen.Font = Enum.Font.SourceSans
-	MainOpen.Text = Library.CustomTitle
-	MainOpen.TextColor3 = Color3.fromRGB(255, 255, 255)
-	MainOpen.TextScaled = true
-	MainOpen.TextSize = 14.000
-	MainOpen.TextWrapped = true
-	
-	local UICorner_2 = Instance.new("UICorner")
-	UICorner_2.CornerRadius = UDim.new(0, 4)
-	UICorner_2.Parent = MainOpen
-	
-	MainOpen.MouseButton1Click:Connect(function()
-		MainFrame.Visible = not MainFrame.Visible
-	end)
-	--]]
+	local MainOpen = nil
+	local UICorner_2 = nil
+	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+		if MainFrame:IsA("ScrollingFrame") and MainFrame.Parent then
+			MainOpen = Instance.new("TextButton")
+			MainOpen.Parent = ScreenGui
+			MainOpen.AnchorPoint = Vector2.new(0.5, 0.5)
+			MainOpen.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			MainOpen.BackgroundTransparency = 0.550
+			MainOpen.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			MainOpen.BorderSizePixel = 0
+			MainOpen.Position = UDim2.new(0.02, 0, 0.95, 0)
+			MainOpen.Size = UDim2.new(0, 25, 0, 25)
+			MainOpen.ZIndex = 5
+			MainOpen.Font = Enum.Font.SourceSans
+			MainOpen.Text = "Lime"
+			MainOpen.TextColor3 = Color3.fromRGB(255, 255, 255)
+			MainOpen.TextScaled = true
+			MainOpen.TextSize = 14.000
+			MainOpen.TextWrapped = true
+
+			UICorner_2 = Instance.new("UICorner")
+			UICorner_2.CornerRadius = UDim.new(0, 4)
+			UICorner_2.Parent = MainOpen
+
+			MainOpen.MouseButton1Click:Connect(function()
+				MainFrame.Visible = not MainFrame.Visible
+			end)
+		end
+	end
 
 	UserInputService.InputBegan:Connect(function(Input, isTyping)
 		if Input.KeyCode == Enum.KeyCode.RightShift and not isTyping then
@@ -398,36 +423,123 @@ function Library:CreateMain()
 			ToggleMenu.Size = UDim2.new(1, 0, 0, 125)
 			ToggleMenu.Visible = false
 
-			local Keybinds = Instance.new("TextBox")
-			Keybinds.Parent = ToggleMenu
-			Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-			Keybinds.BackgroundTransparency = 1.000
-			Keybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Keybinds.BorderSizePixel = 0
-			Keybinds.LayoutOrder = -1
-			Keybinds.Size = UDim2.new(1, 0, 0, 25)
-			Keybinds.Font = Enum.Font.SourceSans
-			Keybinds.PlaceholderColor3 = Color3.fromRGB(220, 220, 220)
-			Keybinds.PlaceholderText = "None"
-			Keybinds.Text = ""
-			Keybinds.TextColor3 = Color3.fromRGB(255, 255, 255)
-			Keybinds.TextSize = 14.000
-			UserInputService.InputBegan:Connect(function(Input, isTyping)
-				if Input.UserInputType == Enum.UserInputType.Keyboard then
-					if Keybinds:IsFocused() then
-						ToggleButton.Keybind = Input.KeyCode.Name
-						Keybinds.Text = Input.KeyCode.Name
-						Keybinds.PlaceholderText = Input.KeyCode.Name
-						Keybinds:ReleaseFocus()
-						LibrarySettings.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
-					elseif ToggleButton.Keybind == "Backspace" then
-						ToggleButton.Keybind = "Home"
-						Keybinds.Text = ""
-						Keybinds.PlaceholderText = "None"
-						LibrarySettings.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
-					end
+			--Here
+			local Keybinds = nil
+			if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+				if Keybinds == nil then
+					local MobileKeybinds, IsKeybind = nil, false
+					Keybinds = Instance.new("TextButton")
+					Keybinds.Parent = ToggleMenu
+					Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+					Keybinds.BackgroundTransparency = 1.000
+					Keybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					Keybinds.BorderSizePixel = 0
+					Keybinds.LayoutOrder = -1
+					Keybinds.Size = UDim2.new(1, 0, 0, 25)
+					Keybinds.Font = Enum.Font.SourceSans
+					Keybinds.Text = "Show"
+					Keybinds.TextColor3 = Color3.fromRGB(255, 255, 255)
+					Keybinds.TextSize = 14.000
+					Keybinds.MouseButton1Click:Connect(function()
+						IsKeybind = not IsKeybind
+						if IsKeybind then
+							Keybinds.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+							local MobileKeybinds = Instance.new("TextButton")
+							MobileKeybinds.Parent = KeybindFrame
+							spawn(function()
+								while true do
+									wait()
+									if ToggleButton.Enabled then
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
+									else
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
+									end
+								end
+							end)
+
+							local MobileKeybindText = string.len(ToggleButton.Name)
+							local MobileKeybindY = game:GetService("TextService"):GetTextSize(ToggleButton.Name, 14, Enum.Font.SourceSans, Vector2.new(200, math.huge))
+							MobileKeybinds.BackgroundTransparency = 0.750
+							MobileKeybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+							MobileKeybinds.BorderSizePixel = 0
+							MobileKeybinds.Position = UDim2.new(0.192740932, 0, 0.301066756, 0)
+							MobileKeybinds.Size = UDim2.new(0, 65, 0, MobileKeybindY.Y + 15)
+							MobileKeybinds.Font = Enum.Font.SourceSans
+							MobileKeybinds.Text = ToggleButton.Name
+							MobileKeybinds.Name = ToggleButton.Name
+							MobileKeybinds.TextColor3 = Color3.fromRGB(0, 0, 0)
+							MobileKeybinds.TextScaled = true
+							MobileKeybinds.TextSize = 14.000
+							MobileKeybinds.TextWrapped = true
+							MobileKeybinds.TextScaled = true
+							MakeDraggable(MobileKeybinds)
+
+							local UICorner_3 = Instance.new("UICorner")
+							UICorner_3.CornerRadius = UDim.new(0, 4)
+							UICorner_3.Parent = MobileKeybinds
+
+							local function MobileButtonsOnClicked()
+								if ToggleButton.Enabled then
+									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
+									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
+									AddArray(ToggleButton.Name)
+								else
+									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
+									RemoveArray(ToggleButton.Name)
+								end
+							end
+
+							MobileKeybinds.MouseButton1Click:Connect(function()
+								ToggleButton.Enabled = not ToggleButton.Enabled
+								MobileButtonsOnClicked()
+
+								if ToggleButton.Callback then
+									ToggleButton.Callback(ToggleButton.Enabled)
+								end
+							end)
+						else
+							for i,v in pairs(KeybindFrame:GetChildren()) do
+								if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+									v:Destroy()
+								end
+							end
+							Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+						end
+					end)
 				end
-			end)
+			elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+				if Keybinds == nil then
+					Keybinds = Instance.new("TextBox")
+					Keybinds.Parent = ToggleMenu
+					Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+					Keybinds.BackgroundTransparency = 1.000
+					Keybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					Keybinds.BorderSizePixel = 0
+					Keybinds.LayoutOrder = -1
+					Keybinds.Size = UDim2.new(1, 0, 0, 25)
+					Keybinds.Font = Enum.Font.SourceSans
+					Keybinds.PlaceholderColor3 = Color3.fromRGB(220, 220, 220)
+					Keybinds.PlaceholderText = "None"
+					Keybinds.Text = ""
+					Keybinds.TextColor3 = Color3.fromRGB(255, 255, 255)
+					Keybinds.TextSize = 14.000
+					UserInputService.InputBegan:Connect(function(Input, isTyping)
+						if Input.UserInputType == Enum.UserInputType.Keyboard then
+							if Keybinds:IsFocused() then
+								ToggleButton.Keybind = Input.KeyCode.Name
+								Keybinds.Text = Input.KeyCode.Name
+								Keybinds.PlaceholderText = Input.KeyCode.Name
+								Keybinds:ReleaseFocus()
+							elseif ToggleButton.Keybind == "Backspace" then
+								ToggleButton.Keybind = "Home"
+								Keybinds.Text = ""
+								Keybinds.PlaceholderText = "None"
+							end       
+						end
+					end)
+				end
+			end
 
 			spawn(function()
 				while true do
@@ -467,7 +579,7 @@ function Library:CreateMain()
 					--]]
 				end
 			end
-			
+
 			spawn(function()
 				while true do
 					wait(1)
@@ -494,6 +606,21 @@ function Library:CreateMain()
 			end)
 
 			ToggleButtonHolder.MouseButton2Click:Connect(function()
+				ToggleMenuOpened = not ToggleMenuOpened
+				if ToggleMenuOpened then
+					ToggleMenu.AutomaticSize = Enum.AutomaticSize.Y
+					TweenService:Create(OpenMenu, TweenInfo.new(0.4), {Rotation = 90}):Play()
+					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Size = ToggleMenuNew}):Play()
+					ToggleMenu.Visible = true
+				else
+					ToggleMenu.AutomaticSize = Enum.AutomaticSize.None
+					ToggleMenu.Visible = false
+					TweenService:Create(OpenMenu, TweenInfo.new(0.4), {Rotation = 0}):Play()
+					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Size = ToggleMenuOld}):Play()
+				end
+			end)
+			
+			OpenMenu.MouseButton1Click:Connect(function()
 				ToggleMenuOpened = not ToggleMenuOpened
 				if ToggleMenuOpened then
 					ToggleMenu.AutomaticSize = Enum.AutomaticSize.Y
