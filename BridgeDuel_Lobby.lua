@@ -1,8 +1,3 @@
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "Lime",
-	Text = "Expect HUGE updates next weeks!",
-	Duration = 5,
-})
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
@@ -116,7 +111,7 @@ local function CheckTool(name)
 end
 
 local function GetPlace(pos)
-	local NewPos = Vector3.new(math.floor(pos.X / 3) * 3, math.floor(pos.Y / 3) * 3, math.floor(pos.Z / 3) * 3)
+	local NewPos = Vector3.new(math.floor((pos.X / 3) + 0.5) * 3, math.floor((pos.Y / 3) + 0.5) * 3, math.floor((pos.Z / 3) + 0.5) * 3)
 	return NewPos
 end
 
@@ -417,6 +412,7 @@ spawn(function()
 	})
 end)
 
+--[[
 spawn(function()
 	local Loop, TPRange, OldCameraType, OldCameraSubject = nil, nil, game.Workspace.CurrentCamera.CameraType, game.Workspace.CurrentCamera.CameraSubject 
 	local Sword = nil
@@ -473,77 +469,6 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				TPRange = callback
-			end
-		end
-	})
-end)
-
---[[
-spawn(function()
-	local VelocityMethod = nil
-	local HumanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-	local Remote
-	local OldFireServer, OldRemote,OldConnect
-	local Velocity = CombatTab:CreateToggle({
-		Name = "Velocity",
-		Callback = function(callback)
-			if callback then
-				Remote = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.KnockBackApplied
-				if Remote then
-					if VelocityMethod == "Hookfunction" then
-						OldFireServer = Remote.FireServer
-						Remote.FireServer = hookfunction(OldFireServer, function(self, ...)
-							local args = {...}
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime",
-								Text = "Velocity Debug",
-							})
-							return
-						end)
-					elseif VelocityMethod == "Hookmetamethod" then
-						OldRemote = hookmetamethod(game, "__namecall", function(self, ...)
-							local args = {...}
-							local method = getnamecallmethod()
-							if self == Remote and method == "FireServer" then
-								game:GetService("StarterGui"):SetCore("SendNotification", { 
-									Title = "Lime",
-									Text = "Velocity Debug",
-								})
-								return false
-							end
-							return OldRemote(self, unpack(args))
-						end)
-					elseif VelocityMethod == "Hooksignal" then
-						OldConnect = Remote.OnServerEvent
-						Remote.OnServerEvent = hooksignal(OldConnect, function(player, ...)
-							local args = {...}
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime",
-								Text = "Velocity Debug",
-							})
-							return
-						end)
-					end
-				end
-			else
-				Remote = nil
-				if VelocityMethod == "Hooksignal" then
-					unhooksignal(Remote.OnServerEvent)
-				elseif VelocityMethod == "Hookfunction" then
-					Remote.FireServer = OldFireServer
-				elseif VelocityMethod == "Hookmetamethod" then
-					OldRemote:Disconnect()
-				end
-			end
-		end
-	})
-	local VelocityMode = Velocity:CreateDropdown({
-		Name = "Velocity Mode",
-		List = {"Hookfunction", "Hookmetamethod", "Hooksignal"},
-		Default = "Hookmetamethod",
-		Callback = function(callback)
-			if callback then
-				VelocityMethod = callback
 			end
 		end
 	})
@@ -675,46 +600,6 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):WaitForChild("GetPing")
-	local PingHook, Spoofed = nil, nil
-
-	local PingSpoof = Tabs.Exploit:CreateToggle({
-		Name = "Ping Spoof",
-		Callback = function(callback)
-			if callback then
-				if not PingHook then
-					PingHook = hookmetamethod(game, "__namecall", function(self, ...)
-						local args = {...}
-						local methods = getnamecallmethod()
-
-						if self == Remote and methods == "InvokeServer" then
-							return Spoofed
-						end
-						return PingHook(self, unpack(args))
-					end)
-				end
-			else
-				if PingHook ~= nil then
-					PingHook:Disconnect()
-				end
-			end
-		end
-	})
-	local PingSpoofValue = PingSpoof:CreateSlider({
-		Name = "Value",
-		Min = 0,
-		Max = 999,
-		Default = 0,
-		Callback = function(callback)
-			if callback then
-				Spoofed = callback
-			end
-		end
-	})
-end)
---]]
 
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
@@ -729,6 +614,10 @@ spawn(function()
 		elseif Input.KeyCode == Enum.KeyCode.Space then
 			YPos = YPos + 3
 		end
+	end)
+	
+	Service.UserInputService.JumpRequest:Connect(function()
+		YPos = YPos + 3
 	end)
 	
 	local Flight = Tabs.Move:CreateToggle({
@@ -746,7 +635,7 @@ spawn(function()
 							if Start == nil then
 								Start = tick()
 							end
-							if (tick() - Start) < 2 then
+							if (tick() - Start) < 1.25 then
 								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (Speed + 8)
 							else
 								Start = nil
@@ -956,6 +845,37 @@ spawn(function()
 end)
 
 spawn(function()
+	local Enabled, ChoosedMode = false, nil
+	local AntiAFK = Tabs.Player:CreateToggle({
+		Name = "Anti AFK",
+		Callback = function(callback)
+			Enabled = callback
+			if callback then
+				repeat
+					wait()
+					if ChoosedMode == "Move" then
+						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):MoveTo(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame.LookVector * 3)
+						wait(1.8)
+						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):MoveTo(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame.LookVector * -3)
+						wait(1.8)
+						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+						wait(1.5)
+					end
+				until not Enabled
+			end
+		end
+	})
+	local AntiAFKMode = AntiAFK:CreateDropdown({
+		Name = "Anti AFK Methods",
+		List = {"Move"},
+		Default = "Move",
+		Callback = function(callback)
+			ChoosedMode = callback
+		end
+	})
+end)
+
+spawn(function()
 	local Loop, LastPosition, Mode, ShowLastPos = nil, nil, nil, false
 
 	local PositionHighlight = Instance.new("Part")
@@ -1148,13 +1068,28 @@ end)
 --]]
 
 spawn(function()	
-	local DefaultPos = Vector3.new(0, 0, 0)
-	local Loop, Expand, Swings = nil, nil, false
-	local PlacePos = nil
+	local Loop, Expand, Downwards, Sound = nil, nil, false, false
+	local PlacePos, NearestPos, IsPlaying = nil, nil, true
+	--[[
+	local PlaceSound = {
+		13537914211,
+		13538010595,
+		13538009598,
+		13538008146
+	}
+	--]]
 	Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 		if IsTyping then return end
-		if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
-			PlacePos = PlacePos - Vector3.new(0, 3, 0)
+		if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
+			Downwards = true
+			
+		end
+	end)
+	
+	Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
+		if IsTyping then return end
+		if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
+			Downwards = false
 		end
 	end)
 	
@@ -1165,23 +1100,25 @@ spawn(function()
 				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						for i = 1, Expand do
-							if PlacePos == nil then
+							if Downwards then
+								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5 + 3))
+							else
 								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
-								if PlacePos then
-									DefaultPos = PlacePos
-									if Swings then
-										local Tools = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-										if Tools then
-											Tools:Activate()
-										end
-									end
-									local args = {
-										[1] = PlacePos
-									}
-
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-								end
 							end
+							local args = {
+								[1] = PlacePos
+							}
+
+							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+						--[[
+						if Sound and IsPlaying then
+							IsPlaying = false
+							local RandomPlace = PlaceSound[math.random(1, #PlaceSound)]
+							PlaySound(RandomPlace)
+							wait(0.05)
+							IsPlaying = true
+						end
+						--]]
 						end
 					else
 						repeat
@@ -1193,7 +1130,6 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				DefaultPos = Vector3.new(0, 0, 0)
 				PlacePos = nil
 			end
 		end
@@ -1209,14 +1145,16 @@ spawn(function()
 			end
 		end
 	})
-	local ScaffoldSwing = Scaffold:CreateMiniToggle({
-		Name = "Swing",
+	--[[
+	local ScaffoldSounds = Scaffold:CreateMiniToggle({
+		Name = "Sounds",
 		Callback = function(callback)
 			if callback then
-				Swings = true
+				Sound = true
 			else
-				Swings = false
+				Sound = false
 			end
 		end
 	})
+	--]]
 end)
