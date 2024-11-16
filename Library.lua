@@ -390,7 +390,7 @@ function Library:CreateMain()
 			ToggleName.TextWrapped = true
 			ToggleName.TextXAlignment = Enum.TextXAlignment.Left
 
-			local OpenMenu = Instance.new("TextLabel")
+			local OpenMenu = Instance.new("TextButton")
 			OpenMenu.Parent = ToggleButtonHolder
 			OpenMenu.AnchorPoint = Vector2.new(0.5, 0.5)
 			OpenMenu.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
