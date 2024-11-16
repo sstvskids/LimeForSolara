@@ -1,3 +1,4 @@
+repeat wait() until game:IsLoaded()
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -21,9 +22,9 @@ end
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	if game.PlaceId == 11630038968 then
 		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
-			MainFile = ConfigFolder .. "/" .. "BDGame.lua"
+			MainFile = ConfigFolder .. "/" .. "BridgeDuelGame.lua"
 		else
-			MainFile = ConfigFolder .. "/" .. "BDLobby.lua"
+			MainFile = ConfigFolder .. "/" .. "BridgeDuelLobby.lua"
 		end
 	elseif game.PlaceId == 6872265039 then
 		MainFile = ConfigFolder .. "/" .. "Bedwars.lua"
