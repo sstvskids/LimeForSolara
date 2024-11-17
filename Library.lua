@@ -113,6 +113,8 @@ function Library:CreateMain()
 			wait()
 			if shared.Lime.Uninject and ScreenGui ~= nil then
 				ScreenGui:Destroy()
+				wait()
+				shared.Lime.Uninject = false
 			end
 		end
 	end)
@@ -619,6 +621,15 @@ function Library:CreateMain()
 					end
 				end
 			end)
+			
+			if ToggleButton.Enabled then
+				ToggleButton.Enabled = true
+				ToggleButtonClicked()
+
+				if ToggleButton.Callback then
+					ToggleButton.Callback(ToggleButton.Enabled)
+				end
+			end
 
 			ToggleButtonHolder.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
