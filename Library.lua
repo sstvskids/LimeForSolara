@@ -524,6 +524,20 @@ function Library:CreateMain()
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
 							end)
+							
+							spawn(function()
+								while true do
+									wait()
+									if shared.Lime.Uninject then
+										for i,v in pairs(KeybindFrame:GetChildren()) do
+											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+												v:Destroy()
+											end
+										end
+										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+									end
+								end
+							end)
 						else
 							for i,v in pairs(KeybindFrame:GetChildren()) do
 								if v:IsA("TextButton") and v.Name == ToggleButton.Name then
@@ -563,6 +577,18 @@ function Library:CreateMain()
 								Keybinds.PlaceholderText = "None"
 							end       
 						end
+						spawn(function()
+							while true do
+								wait()
+								if shared.Lime.Uninject then
+									UserInputService.InputBegan:Disconnect()
+									if Keybinds then
+										Keybinds.Text = ""
+										Keybinds.PlaceholderText = "None"
+									end
+								end
+							end
+						end)
 					end)
 				end
 			end
@@ -694,6 +720,9 @@ function Library:CreateMain()
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
 							end
+						end
+						if ToggleButton.Keybind then
+							ToggleButton.Keybind = "Home"
 						end
 					end
 				end
