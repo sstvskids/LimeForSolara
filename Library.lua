@@ -581,7 +581,6 @@ function Library:CreateMain()
 							while true do
 								wait()
 								if shared.Lime.Uninject then
-									UserInputService.InputBegan:Disconnect()
 									if Keybinds then
 										Keybinds.Text = ""
 										Keybinds.PlaceholderText = "None"
