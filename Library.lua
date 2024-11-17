@@ -775,6 +775,15 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
+				
+				if MiniToggle.Enabled then
+					MiniToggle.Enabled = true
+					MiniToggleClick()
+
+					if MiniToggle.Callback then
+						MiniToggle.Callback(MiniToggle.Enabled)
+					end
+				end 
 
 				MiniToggleHolderTrigger.MouseButton1Click:Connect(function()
 					MiniToggle.Enabled = not MiniToggle.Enabled
