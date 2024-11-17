@@ -118,16 +118,16 @@ end
 
 local AntiBotGlobal = false
 spawn(function()
-	local AntiBotChosed = nil
+	local SelectedMode = nil
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
 		Callback = function(callback)
 			if callback then
-				if AntiBotChosed == "Workspace" then
+				if SelectedMode == "Workspace" then
 					AntiBotGlobal = true
 				end
 			else
-				if AntiBotChosed == "Workspace" then
+				if SelectedMode == "Workspace" then
 					AntiBotGlobal = false
 				end
 			end
@@ -139,7 +139,7 @@ spawn(function()
 		Default = "Workspace",
 		Callback = function(callback)
 			if callback then
-				AntiBotChosed = callback
+				SelectedMode = callback
 			end
 		end
 	})
@@ -263,16 +263,16 @@ end)
 
 local HitCritical = false
 spawn(function()
-	local CriticalChosed = nil
+	local SelectedMode = nil
 	local Criticals = Tabs.Combat:CreateToggle({
 		Name = "Criticals",
 		Callback = function(callback)
 			if callback then
-				if CriticalChosed == "Packet" then
+				if SelectedMode == "Packet" then
 					HitCritical = true
 				end
 			else
-				if CriticalChosed == "Packet" then
+				if SelectedMode == "Packet" then
 					HitCritical = false
 				end
 			end
@@ -284,7 +284,7 @@ spawn(function()
 		Default = "Packet",
 		Callback = function(callback)
 			if callback then
-				CriticalChosed = callback
+				SelectedMode = callback
 			end
 		end
 	})
@@ -393,6 +393,7 @@ spawn(function()
 	})
 	local KillAuraSwing = KillAura:CreateMiniToggle({
 		Name = "Swing",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Swing = true
@@ -537,11 +538,17 @@ spawn(function()
 							Title = "Lime | Staff",
 							Text = Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId,
 							Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-							Duration = 10,
+							Duration = 15,
 						})
 						
 						if AutoLeave then
-							LocalPlayer:Kick("Detected: " .. Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId)
+							game:GetService("StarterGui"):SetCore("SendNotification", { 
+								Title = "Lime | Staff",
+								Text = "Leaving the game..",
+								Duration = 5,
+							})
+							wait(2)
+							LocalPlayer:Kick("Leaved the game..")
 						end
 					end
 				end)
@@ -566,13 +573,12 @@ spawn(function()
 end)
 
 spawn(function()
-	local DisablerType = nil
-	
+	local SelectedMode = nil
 	local Disabler = Tabs.Exploit:CreateToggle({
 		Name = "Disabler",
 		Callback = function(callback)
 			if callback then
-				if DisablerType == "Playground" then
+				if SelectedMode == "Playground" then
 					if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
 						local args = {
 							[1] = false
@@ -596,7 +602,7 @@ spawn(function()
 		Default = "Playground",
 		Callback = function(callback)
 			if callback then
-				DisablerType = callback
+				SelectedMode = callback
 			end
 		end
 	})
@@ -604,26 +610,29 @@ end)
 
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
-	local Loop, Speed, FlyMode, YPos = nil, nil, nil, 0
+	local Loop, Speed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
 	
-	Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
-		if IsTyping then return end
-		if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
-			YPos = YPos - 3
-		elseif Input.KeyCode == Enum.KeyCode.Space then
+	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
+		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
-		end
-	end)
-	
-	Service.UserInputService.JumpRequest:Connect(function()
-		YPos = YPos + 3
-	end)
+		end)
+	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
+		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
+				YPos = YPos - 3
+			elseif Input.KeyCode == Enum.KeyCode.Space then
+				YPos = YPos + 3
+			end
+		end)
+	end
 	
 	local Flight = Tabs.Move:CreateToggle({
 		Name = "Flight",
 		Callback = function(callback)
+			IsEnabled = callback
 			if callback then
 				YPos = 0
 				HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
@@ -636,7 +645,7 @@ spawn(function()
 							if Start == nil then
 								Start = tick()
 							end
-							if (tick() - Start) < 1.25 then
+							if (tick() - Start) < 2 then
 								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (Speed + 8)
 							else
 								Start = nil
@@ -647,14 +656,16 @@ spawn(function()
 							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * Speed
 						end
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						if FlyMode == "Float" then
+						if SelectedMode == "Float" then
 							game.Workspace.Gravity = 0
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
-						elseif FlyMode == "Jump" then
+						elseif SelectedMode == "Jump" then
 							repeat
 								wait()
 							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos
-							LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							if IsEnabled then
+								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							end
 						end
 					else
 						repeat
@@ -673,6 +684,7 @@ spawn(function()
 				game.Workspace.Gravity = OldGravity
 				HumanoidRootPartY =  LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 			end
 		end
 	})
@@ -682,7 +694,7 @@ spawn(function()
 		Default = "Float",
 		Callback = function(callback)
 			if callback then
-				FlyMode = callback
+				SelectedMode = callback
 			end
 		end
 	})
@@ -699,8 +711,8 @@ spawn(function()
 	local FlightSpeed = Flight:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 32,
-		Default = 32,
+		Max = 28,
+		Default = 28,
 		Callback = function(callback)
 			if callback then
 				Speed = callback
@@ -708,6 +720,70 @@ spawn(function()
 		end
 	})
 end)
+
+spawn(function()
+	local OldGravity, StartJump = game.Workspace.Gravity, nil
+	local SelectedMode, BoostSpeed, Height = nil, nil, nil
+
+	local LongJump = Tabs.Move:CreateToggle({
+		Name = "Long Jump",
+		AutoDisable = true,
+		Callback = function(callback)
+			if callback then
+				game.Workspace.Gravity = 15
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, Height, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+				repeat
+					wait(0.15)
+					if SelectedMode == "OldVape" then
+						if StartJump ==  nil then
+							StartJump = tick()
+						end
+						if (tick() - StartJump) < 1.25 then
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * BoostSpeed
+						end
+					end
+				until (tick() - StartJump) > 1.25
+				StartJump = nil
+				game.Workspace.Gravity = OldGravity
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+			end
+		end
+	})
+	local LongJumpMode = LongJump:CreateDropdown({
+		Name = "Long Jump Mode",
+		List = {"OldVape"},
+		Default = "OldVape",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
+			end
+		end
+	})
+	local LongJumpBoost = LongJump:CreateSlider({
+		Name = "Boost",
+		Min = 0,
+		Max = 100,
+		Default = 3,
+		Callback = function(callback)
+			if callback then
+				BoostSpeed = callback
+			end
+		end
+	})
+	local LongJumpHeight = LongJump:CreateSlider({
+		Name = "Height",
+		Min = 0,
+		Max = 100,
+		Default = 15,
+		Callback = function(callback)
+			if callback then
+				Height = callback
+			end
+		end
+	})
+end)
+
 
 spawn(function()
 	local Loop = nil
@@ -770,7 +846,7 @@ spawn(function()
 	local SpeedSpeedValue = Speed:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 32, 
+		Max = 28, 
 		Default = 28,
 		Callback = function(callback)
 			if callback then
@@ -846,34 +922,21 @@ spawn(function()
 end)
 
 spawn(function()
-	local Enabled, ChoosedMode = false, nil
-	local AntiAFK = Tabs.Player:CreateToggle({
-		Name = "Anti AFK",
+	local HUD = Tabs.Visual:CreateToggle({
+		Name = "HUD",
+		Enabled = true,
 		Callback = function(callback)
-			Enabled = callback
 			if callback then
-				repeat
-					wait()
-					if ChoosedMode == "Move" then
-						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):MoveTo(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame.LookVector * 3)
-						wait(1.8)
-						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):MoveTo(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame.LookVector * -3)
-						wait(1.8)
-						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-						wait(1.5)
-					end
-				until not Enabled
+				if shared.Lime then
+					shared.Lime.HUDVisible = true
+				end
+			else
+				if shared.Lime then
+					shared.Lime.HUDVisible = false
+				end
 			end
 		end
-	})
-	local AntiAFKMode = AntiAFK:CreateDropdown({
-		Name = "Anti AFK Methods",
-		List = {"Move"},
-		Default = "Move",
-		Callback = function(callback)
-			ChoosedMode = callback
-		end
-	})
+	}) 
 end)
 
 spawn(function()
@@ -1079,20 +1142,23 @@ spawn(function()
 		13538008146
 	}
 	--]]
-	Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
-		if IsTyping then return end
-		if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
-			Downwards = true
-			
-		end
-	end)
 	
-	Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
-		if IsTyping then return end
-		if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
-			Downwards = false
-		end
-	end)
+	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
+		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
+				Downwards = true
+
+			end
+		end)
+
+		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
+				Downwards = false
+			end
+		end)
+	end
 	
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
