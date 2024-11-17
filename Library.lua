@@ -322,7 +322,7 @@ function Library:CreateMain()
 		TabHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		TabHolder.BorderSizePixel = 0
 		TabHolder.Size = UDim2.new(0, 185, 0, 25)
-		if UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+		if not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
 			MakeDraggable(TabHolder)
 		end
 
