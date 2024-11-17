@@ -1,4 +1,3 @@
-repeat wait() until game:IsLoaded()
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -9,16 +8,14 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
-local LibrarySettings = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
-local AutoSave, MainFile = false, nil
-
-local function LoadSettings(path)
-	return isfile(path) and HttpService:JSONDecode(readfile(path)) or nil
+local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
+local AutoSave, MainFile = true, nil
+if not shared.Lime then
+	shared.Lime = {
+		Uninject = false,
+		HUDVisible = true
+	}
 end
-local function SaveSettings(path, settings)
-	writefile(path, HttpService:JSONEncode(settings))
-end
-
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	if game.PlaceId == 11630038968 then
 		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
@@ -26,24 +23,27 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 		else
 			MainFile = ConfigFolder .. "/" .. "BridgeDuelLobby.lua"
 		end
-	elseif game.PlaceId == 6872265039 then
-		MainFile = ConfigFolder .. "/" .. "Bedwars.lua"
-	elseif game.PlaceId == 8542259458 then
-		MainFile = ConfigFolder .. "/" .. "Skywars.lua"
 	else
 		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
 	end
-
-	local LoadedSettings = LoadSettings(MainFile)
-	if isfile(MainFile) and HttpService:JSONDecode(readfile(MainFile)) or nil then
-		LibrarySettings = LoadedSettings 
+	
+	if isfile(MainFile) then
+		local GetMain = readfile(MainFile)
+		if GetMain then
+			local OldSettings = HttpService:JSONDecode(GetMain)
+			if OldSettings then
+				ConfigSetting = OldSettings
+			end
+		end
 	end
 
 	AutoSave = true
 	spawn(function()
 		while AutoSave do
-			wait(5)
-			writefile(MainFile, HttpService:JSONEncode(LibrarySettings))
+			wait()
+			if not shared.Lime.Uninject then
+				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+			end
 		end
 	end)
 end
@@ -92,9 +92,7 @@ function Spoof(length)
 	return table.concat(Letter)
 end
 
-local Library = {
-	LimeTitle = "Lime"
-}
+local Library = {}
 
 function Library:CreateMain()
 	local Main = {}
@@ -109,6 +107,15 @@ function Library:CreateMain()
 	else
 		ScreenGui.Parent = CoreGui
 	end
+	
+	spawn(function()
+		while true do
+			wait()
+			if shared.Lime.Uninject and ScreenGui ~= nil then
+				ScreenGui:Destroy()
+			end
+		end
+	end)
 
 	local MainFrame = nil
 	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
@@ -150,6 +157,14 @@ function Library:CreateMain()
 			end
 		end
 	end)
+	
+	local KeybindFrame = Instance.new("Frame")
+	KeybindFrame.Parent = ScreenGui
+	KeybindFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	KeybindFrame.BackgroundTransparency = 1.000
+	KeybindFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	KeybindFrame.Size = UDim2.new(1, 0, 1, 0)
+	KeybindFrame.Visible = true
 
 	local UIPadding = Instance.new("UIPadding")
 	UIPadding.Parent = MainFrame
@@ -163,6 +178,12 @@ function Library:CreateMain()
 	HudFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HudFrame.BorderSizePixel = 0
 	HudFrame.Size = UDim2.new(1, 0, 1, 0)
+	spawn(function()
+		while true do
+			wait()
+			HudFrame.Visible = shared.Lime.HUDVisible
+		end
+	end)
 
 	local LibraryTitle = Instance.new("TextLabel")
 	LibraryTitle.Parent = HudFrame
@@ -172,7 +193,7 @@ function Library:CreateMain()
 	LibraryTitle.BorderSizePixel = 0
 	LibraryTitle.Position = UDim2.new(0, 20, 0, 18)
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
-	LibraryTitle.Text = Library.LimeTitle
+	LibraryTitle.Text = "Lime"
 	LibraryTitle.Font = Enum.Font.SourceSans
 	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
 	LibraryTitle.TextScaled = true
@@ -299,7 +320,9 @@ function Library:CreateMain()
 		TabHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		TabHolder.BorderSizePixel = 0
 		TabHolder.Size = UDim2.new(0, 185, 0, 25)
-		MakeDraggable(TabHolder)
+		if UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+			MakeDraggable(TabHolder)
+		end
 
 		local TabName = Instance.new("TextLabel")
 		TabName.ZIndex = 2
@@ -352,14 +375,14 @@ function Library:CreateMain()
 				AutoDisable = ToggleButton.AutoDisable or false,
 				Callback = ToggleButton.Callback or function() end
 			}
-			if not LibrarySettings.ToggleButton[ToggleButton.Name] then
-				LibrarySettings.ToggleButton[ToggleButton.Name] = {
+			if not ConfigSetting.ToggleButton[ToggleButton.Name] then
+				ConfigSetting.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
 				}
 			else
-				ToggleButton.Enabled = LibrarySettings.ToggleButton[ToggleButton.Name].Enabled
-				ToggleButton.Keybind = LibrarySettings.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.Enabled = ConfigSetting.ToggleButton[ToggleButton.Name].Enabled
+				ToggleButton.Keybind = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
 			end
 
 			local ToggleButtonHolder = Instance.new("TextButton")
@@ -390,7 +413,7 @@ function Library:CreateMain()
 			ToggleName.TextWrapped = true
 			ToggleName.TextXAlignment = Enum.TextXAlignment.Left
 
-			local OpenMenu = Instance.new("TextButton")
+			local OpenMenu = Instance.new("TextLabel")
 			OpenMenu.Parent = ToggleButtonHolder
 			OpenMenu.AnchorPoint = Vector2.new(0.5, 0.5)
 			OpenMenu.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -559,7 +582,7 @@ function Library:CreateMain()
 
 			local function ToggleButtonClicked()
 				if ToggleButton.Enabled then
-					LibrarySettings.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
@@ -569,7 +592,7 @@ function Library:CreateMain()
 					UIGradient.Enabled = true
 					--]]
 				else
-					LibrarySettings.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 					RemoveArray(ToggleButton.Name)
@@ -583,7 +606,7 @@ function Library:CreateMain()
 
 			spawn(function()
 				while true do
-					wait(1)
+					wait(0.8)
 					if ToggleButton.AutoDisable then
 						if ToggleButton.AutoDisable and ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -648,6 +671,22 @@ function Library:CreateMain()
 					end
 				end)
 			end
+			
+			spawn(function()
+				while true do
+					wait()
+					if shared.Lime.Uninject then
+						if ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+				end
+			end)
 
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
@@ -655,12 +694,12 @@ function Library:CreateMain()
 					Enabled = MiniToggle.Enabled or false,
 					Callback = MiniToggle.Callback or function() end
 				}
-				if not LibrarySettings.ToggleButton.MiniToggle[MiniToggle.Name] then
-					LibrarySettings.ToggleButton.MiniToggle[MiniToggle.Name] = {
+				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
+					ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] = {
 						Enabled = MiniToggle.Enabled
 					}
 				else
-					MiniToggle.Enabled = LibrarySettings.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
+					MiniToggle.Enabled = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
 				end
 
 				local MiniToggleHolder = Instance.new("Frame")
@@ -718,10 +757,10 @@ function Library:CreateMain()
 
 				local function MiniToggleClick()
 					if MiniToggle.Enabled then
-						LibrarySettings.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
 					else
-						LibrarySettings.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
@@ -745,12 +784,12 @@ function Library:CreateMain()
 					Default = Slider.Default,
 					Callback = Slider.Callback or function() end
 				}
-				if not LibrarySettings.ToggleButton.Sliders[Slider.Name] then
-					LibrarySettings.ToggleButton.Sliders[Slider.Name] = {
+				if not ConfigSetting.ToggleButton.Sliders[Slider.Name] then
+					ConfigSetting.ToggleButton.Sliders[Slider.Name] = {
 						Default = Slider.Default
 					}
 				else
-					Slider.Default = LibrarySettings.ToggleButton.Sliders[Slider.Name].Default
+					Slider.Default = ConfigSetting.ToggleButton.Sliders[Slider.Name].Default
 				end
 
 				local Value
@@ -842,7 +881,7 @@ function Library:CreateMain()
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
 					SliderHolderValue.Text = SliderValue
 					Slider.Callback(SliderValue)
-					LibrarySettings.ToggleButton.Sliders[Slider.Name].Default = SliderValue
+					ConfigSetting.ToggleButton.Sliders[Slider.Name].Default = SliderValue
 				end
 
 				SliderHolderMain.MouseButton1Down:Connect(function()
@@ -863,6 +902,8 @@ function Library:CreateMain()
 
 				if Slider.Default then
 					SliderHolderValue.Text = Slider.Default
+					Value = (Slider.Default - Slider.Min) / (Slider.Max - Slider.Min)
+					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
 					Slider.Callback(Slider.Default)
 				end
 				return Slider
@@ -875,12 +916,12 @@ function Library:CreateMain()
 					Default = Dropdown.Default,
 					Callback = Dropdown.Callback or function() end
 				}
-				if not LibrarySettings.ToggleButton.Dropdown[Dropdown.Name] then
-					LibrarySettings.ToggleButton.Dropdown[Dropdown.Name] = {
+				if not ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] then
+					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] = {
 						Default = Dropdown.Default
 					}
 				else
-					Dropdown.Default = LibrarySettings.ToggleButton.Dropdown[Dropdown.Name].Default
+					Dropdown.Default = ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default
 				end
 
 				local Selected
@@ -934,7 +975,7 @@ function Library:CreateMain()
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
-					LibrarySettings.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
+					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				if Dropdown.Default then
