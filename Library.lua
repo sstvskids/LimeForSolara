@@ -374,6 +374,7 @@ function Library:CreateMain()
 				Name = ToggleButton.Name,
 				Keybind = ToggleButton.Keybind or "Home",
 				Enabled = ToggleButton.Enabled or false,
+				AutoEnable = ToggleButton.AutoEnable or false,
 				AutoDisable = ToggleButton.AutoDisable or false,
 				Callback = ToggleButton.Callback or function() end
 			}
@@ -637,6 +638,16 @@ function Library:CreateMain()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.AutoDisable and ToggleButton.Enabled then
 							ToggleButton.Enabled = false
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+					if ToggleButton.AutoEnable then
+						if ToggleButton.AutoEnable and not ToggleButton.Enabled then
+							ToggleButton.Enabled = true
 							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
