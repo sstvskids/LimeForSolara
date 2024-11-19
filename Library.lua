@@ -26,7 +26,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	else
 		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
 	end
-	
+
 	if isfile(MainFile) then
 		local GetMain = readfile(MainFile)
 		if GetMain then
@@ -107,7 +107,7 @@ function Library:CreateMain()
 	else
 		ScreenGui.Parent = CoreGui
 	end
-	
+
 	spawn(function()
 		while true do
 			wait()
@@ -159,7 +159,7 @@ function Library:CreateMain()
 			end
 		end
 	end)
-	
+
 	local KeybindFrame = Instance.new("Frame")
 	KeybindFrame.Parent = ScreenGui
 	KeybindFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -382,10 +382,14 @@ function Library:CreateMain()
 				ConfigSetting.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
+					AutoEnable = ToggleButton.AutoEnable,
+					AutoDisable = ToggleButton.AutoDisable,
 				}
 			else
 				ToggleButton.Enabled = ConfigSetting.ToggleButton[ToggleButton.Name].Enabled
 				ToggleButton.Keybind = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.AutoEnable = ConfigSetting.ToggleButton[ToggleButton.Name].AutoEnable
+				ToggleButton.AutoDisable = ConfigSetting.ToggleButton[ToggleButton.Name].AutoDisable
 			end
 
 			local ToggleButtonHolder = Instance.new("TextButton")
@@ -525,7 +529,7 @@ function Library:CreateMain()
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
 							end)
-							
+
 							spawn(function()
 								while true do
 									wait()
@@ -593,17 +597,6 @@ function Library:CreateMain()
 				end
 			end
 
-			spawn(function()
-				while true do
-					wait()
-					if ToggleMenuOpened then
-						Keybinds.Visible = true
-					else
-						Keybinds.Visible = false
-					end
-				end
-			end)
-
 			local UIListLayout_2 = Instance.new("UIListLayout")
 			UIListLayout_2.Parent = ToggleMenu
 			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -634,7 +627,7 @@ function Library:CreateMain()
 
 			spawn(function()
 				while true do
-					wait(0.8)
+					wait()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.AutoDisable and ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -657,7 +650,7 @@ function Library:CreateMain()
 					end
 				end
 			end)
-			
+
 			if ToggleButton.Enabled then
 				ToggleButton.Enabled = true
 				ToggleButtonClicked()
@@ -690,7 +683,7 @@ function Library:CreateMain()
 					TweenService:Create(ToggleMenu, TweenInfo.new(0.6), {Size = ToggleMenuOld}):Play()
 				end
 			end)
-			
+
 			OpenMenu.MouseButton1Click:Connect(function()
 				ToggleMenuOpened = not ToggleMenuOpened
 				if ToggleMenuOpened then
@@ -718,7 +711,7 @@ function Library:CreateMain()
 					end
 				end)
 			end
-			
+
 			spawn(function()
 				while true do
 					wait()
@@ -742,14 +735,17 @@ function Library:CreateMain()
 				MiniToggle = {
 					Name = MiniToggle.Name,
 					Enabled = MiniToggle.Enabled or false,
+					AutoDisable = MiniToggle.AutoDisable or false,
 					Callback = MiniToggle.Callback or function() end
 				}
 				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
 					ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] = {
-						Enabled = MiniToggle.Enabled
+						Enabled = MiniToggle.Enabled,
+						AutoDisable = MiniToggle.AutoDisable
 					}
 				else
 					MiniToggle.Enabled = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
+					MiniToggle.AutoDisable = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].AutoDisable
 				end
 
 				local MiniToggleHolder = Instance.new("Frame")
@@ -759,16 +755,6 @@ function Library:CreateMain()
 				MiniToggleHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				MiniToggleHolder.BorderSizePixel = 0
 				MiniToggleHolder.Size = UDim2.new(1, 0, 0, 25)
-				spawn(function()
-					while true do
-						wait()
-						if ToggleMenuOpened then
-							MiniToggleHolder.Visible = true
-						else
-							MiniToggleHolder.Visible = false
-						end
-					end
-				end)
 
 				local MiniToggleHolderName = Instance.new("TextLabel")
 				MiniToggleHolderName.Parent = MiniToggleHolder
@@ -815,6 +801,22 @@ function Library:CreateMain()
 					end
 				end
 				
+				spawn(function()
+					while true do
+						wait()
+						if MiniToggle.AutoDisable then
+							if MiniToggle.AutoDisable and MiniToggle.Enabled then
+								MiniToggle.Enabled = false
+								MiniToggleClick()
+
+								if MiniToggle.Callback then
+									MiniToggle.Callback(MiniToggle.Enabled)
+								end
+							end
+						end
+					end
+				end)
+
 				if MiniToggle.Enabled then
 					MiniToggle.Enabled = true
 					MiniToggleClick()
@@ -860,17 +862,7 @@ function Library:CreateMain()
 				SliderHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderHolder.BorderSizePixel = 0
 				SliderHolder.Size = UDim2.new(1, 0, 0, 28)
-				spawn(function()
-					while true do
-						wait()
-						if ToggleMenuOpened then
-							SliderHolder.Visible = true
-						else
-							SliderHolder.Visible = false
-						end
-					end
-				end)
-
+				
 				local SliderHolderName = Instance.new("TextLabel")
 				SliderHolderName.Parent = SliderHolder
 				SliderHolderName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
