@@ -382,14 +382,10 @@ function Library:CreateMain()
 				ConfigSetting.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
-					AutoEnable = ToggleButton.AutoEnable,
-					AutoDisable = ToggleButton.AutoDisable,
 				}
 			else
 				ToggleButton.Enabled = ConfigSetting.ToggleButton[ToggleButton.Name].Enabled
 				ToggleButton.Keybind = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
-				ToggleButton.AutoEnable = ConfigSetting.ToggleButton[ToggleButton.Name].AutoEnable
-				ToggleButton.AutoDisable = ConfigSetting.ToggleButton[ToggleButton.Name].AutoDisable
 			end
 
 			local ToggleButtonHolder = Instance.new("TextButton")
@@ -741,11 +737,9 @@ function Library:CreateMain()
 				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
 					ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] = {
 						Enabled = MiniToggle.Enabled,
-						AutoDisable = MiniToggle.AutoDisable
 					}
 				else
 					MiniToggle.Enabled = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
-					MiniToggle.AutoDisable = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].AutoDisable
 				end
 
 				local MiniToggleHolder = Instance.new("Frame")
