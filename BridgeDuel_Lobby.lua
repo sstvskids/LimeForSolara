@@ -907,17 +907,22 @@ spawn(function()
 	}) 
 	local UninjectLime = ClickGui:CreateMiniToggle({
 		Name = "Uninject",
+		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
 				if shared.Lime then
 					shared.Lime.Uninject = true
+				end
+			else
+				if shared.Lime then
+					shared.Lime.Uninject = false
 				end
 			end
 		end
 	})
 end)
 
-spawn(function() -- need fix
+spawn(function()
 	local IsInBox = {}
 	local function CreateBox(v)
 		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
@@ -955,9 +960,10 @@ spawn(function() -- need fix
 								local HumanoidRootPart = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, plr.Character:FindFirstChild("HumanoidRootPart").Position)
 								local Head = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("Head").Position + Vector3.new(0, 0.5, 0)))
 								local Leg = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("HumanoidRootPart").Position - Vector3.new(0, 3, 0)))
-								
-								box.Size = Vector2.new(1000 / HumanoidRootPart.Z, Head.Y - Leg.Y)
-								box.Position = Vector2.new((HumanoidRootPart.X - box.Size.X) / 2, (HumanoidRootPart.Y - box.Size.Y) / 2)
+								local Size = math.abs(Head.Y - Leg.Y)
+
+								box.Size = Vector2.new(Size, Size) 
+								box.Position = Vector2.new(HumanoidRootPart.X - Size / 2, HumanoidRootPart.Y - Size / 2)
 								box.Visible = true
 							else
 								box.Visible = false
@@ -1055,7 +1061,7 @@ spawn(function()
 						if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 							local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
 							if OnScreen then
-								line.From = Vector2.new(game.Workspace.CurrentCamera.ViewportSize.X / 2, game.Workspace.CurrentCamera.ViewportSize.Y)
+								line.From = Vector2.new(game.Workspace.CurrentCamera.ViewportSize.X / 2, game.Workspace.CurrentCamera.ViewportSize.Y / 2)
 								line.To = Vector2.new(Vector.X, Vector.Y)
 								line.Visible = true
 							else
