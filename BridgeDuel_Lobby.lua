@@ -899,9 +899,91 @@ spawn(function()
 end)
 
 spawn(function()
+	local ClickGui = Tabs.Visual:CreateToggle({
+		Name = "ClickGUI",
+		AutoEnable = true,
+		Callback = function(callback)
+		end
+	}) 
+	local UninjectLime = ClickGui:CreateMiniToggle({
+		Name = "Uninject",
+		Callback = function(callback)
+			if callback then
+				if shared.Lime then
+					shared.Lime.Uninject = true
+				end
+			end
+		end
+	})
+end)
+
+spawn(function() -- need fix
+	local IsInBox = {}
+	local function CreateBox(v)
+		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+			local Box = Drawing.new("Square")
+			Box.Color = Color3.fromRGB(255, 255, 255)
+			Box.Thickness = 1
+			Box.Filled = false
+			Box.Transparency = 1
+			IsInBox[v] = Box
+		end
+	end
+
+	local function RemoveBox(v)
+		if IsInBox[v] then
+			IsInBox[v]:Remove()
+			IsInBox[v] = nil
+		end
+	end
+
+	local Loop = nil
+	local ESP = Tabs.Visual:CreateToggle({
+		Name = "ESP",
+		Callback = function(callback)
+			if callback then
+				Service.Players.PlayerAdded:Connect(CreateBox)
+				Service.Players.PlayerRemoving:Connect(RemoveBox)
+				for i, v in pairs(Service.Players:GetPlayers()) do
+					CreateBox(v)
+				end
+				Loop = Service.RunService.RenderStepped:Connect(function()
+					for plr, box in pairs(IsInBox) do
+						if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+							local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+							if OnScreen then
+								local HumanoidRootPart = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, plr.Character:FindFirstChild("HumanoidRootPart").Position)
+								local Head = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("Head").Position + Vector3.new(0, 0.5, 0)))
+								local Leg = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("HumanoidRootPart").Position - Vector3.new(0, 3, 0)))
+								
+								box.Size = Vector2.new(1000 / HumanoidRootPart.Z, Head.Y - Leg.Y)
+								box.Position = Vector2.new((HumanoidRootPart.X - box.Size.X) / 2, (HumanoidRootPart.Y - box.Size.Y) / 2)
+								box.Visible = true
+							else
+								box.Visible = false
+							end
+						else
+							box.Visible = false
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+				for _, box in pairs(IsInBox) do
+					box:Remove()
+				end
+				IsInBox = {}
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local OldAmbience, OldBrightness = Service.Lighting.Ambient, Service.Lighting.Brightness
 	local Loop = nil
-	
+
 	local Fullbright = Tabs.Visual:CreateToggle({
 		Name = "Fullbright",
 		Callback = function(callback)
@@ -937,6 +1019,64 @@ spawn(function()
 			end
 		end
 	}) 
+end)
+
+spawn(function()
+	local IsTraced = {}
+	local function CreateLine(v)
+		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+			local Line = Drawing.new("Line")
+			Line.Thickness = 1
+			Line.Transparency = 1
+			Line.Color = Color3.fromRGB(255, 255, 255)
+			IsTraced[v] = Line
+		end
+	end
+
+	local function RemoveLine(v)
+		if IsTraced[v] then
+			IsTraced[v]:Remove()
+			IsTraced[v] = nil
+		end
+	end
+
+	local Loop = nil
+	local Tracers = Tabs.Visual:CreateToggle({
+		Name = "Tracers",
+		Callback = function(callback)
+			if callback then
+				Service.Players.PlayerAdded:Connect(CreateLine)
+				Service.Players.PlayerRemoving:Connect(RemoveLine)
+				for i, v in pairs(Service.Players:GetPlayers()) do
+					CreateLine(v)
+				end
+				Loop = Service.RunService.RenderStepped:Connect(function()
+					for plr, line in pairs(IsTraced) do
+						if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+							local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+							if OnScreen then
+								line.From = Vector2.new(game.Workspace.CurrentCamera.ViewportSize.X / 2, game.Workspace.CurrentCamera.ViewportSize.Y)
+								line.To = Vector2.new(Vector.X, Vector.Y)
+								line.Visible = true
+							else
+								line.Visible = false
+							end
+						else
+							line.Visible = false
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+				for _, line in pairs(IsTraced) do
+					line:Remove()
+				end
+				IsTraced = {}
+			end
+		end
+	})
 end)
 
 spawn(function()
