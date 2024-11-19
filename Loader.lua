@@ -1,10 +1,3 @@
-spawn(function()
-	if shared.Lime then
-		if shared.Lime.Uninject then
-			shared.Lime.Uninject = false
-		end
-	end
-end)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
