@@ -16,16 +16,9 @@ if not shared.Lime then
 		HUDVisible = true
 	}
 end
+
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
-	if game.PlaceId == 11630038968 then
-		if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool").Name:match("Apple") or LocalPlayer.Character:FindFirstChildWhichIsA("Tool").Name:match("Apple") then
-			MainFile = ConfigFolder .. "/" .. "BridgeDuelGame.lua"
-		else
-			MainFile = ConfigFolder .. "/" .. "BridgeDuelLobby.lua"
-		end
-	else
-		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
-	end
+	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
 
 	if isfile(MainFile) then
 		local GetMain = readfile(MainFile)
