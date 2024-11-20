@@ -922,10 +922,12 @@ spawn(function()
 				if shared.Lime then
 					shared.Lime.Uninject = true
 				end
+				cleardrawcache()
 			else
 				if shared.Lime then
 					shared.Lime.Uninject = false
 				end
+				cleardrawcache()
 			end
 		end
 	})
