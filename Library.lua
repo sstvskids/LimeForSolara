@@ -574,10 +574,12 @@ function Library:CreateMain()
 								Keybinds.Text = Input.KeyCode.Name
 								Keybinds.PlaceholderText = Input.KeyCode.Name
 								Keybinds:ReleaseFocus()
+								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							elseif ToggleButton.Keybind == "Backspace" then
 								ToggleButton.Keybind = "Home"
 								Keybinds.Text = ""
 								Keybinds.PlaceholderText = "None"
+								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							end       
 						end
 						spawn(function()
@@ -796,7 +798,7 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
-				
+
 				spawn(function()
 					while true do
 						wait()
@@ -858,7 +860,7 @@ function Library:CreateMain()
 				SliderHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderHolder.BorderSizePixel = 0
 				SliderHolder.Size = UDim2.new(1, 0, 0, 28)
-				
+
 				local SliderHolderName = Instance.new("TextLabel")
 				SliderHolderName.Parent = SliderHolder
 				SliderHolderName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
