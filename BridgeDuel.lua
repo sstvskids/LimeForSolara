@@ -1116,15 +1116,29 @@ spawn(function()
 							LastPosition = LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position
 							PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
 						end
-						if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -132 then
-							if Mode == "TP" then
-								LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
-							elseif Mode == "Tween" then
-								local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
-								TweenY:Play()
-								TweenY.Completed:Wait(1)
-								local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
-								TweenX:Play()
+						if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
+							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -132 then
+								if Mode == "TP" then
+									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
+								elseif Mode == "Tween" then
+									local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
+									TweenY:Play()
+									TweenY.Completed:Wait(1)
+									local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+									TweenX:Play()
+								end
+							end
+						else
+							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < 18 then
+								if Mode == "TP" then
+									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
+								elseif Mode == "Tween" then
+									local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
+									TweenY:Play()
+									TweenY.Completed:Wait(1)
+									local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+									TweenX:Play()
+								end
 							end
 						end
 					else
