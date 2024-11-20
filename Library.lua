@@ -41,9 +41,11 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	spawn(function()
 		while AutoSave do
 			wait()
-			if not shared.Lime.Uninject then
-				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+			if shared.Lime.Uninject then
+				AutoSave = false
+				break
 			end
+			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 		end
 	end)
 end
