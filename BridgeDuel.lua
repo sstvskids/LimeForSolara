@@ -118,18 +118,13 @@ end
 
 local AntiBotGlobal = false
 spawn(function()
-	local SelectedMode = nil
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
 		Callback = function(callback)
 			if callback then
-				if SelectedMode == "Workspace" then
-					AntiBotGlobal = true
-				end
+				AntiBotGlobal = true
 			else
-				if SelectedMode == "Workspace" then
-					AntiBotGlobal = false
-				end
+				AntiBotGlobal = false
 			end
 		end
 	})
@@ -138,9 +133,6 @@ spawn(function()
 		List = {"Workspace"},
 		Default = "Workspace",
 		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
-			end
 		end
 	})
 end)
@@ -263,18 +255,13 @@ end)
 
 local HitCritical = false
 spawn(function()
-	local SelectedMode = nil
 	local Criticals = Tabs.Combat:CreateToggle({
 		Name = "Criticals",
 		Callback = function(callback)
 			if callback then
-				if SelectedMode == "Packet" then
-					HitCritical = true
-				end
+				HitCritical = true
 			else
-				if SelectedMode == "Packet" then
-					HitCritical = false
-				end
+				HitCritical = false
 			end
 		end
 	})
@@ -283,9 +270,6 @@ spawn(function()
 		List = {"Packet"},
 		Default = "Packet",
 		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
-			end
 		end
 	})
 end)
@@ -573,21 +557,26 @@ spawn(function()
 end)
 
 spawn(function()
-	local SelectedMode = nil
+	local Loop, SelectedMode = nil, nil
 	local Disabler = Tabs.Exploit:CreateToggle({
 		Name = "Disabler",
 		Callback = function(callback)
 			if callback then
-				if SelectedMode == "Playground" then
-					if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
-						local args = {
-							[1] = false
-						}
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if SelectedMode == "Playground" then
+						if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
+							local args = {
+								[1] = false
+							}
 
-						game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
+							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
+						end
 					end
-				end
+				end)
 			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
 				local args = {
 					[1] = true
 				}
@@ -723,7 +712,42 @@ end)
 
 spawn(function()
 	local OldGravity, StartJump = game.Workspace.Gravity, nil
-	local SelectedMode, BoostSpeed, Height = nil, nil, nil
+	local Height = nil
+	local HighJump = Tabs.Move:CreateToggle({
+		Name = "High Jump",
+		AutoDisable = true,
+		Callback = function(callback)
+			if callback then
+				game.Workspace.Gravity = 5
+				if StartJump ==  nil then
+					StartJump = tick()
+				end
+				if (tick() - StartJump) < 1.25 then
+					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, Height, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+				end
+			else
+				StartJump = nil
+				game.Workspace.Gravity = OldGravity
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+			end
+		end
+	})
+	local HighjumpHeigh = HighJump:CreateSlider({
+		Name = "Height",
+		Min = 0,
+		Max = 100,
+		Default = 25,
+		Callback = function(callback)
+			if callback then
+				Height = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local OldGravity, StartJump = game.Workspace.Gravity, nil
+	local SelectedMode = nil
 
 	local LongJump = Tabs.Move:CreateToggle({
 		Name = "Long Jump",
@@ -731,7 +755,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				game.Workspace.Gravity = 15
-				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, Height, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 				repeat
 					wait(0.15)
 					if SelectedMode == "OldVape" then
@@ -739,7 +763,7 @@ spawn(function()
 							StartJump = tick()
 						end
 						if (tick() - StartJump) < 1.25 then
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * BoostSpeed
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
 						end
 					end
 				until (tick() - StartJump) > 1.25
@@ -760,35 +784,13 @@ spawn(function()
 			end
 		end
 	})
-	local LongJumpBoost = LongJump:CreateSlider({
-		Name = "Boost",
-		Min = 0,
-		Max = 100,
-		Default = 3,
-		Callback = function(callback)
-			if callback then
-				BoostSpeed = callback
-			end
-		end
-	})
-	local LongJumpHeight = LongJump:CreateSlider({
-		Name = "Height",
-		Min = 0,
-		Max = 100,
-		Default = 15,
-		Callback = function(callback)
-			if callback then
-				Height = callback
-			end
-		end
-	})
 end)
 
 
 spawn(function()
 	local Loop = nil
 	
-	local NoSlow = Tabs.Move:CreateToggle({
+	local NoSlowDown = Tabs.Move:CreateToggle({
 		Name = "No Slow Down",
 		Callback = function(callback)
 			if callback then
@@ -809,6 +811,13 @@ spawn(function()
 				end
 				LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
 			end
+		end
+	})
+	local NoSlowMode = NoSlowDown:CreateDropdown({
+		Name = "NoSlow Method",
+		List = {"Spoof"},
+		Default = "Spoof",
+		Callback = function(callback)
 		end
 	})
 end)
@@ -981,6 +990,7 @@ spawn(function()
 					box:Remove()
 				end
 				IsInBox = {}
+				cleardrawcache()
 			end
 		end
 	})
@@ -1080,6 +1090,7 @@ spawn(function()
 					line:Remove()
 				end
 				IsTraced = {}
+				cleardrawcache()
 			end
 		end
 	})
