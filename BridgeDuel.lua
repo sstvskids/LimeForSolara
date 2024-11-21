@@ -920,14 +920,15 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				if shared.Lime then
+					cleardrawcache()
 					shared.Lime.Uninject = true
 				end
-				cleardrawcache()
 			else
 				if shared.Lime then
+					wait(5)
+					cleardrawcache()
 					shared.Lime.Uninject = false
 				end
-				cleardrawcache()
 			end
 		end
 	})
@@ -992,7 +993,6 @@ spawn(function()
 					box:Remove()
 				end
 				IsInBox = {}
-				cleardrawcache()
 			end
 		end
 	})
@@ -1092,7 +1092,6 @@ spawn(function()
 					line:Remove()
 				end
 				IsTraced = {}
-				cleardrawcache()
 			end
 		end
 	})
