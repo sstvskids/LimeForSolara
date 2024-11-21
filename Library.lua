@@ -564,10 +564,10 @@ function Library:CreateMain()
 						if Input.UserInputType == Enum.UserInputType.Keyboard then
 							if Keybinds:IsFocused() then
 								ToggleButton.Keybind = Input.KeyCode.Name
-								Keybinds.Text = Input.KeyCode.Name
-								Keybinds.PlaceholderText = Input.KeyCode.Name
-								Keybinds:ReleaseFocus()
 								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+								Keybinds.Text = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
+								Keybinds.PlaceholderText = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
+								Keybinds:ReleaseFocus()
 							elseif ToggleButton.Keybind == "Backspace" then
 								ToggleButton.Keybind = "Home"
 								Keybinds.Text = ""
