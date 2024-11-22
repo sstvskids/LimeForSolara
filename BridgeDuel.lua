@@ -462,6 +462,34 @@ end)
 --]]
 
 spawn(function()
+	local RemotePath, OldRemote = nil, nil
+	local Velocity = Tabs.Combat:CreateToggle({
+		Name = "Velocity",
+		Callback = function(callback)
+			if callback then
+				RemotePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+				if RemotePath then
+					OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
+					OldRemote.Parent = game.Workspace
+					RemotePath:FindFirstChild("KnockBackApplied"):Destroy()
+				end
+			else
+				if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
+					OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+				end
+			end
+		end
+	})
+	local VelocityMode = Velocity:CreateDropdown({
+		Name = "Velocity Mode",
+		List = {"Cancel"},
+		Default = "Cancel",
+		Callback = function(Callback)
+		end
+	})
+end)
+
+spawn(function()
 	local Loop, Reported, Notify = nil, {}, false
 	
 	local AutoReport = Tabs.Exploit:CreateToggle({
@@ -475,7 +503,7 @@ spawn(function()
 							local args = {
 								[1] = v.Name
 							}
-							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):WaitForChild("ReportPlayer"):InvokeServer(unpack(args))
+							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
 							if Notify then
 								game:GetService("StarterGui"):SetCore("SendNotification", { 
 									Title = "Lime | Auto Report",
@@ -607,8 +635,22 @@ spawn(function()
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
 		end)
+		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):FindFirstChild("ToggleSneaking").InvokeServer:Connect(function(self, ...)
+			if self == true or self == "true" then
+				YPos = YPos - 3
+			end
+		end)
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
+				YPos = YPos - 3
+			elseif Input.KeyCode == Enum.KeyCode.Space then
+				YPos = YPos + 3
+			end
+		end)
+		
+		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
 				YPos = YPos - 3
@@ -746,6 +788,61 @@ spawn(function()
 end)
 
 spawn(function()
+	local OldGravity, IsEnabled = game.Workspace.Gravity, false
+	local SelectedMode = nil
+	local LongJump = Tabs.Move:CreateToggle({
+		Name = "Long Jump",
+		AutoDisable = true,
+		Callback = function(callback)
+			IsEnabled = callback
+			if callback then
+				game.Workspace.Gravity = 15
+				if SelectedMode == "TP" then
+					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+					wait(0.15)
+					if IsEnabled then
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						wait(0.2)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+
+					end
+				elseif SelectedMode == "Gravity" then
+					game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+					wait(0.28)
+					local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
+					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+				end
+			else
+				wait(1)
+				game.Workspace.Gravity = OldGravity
+				IsEnabled = false
+			end
+		end
+	})
+	local LongJumpMode = LongJump:CreateDropdown({
+		Name = "Long Jump Mode",
+		List = {"TP", "Gravity"},
+		Default = "TP",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
+			end
+		end
+	})
+end)
+
+--[[ OLD LONGJUMP SAVING
+spawn(function()
 	local OldGravity, StartJump = game.Workspace.Gravity, nil
 	local SelectedMode = nil
 
@@ -758,12 +855,22 @@ spawn(function()
 				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 				repeat
 					wait(0.15)
-					if SelectedMode == "OldVape" then
+					if SelectedMode == "TP" then
 						if StartJump ==  nil then
 							StartJump = tick()
 						end
 						if (tick() - StartJump) < 1.25 then
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+						end
+					elseif SelectedMode == "Gravity" then
+						game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
+						wait(0.28)
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+						if StartJump ==  nil then
+							StartJump = tick()
+						end
+						if (tick() - StartJump) < 1.25 then
 						end
 					end
 				until (tick() - StartJump) > 1.25
@@ -776,8 +883,8 @@ spawn(function()
 	})
 	local LongJumpMode = LongJump:CreateDropdown({
 		Name = "Long Jump Mode",
-		List = {"OldVape"},
-		Default = "OldVape",
+		List = {"TP", "Gravity"},
+		Default = "TP",
 		Callback = function(callback)
 			if callback then
 				SelectedMode = callback
@@ -785,8 +892,7 @@ spawn(function()
 		end
 	})
 end)
-
-
+--]]
 spawn(function()
 	local Loop = nil
 	
@@ -1252,78 +1358,24 @@ spawn(function()
 	})
 end)
 
---[[
-spawn(function()
-	local Event = nil
-	local function Kill(plr)
-		local messages = {
-			"Lime Yummy🤤",
-			"Lime might not be the best, but it can still beat you " .. plr.Name,
-			"Eternal rebrand is the best (Lime)"
-		}
-		return messages[math.random(1, #messages)]
-	end
-	local function Dead(plr)
-		local messages = {
-			"Wow what a pro, is that right? " .. plr.Name,
-			"Someone that can defeat me probably uses cheats too!"
-		}
-		return messages[math.random(1, #messages)]
-	end
-
-	local AutoToxic = PlayerTab:CreateToggle({
-		Name = "Auto Toxic",
-		Callback = function(enabled)
-			if enabled then
-				Event = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.OnKill
-				if Event then
-					Event.OnClientEvent:Connect(function(alive, dead, ...)
-						if alive.Name == LocalPlayer.Name and dead.Name ~= LocalPlayer.Name then
-							local KillMessage = Kill(dead)
-							local args = {
-								[1] = KillMessage,
-								[2] = "All"
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						elseif alive.Name ~= LocalPlayer.Name and dead.Name == LocalPlayer.Name then
-							local DeadMessage = Dead(alive)
-							local args = {
-								[1] = DeadMessage,
-								[2] = "All"
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						end
-					end)
-				end
-			else
-				Event = nil
-			end
-		end
-	})
-end)
---]]
-
 spawn(function()	
 	local Loop, Expand, Downwards, Sound = nil, nil, false, false
 	local PlacePos, NearestPos, IsPlaying = nil, nil, true
-	--[[
-	local PlaceSound = {
-		13537914211,
-		13538010595,
-		13538009598,
-		13538008146
-	}
-	--]]
 	
-	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
+	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
+		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):FindFirstChild("ToggleSneaking").InvokeServer:Connect(function(self, ...)
+			if self == true or self == "true" then
+				Downwards = true
+			end
+		end)
+	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
 				Downwards = true
-
 			end
 		end)
-
+		
 		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
@@ -1349,15 +1401,6 @@ spawn(function()
 							}
 
 							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-						--[[
-						if Sound and IsPlaying then
-							IsPlaying = false
-							local RandomPlace = PlaceSound[math.random(1, #PlaceSound)]
-							PlaySound(RandomPlace)
-							wait(0.05)
-							IsPlaying = true
-						end
-						--]]
 						end
 					else
 						repeat
@@ -1384,16 +1427,4 @@ spawn(function()
 			end
 		end
 	})
-	--[[
-	local ScaffoldSounds = Scaffold:CreateMiniToggle({
-		Name = "Sounds",
-		Callback = function(callback)
-			if callback then
-				Sound = true
-			else
-				Sound = false
-			end
-		end
-	})
-	--]]
 end)
