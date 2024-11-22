@@ -635,22 +635,8 @@ spawn(function()
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
 		end)
-		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):FindFirstChild("ToggleSneaking").InvokeServer:Connect(function(self, ...)
-			if self == true or self == "true" then
-				YPos = YPos - 3
-			end
-		end)
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
-			if IsTyping then return end
-			if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
-				YPos = YPos - 3
-			elseif Input.KeyCode == Enum.KeyCode.Space then
-				YPos = YPos + 3
-			end
-		end)
-		
-		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.LeftShift or Input.KeyCode == Enum.KeyCode.Q then
 				YPos = YPos - 3
@@ -1362,20 +1348,14 @@ spawn(function()
 	local Loop, Expand, Downwards, Sound = nil, nil, false, false
 	local PlacePos, NearestPos, IsPlaying = nil, nil, true
 	
-	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):FindFirstChild("ToggleSneaking").InvokeServer:Connect(function(self, ...)
-			if self == true or self == "true" then
-				Downwards = true
-			end
-		end)
-	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
+	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
 				Downwards = true
 			end
 		end)
-		
+
 		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
