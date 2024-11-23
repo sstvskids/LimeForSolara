@@ -30,7 +30,6 @@ local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam)
 	for _, entities in pairs(game.Workspace:GetChildren()) do
 		if entities:IsA("Model") and entities.Name ~= LocalPlayer.Name then
 			if IsAlive(entities) then
-				
 				if not EntityCheck then
 					Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
 				else
@@ -310,7 +309,7 @@ spawn(function()
 	})
 end)
 
-local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled = nil, nil, nil, nil
+local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget = nil, nil, nil, nil, nil
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword = nil
@@ -324,6 +323,7 @@ spawn(function()
 					if IsAlive(LocalPlayer.Character) then
 						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck)
 						if Entity then
+							KillAuraTarget = Entity
 							Sword = CheckTool("Sword")
 							if Sword then
 								print(Entity.Name)
@@ -527,7 +527,7 @@ end)
 
 spawn(function()
 	local Loop, Reported, Notify = nil, {}, false
-	
+
 	local AutoReport = Tabs.Exploit:CreateToggle({
 		Name = "Auto Report",
 		Callback = function(callback)
@@ -572,7 +572,7 @@ end)
 
 spawn(function()
 	local Loop, AutoLeave, IsStaff = nil, false, false
-	
+
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Detector",
 		Callback = function(callback)
@@ -588,7 +588,7 @@ spawn(function()
 							Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
 							Duration = 15,
 						})
-						
+
 						if AutoLeave then
 							game:GetService("StarterGui"):SetCore("SendNotification", { 
 								Title = "Lime | Staff",
@@ -619,7 +619,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[[
 spawn(function()
 	local Loop, SelectedMode = nil, nil
 	local Disabler = Tabs.Exploit:CreateToggle({
@@ -660,13 +660,13 @@ spawn(function()
 		end
 	})
 end)
-
+--]]
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 	local Loop, Speed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
-	
+
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
@@ -681,7 +681,7 @@ spawn(function()
 			end
 		end)
 	end
-	
+
 	local Flight = Tabs.Move:CreateToggle({
 		Name = "Flight",
 		Callback = function(callback)
@@ -764,7 +764,7 @@ spawn(function()
 	local FlightSpeed = Flight:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 100,
+		Max = 28,
 		Default = 28,
 		Callback = function(callback)
 			if callback then
@@ -917,7 +917,7 @@ end)
 --]]
 spawn(function()
 	local Loop = nil
-	
+
 	local NoSlowDown = Tabs.Move:CreateToggle({
 		Name = "No Slow Down",
 		Callback = function(callback)
@@ -952,7 +952,7 @@ end)
 
 spawn(function()
 	local Loop, SpeedVal, AutoJump = nil, nil, false
-	
+
 	local Speed = Tabs.Move:CreateToggle({
 		Name = "Speed",
 		Callback = function(callback)
@@ -983,8 +983,8 @@ spawn(function()
 	local SpeedSpeedValue = Speed:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 100, 
-		Default = 28,
+		Max = 32, 
+		Default = 32,
 		Callback = function(callback)
 			if callback then
 				SpeedVal = callback
@@ -1165,6 +1165,48 @@ spawn(function()
 			end
 		end
 	}) 
+end)
+
+spawn(function()
+	local Loop, UserID = nil, nil
+	local PName, PHumanoid, PIMG = nil, nil, nil
+	local TargetHUD = Tabs.Visual:CreateToggle({
+		Name = "Target HUD",
+		Callback = function(callback)
+			if callback then
+				Loop = true
+				repeat
+					wait()
+					if IsKillAuraEnabled then
+						if KillAuraTarget ~= nil then
+							PName = KillAuraTarget.Name
+							PHumanoid = KillAuraTarget:FindFirstChildOfClass("Humanoid")
+							for i, v in pairs(Service.Players:GetPlayers()) do
+								if v and v ~= LocalPlayer and v.Name:match(KillAuraTarget.Name) then
+									UserID = v.UserId
+								end						
+							end
+							if UserID ~= nil then
+								PIMG = Service.Players:GetUserThumbnailAsync(UserID.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
+							else
+								PIMG = "rbxassetid://14025674892"
+							end
+							Main:CreateTargetHUD(PName, PIMG, PHumanoid, Loop)
+						end
+					else
+						Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), Loop)
+						repeat
+							wait()
+						until IsKillAuraEnabled
+					end
+				until not callback
+				Main:CreateTargetHUD(PName, PIMG, PHumanoid, Loop)
+			else
+				Loop = false
+				Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), false)
+			end
+		end
+	})
 end)
 
 spawn(function()
@@ -1383,7 +1425,7 @@ end)
 spawn(function()	
 	local Loop, Expand, Downwards, Sound = nil, nil, false, false
 	local PlacePos, NearestPos, IsPlaying = nil, nil, true
-	
+
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -1399,7 +1441,7 @@ spawn(function()
 			end
 		end)
 	end
-	
+
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
 		Callback = function(callback)
