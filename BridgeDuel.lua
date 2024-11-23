@@ -326,7 +326,6 @@ spawn(function()
 							KillAuraTarget = Entity
 							Sword = CheckTool("Sword")
 							if Sword then
-								print(Entity.Name)
 								if KillAuraBlock == "Packet" then
 									local args = {
 										[1] = true,
@@ -376,6 +375,13 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+				end
+				if KillAuraBlock == "Packet" then
+					local args = {
+						[1] = false,
+						[2] = Sword.Name
+					}
+					game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 				end
 			end
 		end
@@ -836,13 +842,16 @@ spawn(function()
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
 						wait(0.2)
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-
 					end
 				elseif SelectedMode == "Gravity" then
 					game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-					wait(0.28)
+					wait(0.22)
 					local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+				else
+					repeat
+						wait()
+					until not IsEnabled
 				end
 			else
 				wait(1)
@@ -1168,15 +1177,13 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, UserID = nil, nil
+	local Loop, UserID, UseDisplay = nil, nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
 	local TargetHUD = Tabs.Visual:CreateToggle({
 		Name = "Target HUD",
 		Callback = function(callback)
 			if callback then
-				Loop = true
-				repeat
-					wait()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsKillAuraEnabled then
 						if KillAuraTarget ~= nil then
 							PName = KillAuraTarget.Name
@@ -1191,19 +1198,34 @@ spawn(function()
 							else
 								PIMG = "rbxassetid://14025674892"
 							end
-							Main:CreateTargetHUD(PName, PIMG, PHumanoid, Loop)
+							if UseDisplay then
+								Main:CreateTargetHUD(PHumanoid.DisplayName, PIMG, PHumanoid, true)
+							else
+								Main:CreateTargetHUD(PName, PIMG, PHumanoid, true)
+							end
 						end
 					else
-						Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), Loop)
+						Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
 						repeat
 							wait()
 						until IsKillAuraEnabled
 					end
-				until not callback
-				Main:CreateTargetHUD(PName, PIMG, PHumanoid, Loop)
+				end)
 			else
-				Loop = false
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
 				Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), false)
+			end
+		end
+	})
+	local TargetHUDNaming = TargetHUD:CreateMiniToggle({
+		Name = "Use Display Name",
+		Callback = function(callback)
+			if callback then
+				UseDisplay = true
+			else
+				UseDisplay = false
 			end
 		end
 	})
