@@ -72,6 +72,42 @@ local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam)
 	return Entity
 end
 
+local function GetITemC0()
+	local ToolC0 = nil
+	local Viewmodel = game.Workspace.CurrentCamera:GetChildren()[1]
+	if shared.Lime and not shared.Lime.OldC0 then
+		shared.Lime.OldC0 = Viewmodel:FindFirstChildWhichIsA("Model"):WaitForChild("Handle"):FindFirstChild("MainPart").C0
+	end
+
+	if Viewmodel then
+		for i, v in pairs(Viewmodel:GetChildren()) do
+			if v:IsA("Model") then
+				for i, z in pairs(v:GetChildren()) do
+					if z:IsA("Part") and z.Name == "Handle" then
+						for i, x in pairs(z:GetChildren()) do
+							if x:IsA("Motor6D") and x.Name == "MainPart" then
+								ToolC0 = x
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	return ToolC0
+end
+
+local function AnimateC0(anim)
+	local Tool = GetITemC0()
+	if Tool then
+		local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = shared.Lime.OldC0 * anim.CFrame})
+		if Tween then
+			Tween:Play()
+			Tween.Completed:Wait()
+		end
+	end
+end
+
 local function PlaySound(id)
 	local Sound = Instance.new("Sound")
 	Sound.SoundId = "rbxassetid://" .. id
@@ -728,7 +764,7 @@ spawn(function()
 	local FlightSpeed = Flight:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 28,
+		Max = 100,
 		Default = 28,
 		Callback = function(callback)
 			if callback then
@@ -780,8 +816,8 @@ spawn(function()
 		Name = "Long Jump",
 		AutoDisable = true,
 		Callback = function(callback)
-			IsEnabled = callback
 			if callback then
+				IsEnabled = true
 				game.Workspace.Gravity = 15
 				if SelectedMode == "TP" then
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
@@ -947,7 +983,7 @@ spawn(function()
 	local SpeedSpeedValue = Speed:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 28, 
+		Max = 100, 
 		Default = 28,
 		Callback = function(callback)
 			if callback then
