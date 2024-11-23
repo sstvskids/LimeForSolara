@@ -1187,7 +1187,7 @@ spawn(function()
 								end						
 							end
 							if UserID ~= nil then
-								PIMG = Service.Players:GetUserThumbnailAsync(UserID.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
+								PIMG = Service.Players:GetUserThumbnailAsync(UserID, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
 							else
 								PIMG = "rbxassetid://14025674892"
 							end
