@@ -13,7 +13,7 @@ local AutoSave, MainFile = true, nil
 if not shared.Lime then
 	shared.Lime = {
 		Uninject = false,
-		HUDVisible = true
+		HUDVisible = true,
 	}
 end
 
@@ -305,6 +305,84 @@ function Library:CreateMain()
 			MainFrame.Visible = not MainFrame.Visible
 		end
 	end)
+	
+	local Frame = Instance.new("Frame")
+	Frame.Parent = HudFrame
+	Frame.AnchorPoint = Vector2.new(0, 0.5)
+	Frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	Frame.BackgroundTransparency = 0.15
+	Frame.BorderSizePixel = 0
+	Frame.Size = UDim2.new(0, 231, 0, 50)
+	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	MakeDraggable(Frame)
+	
+	local ImageLabel_2 = Instance.new("ImageLabel")
+	local Frame_2 = Instance.new("Frame")
+	local TextLabel_2 = Instance.new("TextLabel")
+	local TweenService = game:GetService("TweenService")
+	local Frame3Gradient = Instance.new("UIGradient")
+	local Frame_3 = Instance.new("Frame")
+
+	function Main:CreateTargetHUD(name, thumbnail, humanoid)
+		local TargetHUD = {}
+
+		ImageLabel_2.Parent = Frame
+		ImageLabel_2.AnchorPoint = Vector2.new(0, 0.5)
+		ImageLabel_2.BackgroundTransparency = 1
+		ImageLabel_2.Position = UDim2.new(0, 5, 0.5, 0)
+		ImageLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ImageLabel_2.Size = UDim2.new(0, 40, 0, 40)
+		ImageLabel_2.Image = thumbnail
+
+		TextLabel_2.Parent = Frame
+		TextLabel_2.BackgroundTransparency = 1
+		TextLabel_2.Font = Enum.Font.SourceSansBold
+		TextLabel_2.Text = name
+		TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TextLabel_2.TextSize = 18
+		TextLabel_2.TextWrapped = true
+		TextLabel_2.TextXAlignment = Enum.TextXAlignment.Left
+
+		Frame_2.Parent = Frame
+		Frame_2.AnchorPoint = Vector2.new(0, 0.5)
+		Frame_2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+		Frame_2.BackgroundTransparency = 0.35
+		Frame_2.Position = UDim2.new(0, 50, 0.75, 0)
+		Frame_2.Size = UDim2.new(0, 100, 0, 8)
+		Frame_2.BorderSizePixel = 0
+
+		Frame_3.Parent = Frame_2
+		Frame_3.AnchorPoint = Vector2.new(0, 0.5)
+		Frame_3.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
+		Frame_3.Position = UDim2.new(0, 0, 0.5, 0)
+		Frame_3.Size = UDim2.new(0, 100, 0, 8)
+		Frame_3.BorderSizePixel = 0
+
+		Frame3Gradient.Parent = Frame_3
+		Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+
+		local NewTextSize = game:GetService("TextService"):GetTextSize(TextLabel_2.Text, TextLabel_2.TextSize, TextLabel_2.Font, Vector2.new(9999, 50))
+		local Width = NewTextSize.X + ImageLabel_2.Size.X.Offset + 15
+		local NewSize_2 = UDim2.new(0, Width, 0, 50)
+
+		Frame.Size = NewSize_2
+		Frame_2.Size = UDim2.new(0, NewTextSize.X, 0, 8)
+		TextLabel_2.Size = UDim2.new(0, NewTextSize.X, 0, NewTextSize.Y)
+		TextLabel_2.Position = UDim2.new(0, Frame_2.Position.X.Offset, 0.12, 0)
+
+		if humanoid then
+			Frame.Visible = true
+			if humanoid.Health > 0 then
+				local Calculation = humanoid.Health / humanoid.MaxHealth
+				TweenService:Create(Frame_3, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(Calculation, 0, 0, 8)}):Play()
+			end
+		else
+			Frame.Visible = false
+		end
+
+		return TargetHUD
+	end
 
 	function Main:CreateTab(name, icon, iconcolor)
 		local Tabs = {}
