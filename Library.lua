@@ -314,6 +314,7 @@ function Library:CreateMain()
 	Frame.BorderSizePixel = 0
 	Frame.Size = UDim2.new(0, 231, 0, 50)
 	Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Frame.Visible = false
 	MakeDraggable(Frame)
 	
 	local ImageLabel_2 = Instance.new("ImageLabel")
