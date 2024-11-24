@@ -806,8 +806,8 @@ spawn(function()
 	local HighjumpHeigh = HighJump:CreateSlider({
 		Name = "Height",
 		Min = 0,
-		Max = 100,
-		Default = 25,
+		Max = 200,
+		Default = 75,
 		Callback = function(callback)
 			if callback then
 				Height = callback
@@ -817,36 +817,17 @@ spawn(function()
 end)
 
 spawn(function()
-	local OldGravity, IsEnabled = game.Workspace.Gravity, false
-	local SelectedMode = nil
+	local OldGravity, IsEnabled, WaitToLand = game.Workspace.Gravity, false, false
 	local LongJump = Tabs.Move:CreateToggle({
 		Name = "Long Jump",
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
 				IsEnabled = true
-				game.Workspace.Gravity = 15
-				if SelectedMode == "TP" then
-					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-					wait(0.15)
-					if IsEnabled then
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						wait(0.2)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-					end
-				elseif SelectedMode == "Gravity" then
+				if IsEnabled then
+					game.Workspace.Gravity = 15
 					game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-					wait(0.22)
+					wait(0.28)
 					local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 				else
@@ -855,19 +836,34 @@ spawn(function()
 					until not IsEnabled
 				end
 			else
-				wait(1)
-				game.Workspace.Gravity = OldGravity
-				IsEnabled = false
+				if WaitToLand then
+					repeat
+						wait()
+					until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air
+					game.Workspace.Gravity = OldGravity
+					IsEnabled = false
+				else
+					wait(1)
+					game.Workspace.Gravity = OldGravity
+					IsEnabled = false
+				end
 			end
 		end
 	})
 	local LongJumpMode = LongJump:CreateDropdown({
 		Name = "Long Jump Mode",
-		List = {"TP", "Gravity"},
-		Default = "TP",
+		List = {"Gravity"},
+		Default = "Gravity",
+		Callback = function(callback)
+		end
+	})
+	local LongJumpWaitLanding = LongJump:CreateMiniToggle({
+		Name = "Wait For Landing",
 		Callback = function(callback)
 			if callback then
-				SelectedMode = callback
+				WaitToLand = true
+			else
+				WaitToLand = false
 			end
 		end
 	})
@@ -1251,7 +1247,7 @@ spawn(function()
 							end
 						end
 					else
-						Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
+						Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
 						repeat
 							wait()
 						until IsKillAuraEnabled
@@ -1261,7 +1257,7 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				Main:CreateTargetHUD(LocalPlayer.Name, "rbxassetid://12383051264", LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), false)
+				Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), false)
 			end
 		end
 	})
