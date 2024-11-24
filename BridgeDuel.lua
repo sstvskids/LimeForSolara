@@ -19,7 +19,8 @@ local Tabs = {
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
 }
-
+--game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"]
+--game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"].Title
 local function IsAlive(entity)
 	return entity and entity:FindFirstChildOfClass("Humanoid") and entity:FindFirstChild("HumanoidRootPart") and entity:FindFirstChildOfClass("Humanoid").Health > 0
 end
@@ -63,7 +64,7 @@ local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam)
 							MinDist = entities:FindFirstChild("Humanoid").Health
 							Entity = entities
 						end
-					end
+					end	
 				end
 			end
 		end
@@ -669,7 +670,7 @@ end)
 --]]
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
-	local Loop, Speed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
+	local Loop, FlightSpeed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
 
@@ -705,14 +706,14 @@ spawn(function()
 								Start = tick()
 							end
 							if (tick() - Start) < 2 then
-								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (Speed + 8)
+								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed + 8)
 							else
 								Start = nil
 								Boost = false
-								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (Speed - 8)
+								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed - 8)
 							end
 						else
-							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * Speed
+							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
 						end
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 						if SelectedMode == "Float" then
@@ -774,7 +775,7 @@ spawn(function()
 		Default = 28,
 		Callback = function(callback)
 			if callback then
-				Speed = callback
+				FlightSpeed = callback
 			end
 		end
 	})
@@ -960,7 +961,7 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, SpeedVal, AutoJump = nil, nil, false
+	local Loop, VelocitySpeed, AutoJump = nil, nil, false
 
 	local Speed = Tabs.Move:CreateToggle({
 		Name = "Speed",
@@ -968,7 +969,7 @@ spawn(function()
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
-						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * SpeedVal
+						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 						if AutoJump then
 							spawn(function()
@@ -990,13 +991,13 @@ spawn(function()
 		end
 	})
 	local SpeedSpeedValue = Speed:CreateSlider({
-		Name = "Speed",
+		Name = "Speeds",
 		Min = 0,
 		Max = 32, 
 		Default = 32,
 		Callback = function(callback)
 			if callback then
-				SpeedVal = callback
+				VelocitySpeed = callback
 			end
 		end
 	})
@@ -1039,6 +1040,51 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				NewTime = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local function Hightlight(v)
+		if v ~= LocalPlayer and IsAlive(v.Character) then
+			if not v.Character:FindFirstChildOfClass("Highlight") then
+				local highlight = Instance.new("Highlight")
+				highlight.Parent = v.Character
+				highlight.FillTransparency = 1
+				highlight.OutlineTransparency = 0.45
+				highlight.OutlineColor = Color3.new(0.470588, 0.886275, 1)
+			end
+		end
+	end
+
+	local function RemoveHighlight(v)
+		if v ~= LocalPlayer and IsAlive(v.Character) and v.Character:FindFirstChildOfClass("Highlight") then
+			v.Character:FindFirstChildOfClass("Highlight"):Destroy()
+		end
+	end
+	
+	local Loop = nil
+	local Chams = Tabs.Visual:CreateToggle({
+		Name = "Chams",
+		Callback = function(callback)
+			if callback then
+				Service.Players.PlayerAdded:Connect(Hightlight)
+				Service.Players.PlayerRemoving:Connect(RemoveHighlight)
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					Service.Players.PlayerAdded:Connect(Hightlight)
+					Service.Players.PlayerRemoving:Connect(RemoveHighlight)
+					for i,v in pairs(Service.Players:GetChildren()) do
+						Hightlight(v)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				for i,v in pairs(Service.Players:GetChildren()) do
+					RemoveHighlight(v)
+				end
 			end
 		end
 	})
@@ -1300,7 +1346,7 @@ spawn(function()
 	PositionHighlight.CanQuery = false
 	PositionHighlight.Material = Enum.Material.Neon
 	PositionHighlight.CastShadow = false
-	PositionHighlight.Color = Color3.new(0.815686, 0.0745098, 1)
+	PositionHighlight.Color = Color3.new(0.470588, 0.886275, 1)
 	PositionHighlight.Transparency = 1
 	PositionHighlight.Parent = game.Workspace
 
