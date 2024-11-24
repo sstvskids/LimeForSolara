@@ -1032,7 +1032,7 @@ spawn(function()
 		Name = "Time",
 		Min = 0,
 		Max = 24,
-		Default = 18,
+		Default = 3,
 		Callback = function(callback)
 			if callback then
 				NewTime = callback
@@ -1059,7 +1059,7 @@ spawn(function()
 			v.Character:FindFirstChildOfClass("Highlight"):Destroy()
 		end
 	end
-	
+
 	local Loop = nil
 	local Chams = Tabs.Visual:CreateToggle({
 		Name = "Chams",
