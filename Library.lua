@@ -125,7 +125,6 @@ function Library:CreateMain()
 			MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			MainFrame.BorderSizePixel = 0
 			MainFrame.Size = UDim2.new(1, 0, 1, 0)
-			MainFrame.ZIndex = 1
 			MainFrame.CanvasPosition = Vector2.new(240, 0)
 			MainFrame.CanvasSize = UDim2.new(1.60000002, 0, 0, 0)
 			MainFrame.ScrollBarThickness = 8
@@ -192,15 +191,26 @@ function Library:CreateMain()
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
 	LibraryTitle.Text = "Lime"
 	LibraryTitle.Font = Enum.Font.SourceSans
-	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
+	LibraryTitle.TextColor3 = Color3.fromRGB(128, 204, 255)
 	LibraryTitle.TextScaled = true
 	LibraryTitle.TextSize = 14.000
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
+	
+	local XMASSPECIAL = Instance.new("ImageLabel")
+	XMASSPECIAL.Parent = LibraryTitle
+	XMASSPECIAL.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	XMASSPECIAL.BackgroundTransparency = 1.000
+	XMASSPECIAL.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	XMASSPECIAL.BorderSizePixel = 0
+	XMASSPECIAL.Position = UDim2.new(0.0956521705, 0, -0.100000001, 0)
+	XMASSPECIAL.Rotation = 18.000
+	XMASSPECIAL.Size = UDim2.new(0, 35, 0, 35)
+	XMASSPECIAL.Image = "rbxassetid://11752433429"
 
 	local TitleGradient = Instance.new("UIGradient")
-	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 	TitleGradient.Parent = LibraryTitle
 
 	local ArrayTable = {}
@@ -228,7 +238,7 @@ function Library:CreateMain()
 		TextLabel.BorderSizePixel = 0
 		TextLabel.Font = Enum.Font.SourceSans
 		TextLabel.Text = name
-		TextLabel.TextColor3 = Color3.fromRGB(255, 0, 127)
+		TextLabel.TextColor3 = Color3.fromRGB(128, 204, 255)
 		TextLabel.TextScaled = true
 		TextLabel.TextSize = 18.000
 		TextLabel.TextWrapped = true
@@ -236,7 +246,7 @@ function Library:CreateMain()
 		TweenService:Create(TextLabel, TweenInfo.new(1.8), {TextTransparency = 0, BackgroundTransparency = 0.750}):Play()
 
 		local TextGradient = Instance.new("UIGradient")
-		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 		TextGradient.Parent = TextLabel
 
 		local NewWidth = game.TextService:GetTextSize(name, 18, Enum.Font.SourceSans, Vector2.new(0, 0)).X
@@ -347,14 +357,14 @@ function Library:CreateMain()
 	local Frame_3 = Instance.new("Frame")
 	Frame_3.Parent = Frame_2
 	Frame_3.AnchorPoint = Vector2.new(0, 0.5)
-	Frame_3.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
+	Frame_3.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
 	Frame_3.Position = UDim2.new(0, 0, 0.5, 0)
 	Frame_3.Size = UDim2.new(0, 50, 0, 8)
 	Frame_3.BorderSizePixel = 0
 
 	local Frame3Gradient = Instance.new("UIGradient")
 	Frame3Gradient.Parent = Frame_3
-	Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+	Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 
 	function Main:CreateTargetHUD(name, thumbnail, humanoid, ishere)
 		local TargetHUD = {}
@@ -477,6 +487,7 @@ function Library:CreateMain()
 			ToggleButtonHolder.AutoButtonColor = false
 			ToggleButtonHolder.Font = Enum.Font.SourceSans
 			ToggleButtonHolder.Text = ""
+			ToggleButtonHolder.ZIndex = 2
 			ToggleButtonHolder.TextColor3 = Color3.fromRGB(0, 0, 0)
 			ToggleButtonHolder.TextSize = 14.000
 
@@ -490,6 +501,7 @@ function Library:CreateMain()
 			ToggleName.Size = UDim2.new(0, 145, 1, 0)
 			ToggleName.Font = Enum.Font.SourceSans
 			ToggleName.Text = ToggleButton.Name
+			ToggleName.ZIndex = 2
 			ToggleName.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ToggleName.TextSize = 16.000
 			ToggleName.TextWrapped = true
@@ -505,6 +517,7 @@ function Library:CreateMain()
 			OpenMenu.Position = UDim2.new(0, 173, 0.5, 0)
 			OpenMenu.Size = UDim2.new(0, 20, 0, 20)
 			OpenMenu.Font = Enum.Font.SourceSans
+			OpenMenu.ZIndex = 2
 			OpenMenu.Text = ">"
 			OpenMenu.TextColor3 = Color3.fromRGB(255, 255, 255)
 			OpenMenu.TextScaled = true
@@ -512,7 +525,7 @@ function Library:CreateMain()
 			OpenMenu.TextWrapped = true
 
 			local UIGradient = Instance.new("UIGradient")
-			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 			UIGradient.Parent = ToggleButtonHolder
 			UIGradient.Enabled = false
 
@@ -586,7 +599,7 @@ function Library:CreateMain()
 
 							local function MobileButtonsOnClicked()
 								if ToggleButton.Enabled then
-									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
+									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(128, 204, 255)}):Play()
 									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 									AddArray(ToggleButton.Name)
 								else
@@ -681,11 +694,11 @@ function Library:CreateMain()
 			local function ToggleButtonClicked()
 				if ToggleButton.Enabled then
 					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
+					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(128, 204, 255)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
 					--[[
-					ToggleButtonHolder.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
+					ToggleButtonHolder.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
 					ToggleButtonHolder.Transparency = 0
 					UIGradient.Enabled = true
 					--]]
@@ -978,13 +991,13 @@ function Library:CreateMain()
 
 				local SliderHolderFront = Instance.new("Frame")
 				SliderHolderFront.Parent = SliderHolderBack
-				SliderHolderFront.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
+				SliderHolderFront.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
 				SliderHolderFront.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderHolderFront.BorderSizePixel = 0
 				SliderHolderFront.Size = UDim2.new(0, 50, 1, 0)
 
 				local SliderHolderGradient = Instance.new("UIGradient")
-				SliderHolderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
+				SliderHolderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 				SliderHolderGradient.Parent = SliderHolderFront
 
 				local SliderHolderMain = Instance.new("TextButton")
