@@ -10,12 +10,10 @@ local PlayerGui = LocalPlayer.PlayerGui
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
 local AutoSave, MainFile = true, nil
-if not shared.Lime then
-	shared.Lime = {
-		Uninject = false,
-		HUDVisible = true,
-	}
-end
+local Library = {
+	Uninject = false,
+	Hud = true,
+}
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
@@ -34,7 +32,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	spawn(function()
 		while AutoSave do
 			wait()
-			if shared.Lime.Uninject then
+			if Library.Uninject then
 				AutoSave = false
 				break
 			end
@@ -87,8 +85,6 @@ function Spoof(length)
 	return table.concat(Letter)
 end
 
-local Library = {}
-
 function Library:CreateMain()
 	local Main = {}
 
@@ -106,10 +102,11 @@ function Library:CreateMain()
 	spawn(function()
 		while true do
 			wait()
-			if shared.Lime.Uninject and ScreenGui ~= nil then
+			if Library.Uninject and ScreenGui ~= nil then
 				ScreenGui:Destroy()
-				wait()
-				shared.Lime.Uninject = false
+				if ScreenGui == nil then
+					Library.Uninject = false
+				end
 			end
 		end
 	end)
@@ -177,7 +174,11 @@ function Library:CreateMain()
 	spawn(function()
 		while true do
 			wait()
-			HudFrame.Visible = shared.Lime.HUDVisible
+			if Library.Hud then
+				HudFrame.Visible = true
+			else
+				HudFrame.Visible = false
+			end
 		end
 	end)
 
@@ -621,7 +622,7 @@ function Library:CreateMain()
 							spawn(function()
 								while true do
 									wait()
-									if shared.Lime.Uninject then
+									if Library.Uninject then
 										for i,v in pairs(KeybindFrame:GetChildren()) do
 											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
 												v:Destroy()
@@ -661,8 +662,8 @@ function Library:CreateMain()
 						if Input.UserInputType == Enum.UserInputType.Keyboard then
 							if Keybinds:IsFocused() then
 								ToggleButton.Keybind = Input.KeyCode.Name
+								Keybinds.PlaceholderText = ""
 								Keybinds.Text = Input.KeyCode.Name
-								Keybinds.PlaceholderText = Input.KeyCode.Name
 								Keybinds:ReleaseFocus()
 								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							elseif ToggleButton.Keybind == "Backspace" then
@@ -675,10 +676,16 @@ function Library:CreateMain()
 						spawn(function()
 							while true do
 								wait()
-								if shared.Lime.Uninject then
+								if Library.Uninject then
 									if Keybinds then
 										Keybinds.Text = ""
 										Keybinds.PlaceholderText = "None"
+									end
+								end
+								if ToggleButton.Keybind ~= "Home" then
+									if Keybinds then
+										Keybinds.PlaceholderText = ""
+										Keybinds.Text = ToggleButton.Keybind
 									end
 								end
 							end
@@ -805,7 +812,7 @@ function Library:CreateMain()
 			spawn(function()
 				while true do
 					wait()
-					if shared.Lime.Uninject then
+					if Library.Uninject then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							ToggleButtonClicked()
