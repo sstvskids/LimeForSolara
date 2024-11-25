@@ -20,6 +20,7 @@ local Tabs = {
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
 }
+--1.20000005, -0.5, 0, 0.036033392, -0.746451914, 0.664462984, -0.353553385, 0.612372398, 0.707106769, -0.934720039, -0.26040262, -0.241844743 blocking c1
 --game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"]
 --game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"].Title
 local function IsAlive(entity)
@@ -234,57 +235,56 @@ spawn(function()
 		end
 	})
 end)
-
---[[
+--[[ OMG THIS SHIT IS SOO FUCKING HARD TO MAKE
 spawn(function()
-	local Loop, MinHealth, IsEated = nil, nil, false
-	local Gapple = nil
+	local MinHealth, IsGapple, IsEated = nil, nil, false
+	local Loop, Gapple = nil, nil
 
-	game:GetService("Players").LocalPlayer.Backpack.GoldApple.__comm__.RE.EatInterrupt.OnServerEvent:Connect(function()
-		if Gapple ~= nil and not Gapple and not IsEated then
-			Humanoid:EquipTool(Gapple)
-			wait()
-			IsEated = true
-			Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-		elseif Gapple ~= nil and Gapple and not IsEated then
-			IsEated = true
-			Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-		end
-	end)
-	
-	local AutoGapple = CombatTab:CreateToggle({
+	local AutoGapple = Tabs.Combat:CreateToggle({
 		Name = "Auto Gapple",
 		Callback = function(callback)
 			if callback then
-				Loop = RunService.Heartbeat:Connect(function()
-					if IsAlive(LocalPlayer) and Humanoid.Health < MinHealth and not IsEated then
-						Gapple = CheckTool("Apple")
-						if not Gapple and not IsEated then
-							Humanoid:EquipTool(Gapple)
-							wait()
-							IsEated = true
-							Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-						elseif Gapple and not IsEated then
-							IsEated = true
-							Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if IsAlive(LocalPlayer.Character) then
+						if MinHealth > LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health then
+							Gapple = CheckTool("GoldApple")
+							if Gapple then
+								if not IsEated then
+									IsEated = true
+									Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
+									wait(0.25)
+									IsEated = false
+								end
+							else
+								if not IsEated then
+									LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple)
+								end
+							end
 						end
+					else
+						repeat 
+							wait() 
+						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
-				IsEated = false
 				if Loop then
 					Loop:Disconnect()
+					Loop = nil
 				end
+				IsEated = false
 			end
 		end
 	})
-	local AutoGappleMinHealth = AutoGapple:CreateSlider({
+	local AutoGappleHealth = AutoGapple:CreateSlider({
 		Name = "Health",
 		Min = 0,
-		Max = Humanoid.MaxHealth,
+		Max = 100,
 		Default = 50,
-		Callback = function(value)
-			MinHealth = value
+		Callback = function(callback)
+			if callback then
+				MinHealth = callback
+			end
 		end
 	})
 end)
@@ -1103,9 +1103,10 @@ spawn(function()
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
-				Library.Uninject = true
 				cleardrawcache()
+				Library.Uninject = true
 			else
+				wait(1.5)
 				Library.Uninject = false
 			end
 		end
