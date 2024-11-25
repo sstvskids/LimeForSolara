@@ -10,6 +10,7 @@ local Service = {
 }
 
 local LocalPlayer = Service.Players.LocalPlayer
+local OldC0 = nil
 local Main = Library:CreateMain()
 local Tabs = {
 	Combat = Main:CreateTab("Combat", 138185990548352, Color3.fromRGB(255, 85, 127)),
@@ -75,8 +76,8 @@ end
 local function GetITemC0()
 	local ToolC0 = nil
 	local Viewmodel = game.Workspace.CurrentCamera:GetChildren()[1]
-	if shared.Lime and not shared.Lime.OldC0 then
-		shared.Lime.OldC0 = Viewmodel:FindFirstChildWhichIsA("Model"):WaitForChild("Handle"):FindFirstChild("MainPart").C0
+	if OldC0 == nil then
+		OldC0 = Viewmodel:FindFirstChildWhichIsA("Model"):WaitForChild("Handle"):FindFirstChild("MainPart").C0
 	end
 
 	if Viewmodel then
@@ -100,7 +101,7 @@ end
 local function AnimateC0(anim)
 	local Tool = GetITemC0()
 	if Tool then
-		local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = shared.Lime.OldC0 * anim.CFrame})
+		local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = OldC0 * anim.CFrame})
 		if Tween then
 			Tween:Play()
 			Tween.Completed:Wait()
@@ -957,11 +958,12 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, VelocitySpeed, AutoJump = nil, nil, false
+	local Loop, VelocitySpeed, AutoJump, IsEnabled = nil, nil, false, false
 
 	local Speed = Tabs.Move:CreateToggle({
 		Name = "Speed",
 		Callback = function(callback)
+			IsEnabled = callback
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
@@ -969,7 +971,10 @@ spawn(function()
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 						if AutoJump then
 							spawn(function()
-								LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Jump = true
+								while IsEnabled do
+									wait()
+									LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Jump = true
+								end
 							end)
 						end
 					else
@@ -1098,16 +1103,10 @@ spawn(function()
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
-				if shared.Lime then
-					cleardrawcache()
-					shared.Lime.Uninject = true
-				end
+				Library.Uninject = true
+				cleardrawcache()
 			else
-				if shared.Lime then
-					wait(5)
-					cleardrawcache()
-					shared.Lime.Uninject = false
-				end
+				Library.Uninject = false
 			end
 		end
 	})
@@ -1206,13 +1205,9 @@ spawn(function()
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
-				if shared.Lime then
-					shared.Lime.HUDVisible = true
-				end
+				Library.Hud = true
 			else
-				if shared.Lime then
-					shared.Lime.HUDVisible = false
-				end
+				Library.Hud = false
 			end
 		end
 	}) 
@@ -1363,7 +1358,7 @@ spawn(function()
 							PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
 						end
 						if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
-							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -132 then
+							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -145 then
 								if Mode == "TP" then
 									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
 								elseif Mode == "Tween" then
