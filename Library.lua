@@ -30,14 +30,21 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 
 	AutoSave = true
 	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if Library.Uninject then
+				AutoSave = false
+			end
+			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+		end)
+		--[[
 		while AutoSave do
 			wait()
 			if Library.Uninject then
 				AutoSave = false
 				break
 			end
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 		end
+		--]]
 	end)
 end
 
@@ -115,9 +122,12 @@ function Library:CreateMain()
 	
 	spawn(function()
 		RunService.Heartbeat:Connect(function()
-			if ScreenGui ~= nil then
-				if Library.Uninject then
+			if Library.Uninject then
+				if ScreenGui ~= nil then
 					ScreenGui:Destroy()
+				end
+				if ScreenGui == nil then
+					Library.Uninject = false
 				end
 			end
 		end)
