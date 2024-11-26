@@ -30,14 +30,21 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 
 	AutoSave = true
 	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if Library.Uninject then
+				AutoSave = false
+			end
+			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+		end)
+		--[[
 		while AutoSave do
 			wait()
 			if Library.Uninject then
 				AutoSave = false
 				break
 			end
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 		end
+		--]]
 	end)
 end
 
@@ -87,7 +94,7 @@ end
 
 function Library:CreateMain()
 	local Main = {}
-
+	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.Name = Spoof(math.random(8, 12))
@@ -98,7 +105,8 @@ function Library:CreateMain()
 	else
 		ScreenGui.Parent = CoreGui
 	end
-
+	
+	--[[
 	spawn(function()
 		while true do
 			wait()
@@ -109,6 +117,20 @@ function Library:CreateMain()
 				end
 			end
 		end
+	end)
+	--]]
+	
+	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if Library.Uninject then
+				if ScreenGui ~= nil then
+					ScreenGui:Destroy()
+				end
+				if ScreenGui == nil then
+					Library.Uninject = false
+				end
+			end
+		end)
 	end)
 
 	local MainFrame = nil
@@ -171,6 +193,7 @@ function Library:CreateMain()
 	HudFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HudFrame.BorderSizePixel = 0
 	HudFrame.Size = UDim2.new(1, 0, 1, 0)
+	--[[
 	spawn(function()
 		while true do
 			wait()
@@ -180,6 +203,19 @@ function Library:CreateMain()
 				HudFrame.Visible = false
 			end
 		end
+	end)
+	--]]
+	
+	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if HudFrame ~= nil then
+				if Library.Hud then
+					HudFrame.Visible = true
+				else
+					HudFrame.Visible = false
+				end
+			end
+		end)
 	end)
 
 	local LibraryTitle = Instance.new("TextLabel")
@@ -566,6 +602,7 @@ function Library:CreateMain()
 							Keybinds.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 							local MobileKeybinds = Instance.new("TextButton")
 							MobileKeybinds.Parent = KeybindFrame
+							--[[
 							spawn(function()
 								while true do
 									wait()
@@ -575,6 +612,17 @@ function Library:CreateMain()
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
 									end
 								end
+							end)
+							--]]
+							
+							spawn(function()
+								RunService.Heartbeat:Connect(function()
+									if ToggleButton.Enabled then
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
+									else
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
+									end
+								end)
 							end)
 
 							local MobileKeybindText = string.len(ToggleButton.Name)
@@ -618,7 +666,7 @@ function Library:CreateMain()
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
 							end)
-
+							--[[
 							spawn(function()
 								while true do
 									wait()
@@ -631,6 +679,21 @@ function Library:CreateMain()
 										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 									end
 								end
+							end)
+							--]]
+							spawn(function()
+								RunService.Heartbeat:Connect(function()
+									if Library.Uninject then
+										if KeybindFrame ~= nil then
+											for i, v in pairs(KeybindFrame:GetChildren()) do
+												if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+													v:Destroy()
+												end
+											end
+											Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+										end
+									end
+								end)
 							end)
 						else
 							for i,v in pairs(KeybindFrame:GetChildren()) do
@@ -673,6 +736,7 @@ function Library:CreateMain()
 								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							end       
 						end
+						--[[
 						spawn(function()
 							while true do
 								wait()
@@ -689,6 +753,23 @@ function Library:CreateMain()
 									end
 								end
 							end
+						end)
+						--]]
+						spawn(function()
+							RunService.Heartbeat:Connect(function()
+								if Library.Uninject then
+									if Keybinds ~= nil then
+										Keybinds.Text = ""
+										Keybinds.PlaceholderText = "None"
+									end
+								end
+								if ToggleButton.Keybind ~= "Home" then
+									if Keybinds ~= nil then
+										Keybinds.PlaceholderText = ""
+										Keybinds.Text = ToggleButton.Keybind
+									end
+								end
+							end)
 						end)
 					end)
 				end
@@ -721,7 +802,8 @@ function Library:CreateMain()
 					--]]
 				end
 			end
-
+			
+			--[[
 			spawn(function()
 				while true do
 					wait()
@@ -746,6 +828,32 @@ function Library:CreateMain()
 						end
 					end
 				end
+			end)
+			--]]
+			
+			spawn(function()
+				RunService.Heartbeat:Connect(function()
+					if ToggleButton.AutoDisable then
+						if ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+					if ToggleButton.AutoEnable then
+						if not ToggleButton.Enabled then
+							ToggleButton.Enabled = true
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+				end)
 			end)
 
 			if ToggleButton.Enabled then
@@ -895,7 +1003,8 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
-
+				
+				--[[
 				spawn(function()
 					while true do
 						wait()
@@ -910,6 +1019,22 @@ function Library:CreateMain()
 							end
 						end
 					end
+				end)
+				--]]
+				
+				spawn(function()
+					RunService.Heartbeat:Connect(function()
+						if MiniToggle.AutoDisable then
+							if MiniToggle.Enabled then
+								MiniToggle.Enabled = false
+								MiniToggleClick()
+
+								if MiniToggle.Callback then
+									MiniToggle.Callback(MiniToggle.Enabled)
+								end
+							end
+						end
+					end)
 				end)
 
 				if MiniToggle.Enabled then
