@@ -1020,7 +1020,6 @@ function Library:CreateMain()
 						end
 					end
 				end)
-				--]]
 				
 				spawn(function()
 					RunService.Heartbeat:Connect(function()
@@ -1036,6 +1035,7 @@ function Library:CreateMain()
 						end
 					end)
 				end)
+				--]]
 
 				if MiniToggle.Enabled then
 					MiniToggle.Enabled = true
