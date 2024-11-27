@@ -13,7 +13,6 @@ local AutoSave, MainFile = true, nil
 local Library = {}
 if not shared.Lime then
 	shared.Lime = {
-		Uninject = false,
 		Hud = true,
 	}
 end
@@ -33,11 +32,13 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 
 	AutoSave = true
 	spawn(function()
-		RunService.Heartbeat:Connect(function()
-			if shared.Lime.Uninject then
-				AutoSave = false
+		RunService.Stepped:Connect(function()
+			if AutoSave then
+				if shared.Lime.Uninject then
+					AutoSave = false
+				end
+				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 		end)
 		--[[
 		while AutoSave do
@@ -121,10 +122,10 @@ function Library:CreateMain()
 			end
 		end
 	end)
-	--]]
-
+		--]]
+	
 	spawn(function()
-		RunService.Heartbeat:Connect(function()
+		RunService.Stepped:Connect(function()
 			if shared.Lime.Uninject then
 				if ScreenGui ~= nil then
 					ScreenGui:Destroy()
@@ -210,7 +211,7 @@ function Library:CreateMain()
 	--]]
 
 	spawn(function()
-		RunService.Heartbeat:Connect(function()
+		RunService.Stepped:Connect(function()
 			if HudFrame ~= nil then
 				if shared.Lime.Hud then
 					HudFrame.Visible = true
@@ -619,7 +620,7 @@ function Library:CreateMain()
 							--]]
 
 							spawn(function()
-								RunService.Heartbeat:Connect(function()
+								RunService.Stepped:Connect(function()
 									if ToggleButton.Enabled then
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
 									else
@@ -685,7 +686,7 @@ function Library:CreateMain()
 							end)
 							--]]
 							spawn(function()
-								RunService.Heartbeat:Connect(function()
+								RunService.Stepped:Connect(function()
 									if shared.Lime.Uninject then
 										for i,v in pairs(KeybindFrame:GetChildren()) do
 											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
@@ -757,7 +758,7 @@ function Library:CreateMain()
 						end)
 						--]]
 						spawn(function()
-							RunService.Heartbeat:Connect(function()
+							RunService.Stepped:Connect(function()
 								if shared.Lime.Uninject then
 									if Keybinds then
 										Keybinds.Text = ""
@@ -833,7 +834,7 @@ function Library:CreateMain()
 			--]]
 
 			spawn(function()
-				RunService.Heartbeat:Connect(function()
+				RunService.Stepped:Connect(function()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -919,7 +920,7 @@ function Library:CreateMain()
 			end
 			
 			spawn(function()
-				RunService.Heartbeat:Connect(function()
+				RunService.Stepped:Connect(function()
 					if shared.Lime.Uninject then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -1042,7 +1043,7 @@ function Library:CreateMain()
 				--]]
 				
 				spawn(function()
-					RunService.Heartbeat:Connect(function()
+					RunService.Stepped:Connect(function()
 						if MiniToggle.AutoDisable then
 							if MiniToggle.Enabled then
 								MiniToggle.Enabled = false
