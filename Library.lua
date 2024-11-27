@@ -13,7 +13,8 @@ local AutoSave, MainFile = true, nil
 local Library = {}
 if not shared.Lime then
 	shared.Lime = {
-		Hud = true,
+		Uninject = false,
+		Hud = true
 	}
 end
 
