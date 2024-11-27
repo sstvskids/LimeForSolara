@@ -183,8 +183,8 @@ spawn(function()
 	local AutoClicker = Tabs.Combat:CreateToggle({
 		Name = "AutoClicker",
 		Callback = function(callback)
-			Enabled = callback
 			if callback then
+				Enabled = false
 				repeat
 					if Randomize then
 						CPS = math.random(MinCPS, MaxCPS)
@@ -199,6 +199,8 @@ spawn(function()
 						end
 					end
 				until not Enabled
+			else
+				Enabled = false
 			end
 		end
 	})
@@ -235,44 +237,49 @@ spawn(function()
 		end
 	})
 end)
---[[ OMG THIS SHIT IS SOO FUCKING HARD TO MAKE
+--[[
 spawn(function()
-	local MinHealth, IsGapple, IsEated = nil, nil, false
-	local Loop, Gapple = nil, nil
-
+	local MinHealth = nil
+	local IsEated, EatCount = 0, 0
+	local Loop = nil
 	local AutoGapple = Tabs.Combat:CreateToggle({
 		Name = "Auto Gapple",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						if MinHealth > LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health then
-							Gapple = CheckTool("GoldApple")
-							if Gapple then
-								if not IsEated then
-									IsEated = true
-									Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-									wait(0.25)
-									IsEated = false
-								end
+				Loop = Service.RunService.RenderStepped:Connect(function()
+					if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
+						local Gapple = CheckTool("GoldApple")
+						if Gapple then
+							if IsEated == 0 and EatCount == 0 then
+								--Gapple:Activate()
+								Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
+								IsEated = 1
+								EatCount = 1
 							else
-								if not IsEated then
-									LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple)
-								end
+								repeat
+									wait()
+								until IsEated == 0 and EatCount == 0
+							end
+						else
+							local Gapple2 = GetTool("GoldApple")
+							if Gapple2 then
+								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple2)
 							end
 						end
 					else
-						repeat 
-							wait() 
-						until IsAlive(LocalPlayer.Character)
+						if IsEated == 1 and EatCount == 1 then
+							repeat
+								wait()
+							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health > MinHealth
+							IsEated = 0
+							EatCount = 0
+						end
 					end
 				end)
 			else
-				if Loop then
+				if Loop ~= nil then
 					Loop:Disconnect()
-					Loop = nil
 				end
-				IsEated = false
 			end
 		end
 	})
@@ -282,14 +289,11 @@ spawn(function()
 		Max = 100,
 		Default = 50,
 		Callback = function(callback)
-			if callback then
-				MinHealth = callback
-			end
+			MinHealth = callback
 		end
 	})
 end)
 --]]
-
 local HitCritical = false
 spawn(function()
 	local Criticals = Tabs.Combat:CreateToggle({
@@ -319,8 +323,8 @@ spawn(function()
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
-			IsKillAuraEnabled = callback
 			if callback then
+				IsKillAuraEnabled = true
 				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck)
@@ -375,6 +379,7 @@ spawn(function()
 					end
 				end)
 			else
+				IsKillAuraEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
@@ -421,7 +426,6 @@ spawn(function()
 	})
 	local KillAuraSwing = KillAura:CreateMiniToggle({
 		Name = "Swing",
-		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Swing = true
@@ -506,29 +510,47 @@ end)
 --]]
 
 spawn(function()
+	local SelectedMode, OldIndex = nil, nil
 	local RemotePath, OldRemote = nil, nil
 	local Velocity = Tabs.Combat:CreateToggle({
 		Name = "Velocity",
 		Callback = function(callback)
 			if callback then
 				RemotePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
-				if RemotePath then
-					OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
-					OldRemote.Parent = game.Workspace
-					RemotePath:FindFirstChild("KnockBackApplied"):Destroy()
+				if SelectedMode == "Cancel" then
+					OldIndex = hookfunction(RemotePath:FindFirstChild("KnockBackApplied").FireClient, function(self, ...)
+						local args = {...}
+						if typeof(args[1]) == "Vector3" then
+							local OldDirection = args[1]
+							local NewDirection = OldDirection * Vector3.new(-1, -1, -1)
+							args[1] = NewDirection
+						end
+						return OldIndex(self, unpack(args))
+					end)
+				elseif SelectedMode == "Destroy" then
+					if RemotePath then
+						OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
+						OldRemote.Parent = game.Workspace
+						RemotePath:FindFirstChild("KnockBackApplied"):Destroy()
+					end
 				end
 			else
-				if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
-					OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+				if SelectedMode == "Cancel" then
+					hookfunction(RemotePath:FindFirstChild("KnockBackApplied").FireClient, OldIndex)
+				elseif SelectedMode == "Destroy" then
+					if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
+						OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+					end
 				end
 			end
 		end
 	})
 	local VelocityMode = Velocity:CreateDropdown({
 		Name = "Velocity Mode",
-		List = {"Cancel"},
+		List = {"Cancel", "Destroy"},
 		Default = "Cancel",
-		Callback = function(Callback)
+		Callback = function(callback)
+			SelectedMode = callback
 		end
 	})
 end)
@@ -693,8 +715,8 @@ spawn(function()
 	local Flight = Tabs.Move:CreateToggle({
 		Name = "Flight",
 		Callback = function(callback)
-			IsEnabled = callback
 			if callback then
+				IsEnabled = true
 				YPos = 0
 				HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 				if Boost ~= false then
@@ -735,6 +757,7 @@ spawn(function()
 					end
 				end)
 			else
+				IsEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
@@ -963,20 +986,20 @@ spawn(function()
 	local Speed = Tabs.Move:CreateToggle({
 		Name = "Speed",
 		Callback = function(callback)
-			IsEnabled = callback
 			if callback then
+				IsEnabled = true
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						if AutoJump then
-							spawn(function()
-								while IsEnabled do
-									wait()
+						spawn(function()
+							while IsEnabled do
+								wait()
+								if AutoJump then
 									LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Jump = true
 								end
-							end)
-						end
+							end
+						end)
 					else
 						repeat
 							task.wait()
@@ -984,6 +1007,7 @@ spawn(function()
 					end
 				end)
 			else
+				IsEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
@@ -1103,11 +1127,15 @@ spawn(function()
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
-				cleardrawcache()
-				Library.Uninject = true
+				if shared.Lime then
+					shared.Lime.Uninject = true
+					cleardrawcache()
+				end
 			else
-				wait(1.5)
-				Library.Uninject = false
+				if shared.Lime then
+					task.wait(1.85)
+					shared.Lime.Uninject = false
+				end
 			end
 		end
 	})
@@ -1206,9 +1234,13 @@ spawn(function()
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
-				Library.Hud = true
+				if shared.Lime then
+					shared.Lime.Hud = true
+				end
 			else
-				Library.Hud = false
+				if shared.Lime then
+					shared.Lime.Hud = false
+				end
 			end
 		end
 	}) 
