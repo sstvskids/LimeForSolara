@@ -10,10 +10,13 @@ local PlayerGui = LocalPlayer.PlayerGui
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
 local AutoSave, MainFile = true, nil
-local Library = {
-	Uninject = false,
-	Hud = true,
-}
+local Library = {}
+if not shared.Lime then
+	shared.Lime = {
+		Uninject = false,
+		Hud = true,
+	}
+end
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
@@ -30,14 +33,21 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 
 	AutoSave = true
 	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if shared.Lime.Uninject then
+				AutoSave = false
+			end
+			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+		end)
+		--[[
 		while AutoSave do
 			wait()
 			if Library.Uninject then
 				AutoSave = false
 				break
 			end
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 		end
+		--]]
 	end)
 end
 
@@ -99,6 +109,7 @@ function Library:CreateMain()
 		ScreenGui.Parent = CoreGui
 	end
 
+	--[[
 	spawn(function()
 		while true do
 			wait()
@@ -109,6 +120,20 @@ function Library:CreateMain()
 				end
 			end
 		end
+	end)
+	--]]
+
+	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if shared.Lime.Uninject then
+				if ScreenGui ~= nil then
+					ScreenGui:Destroy()
+				end
+				if ScreenGui == nil then
+					shared.Lime.Uninject = false
+				end
+			end
+		end)
 	end)
 
 	local MainFrame = nil
@@ -171,6 +196,7 @@ function Library:CreateMain()
 	HudFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HudFrame.BorderSizePixel = 0
 	HudFrame.Size = UDim2.new(1, 0, 1, 0)
+	--[[
 	spawn(function()
 		while true do
 			wait()
@@ -180,6 +206,19 @@ function Library:CreateMain()
 				HudFrame.Visible = false
 			end
 		end
+	end)
+	--]]
+
+	spawn(function()
+		RunService.Heartbeat:Connect(function()
+			if HudFrame ~= nil then
+				if shared.Lime.Hud then
+					HudFrame.Visible = true
+				else
+					HudFrame.Visible = false
+				end
+			end
+		end)
 	end)
 
 	local LibraryTitle = Instance.new("TextLabel")
@@ -198,7 +237,7 @@ function Library:CreateMain()
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
-	
+
 	local XMASSPECIAL = Instance.new("ImageLabel")
 	XMASSPECIAL.Parent = LibraryTitle
 	XMASSPECIAL.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -316,7 +355,7 @@ function Library:CreateMain()
 			MainFrame.Visible = not MainFrame.Visible
 		end
 	end)
-	
+
 	local Frame = Instance.new("Frame")
 	Frame.Parent = HudFrame
 	Frame.AnchorPoint = Vector2.new(0, 0.5)
@@ -566,6 +605,7 @@ function Library:CreateMain()
 							Keybinds.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 							local MobileKeybinds = Instance.new("TextButton")
 							MobileKeybinds.Parent = KeybindFrame
+							--[[
 							spawn(function()
 								while true do
 									wait()
@@ -575,6 +615,17 @@ function Library:CreateMain()
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
 									end
 								end
+							end)
+							--]]
+
+							spawn(function()
+								RunService.Heartbeat:Connect(function()
+									if ToggleButton.Enabled then
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
+									else
+										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
+									end
+								end)
 							end)
 
 							local MobileKeybindText = string.len(ToggleButton.Name)
@@ -618,7 +669,7 @@ function Library:CreateMain()
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
 							end)
-
+							--[[
 							spawn(function()
 								while true do
 									wait()
@@ -631,6 +682,21 @@ function Library:CreateMain()
 										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 									end
 								end
+							end)
+							--]]
+							spawn(function()
+								RunService.Heartbeat:Connect(function()
+									if shared.Lime.Uninject then
+										if KeybindFrame ~= nil then
+											for i, v in pairs(KeybindFrame:GetChildren()) do
+												if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+													v:Destroy()
+												end
+											end
+											Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+										end
+									end
+								end)
 							end)
 						else
 							for i,v in pairs(KeybindFrame:GetChildren()) do
@@ -673,6 +739,7 @@ function Library:CreateMain()
 								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							end       
 						end
+						--[[
 						spawn(function()
 							while true do
 								wait()
@@ -689,6 +756,23 @@ function Library:CreateMain()
 									end
 								end
 							end
+						end)
+						--]]
+						spawn(function()
+							RunService.Heartbeat:Connect(function()
+								if shared.Lime.Uninject then
+									if Keybinds ~= nil then
+										Keybinds.Text = ""
+										Keybinds.PlaceholderText = "None"
+									end
+								end
+								if ToggleButton.Keybind ~= "Home" then
+									if Keybinds ~= nil then
+										Keybinds.PlaceholderText = ""
+										Keybinds.Text = ToggleButton.Keybind
+									end
+								end
+							end)
 						end)
 					end)
 				end
@@ -722,6 +806,7 @@ function Library:CreateMain()
 				end
 			end
 
+			--[[
 			spawn(function()
 				while true do
 					wait()
@@ -746,6 +831,32 @@ function Library:CreateMain()
 						end
 					end
 				end
+			end)
+			--]]
+
+			spawn(function()
+				RunService.Heartbeat:Connect(function()
+					if ToggleButton.AutoDisable then
+						if ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+					if ToggleButton.AutoEnable then
+						if not ToggleButton.Enabled then
+							ToggleButton.Enabled = true
+							ToggleButtonClicked()
+
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+				end)
 			end)
 
 			if ToggleButton.Enabled then
@@ -808,11 +919,27 @@ function Library:CreateMain()
 					end
 				end)
 			end
+			
+			spawn(function()
+				RunService.Heartbeat:Connect(function()
+					if shared.Lime.Uninject then
+						ToggleButton.Enabled = false
+						ToggleButtonClicked()
 
+						if ToggleButton.Callback then
+							ToggleButton.Callback(ToggleButton.Enabled)
+						end
+					end
+					if ToggleButton.Keybind then
+						ToggleButton.Keybind = "Home"
+					end
+				end)
+			end)
+			--[[
 			spawn(function()
 				while true do
 					wait()
-					if Library.Uninject then
+					if shared.Lime.Uninject then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							ToggleButtonClicked()
@@ -827,7 +954,7 @@ function Library:CreateMain()
 					end
 				end
 			end)
-
+			--]]
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
 					Name = MiniToggle.Name,
@@ -896,6 +1023,7 @@ function Library:CreateMain()
 					end
 				end
 
+				--[[
 				spawn(function()
 					while true do
 						wait()
@@ -910,6 +1038,32 @@ function Library:CreateMain()
 							end
 						end
 					end
+				end)
+				--]]
+				
+				spawn(function()
+					RunService.Heartbeat:Connect(function()
+						if MiniToggle.AutoDisable then
+							if MiniToggle.Enabled then
+								MiniToggle.Enabled = false
+								MiniToggleClick()
+
+								if MiniToggle.Callback then
+									MiniToggle.Callback(MiniToggle.Enabled)
+								end
+							end
+						end
+						if shared.Lime.Uninject then
+							if MiniToggle.Enabled then
+								MiniToggle.Enabled = false
+								MiniToggleClick()
+
+								if MiniToggle.Callback then
+									MiniToggle.Callback(MiniToggle.Enabled)
+								end
+							end
+						end
+					end)
 				end)
 
 				if MiniToggle.Enabled then
