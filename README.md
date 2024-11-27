@@ -2,7 +2,7 @@
 Lime is some old minecraft hacked client which later got discontinued and rebranded into "Exire".
 This script is inspired by Vape V4.
 
-## UI
+## Interface
 Normal:
 ![image](https://github.com/user-attachments/assets/cebd0dff-f756-4df4-b77f-70ab4286662d)
 
