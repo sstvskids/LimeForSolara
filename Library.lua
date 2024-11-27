@@ -687,14 +687,12 @@ function Library:CreateMain()
 							spawn(function()
 								RunService.Heartbeat:Connect(function()
 									if shared.Lime.Uninject then
-										if KeybindFrame ~= nil then
-											for i, v in pairs(KeybindFrame:GetChildren()) do
-												if v:IsA("TextButton") and v.Name == ToggleButton.Name then
-													v:Destroy()
-												end
+										for i,v in pairs(KeybindFrame:GetChildren()) do
+											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+												v:Destroy()
 											end
-											Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 										end
+										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 									end
 								end)
 							end)
@@ -761,13 +759,13 @@ function Library:CreateMain()
 						spawn(function()
 							RunService.Heartbeat:Connect(function()
 								if shared.Lime.Uninject then
-									if Keybinds ~= nil then
+									if Keybinds then
 										Keybinds.Text = ""
 										Keybinds.PlaceholderText = "None"
 									end
 								end
 								if ToggleButton.Keybind ~= "Home" then
-									if Keybinds ~= nil then
+									if Keybinds then
 										Keybinds.PlaceholderText = ""
 										Keybinds.Text = ToggleButton.Keybind
 									end
@@ -923,15 +921,17 @@ function Library:CreateMain()
 			spawn(function()
 				RunService.Heartbeat:Connect(function()
 					if shared.Lime.Uninject then
-						ToggleButton.Enabled = false
-						ToggleButtonClicked()
+						if ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
 
-						if ToggleButton.Callback then
-							ToggleButton.Callback(ToggleButton.Enabled)
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
 						end
-					end
-					if ToggleButton.Keybind then
-						ToggleButton.Keybind = "Home"
+						if ToggleButton.Keybind then
+							ToggleButton.Keybind = "Home"
+						end
 					end
 				end)
 			end)
