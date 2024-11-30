@@ -1554,62 +1554,36 @@ end)
 
 spawn(function()
 	local SelectedMode = nil
-
+	local PhaseDist = nil
 	local Phase = Tabs.Player:CreateToggle({
 		Name = "Phase",
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
 				if SelectedMode == "VClip" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, 6, 0))
-				elseif SelectedMode == "HClip" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + Vector3.new(0, 9, 0))
-				elseif SelectedMode == "VCollide" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, (LocalPlayer.Character:WaitForChild("HumanoidRootPart").Size.Y + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight), 0))
-					for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-						if v:IsA("MeshPart") then
-							v.CanCollide = false
-						end
-					end
-					for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-						if v:IsA("Part") and v.Name == "HumanoidRootPart" then
-							v.CanCollide = false
-						end
-					end
-				elseif SelectedMode == "HCollide" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + Vector3.new(0, (LocalPlayer.Character:WaitForChild("HumanoidRootPart").Size.Y + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight), 0))
-					for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-						if v:IsA("MeshPart") then
-							v.CanCollide = false
-						end
-					end
-					for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-						if v:IsA("Part") and v.Name == "HumanoidRootPart" then
-							v.CanCollide = false
-						end
-					end
-				end
-			else
-				for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-					if v:IsA("MeshPart") and v.Name == "LowerTorso" and "UpperTorso" then
-						v.CanCollide = true
-					end
-				end
-				for i,v in pairs(LocalPlayer.Character:GetChildren()) do
-					if v:IsA("Part") and v.Name == "HumanoidRootPart" then
-						v.CanCollide = true
-					end
+					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, PhaseDist, 0))
 				end
 			end
 		end
 	})
 	local PhaseMode = Phase:CreateDropdown({
 		Name = "Phase Modes",
-		List = {"VClip", "HClip", "VCollide", "HCollide"},
+		List = {"VClip"},
 		Default = "VClip",
 		Callback = function(callback)
 			if callback then
 				SelectedMode = callback
+			end
+		end
+	})
+	local PhaseDistance = Phase:CreateSlider({
+		Name = "Distance",
+		Min = 0,
+		Max = 12,
+		Default = 6,
+		Callback = function(callback)
+			if callback then
+				PhaseDist = callback
 			end
 		end
 	})
