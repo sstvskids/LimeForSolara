@@ -903,13 +903,14 @@ spawn(function()
 				end
 			else
 				if WaitToLand then
+					task.wait(0.45)
 					repeat
 						wait()
 					until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air
 					game.Workspace.Gravity = OldGravity
 					IsEnabled = false
 				else
-					wait(1)
+					task.wait(1)
 					game.Workspace.Gravity = OldGravity
 					IsEnabled = false
 				end
@@ -934,7 +935,6 @@ spawn(function()
 		end
 	})
 end)
-
 --[[ OLD LONGJUMP SAVING
 spawn(function()
 	local OldGravity, StartJump = game.Workspace.Gravity, nil
