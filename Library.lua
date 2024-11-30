@@ -442,6 +442,22 @@ function Library:CreateMain()
 		return TargetHUD
 	end
 
+	function Main:CreateLine(Origin, Destination)
+		local Position = (Origin + Destination) / 2
+		
+		local Line = Instance.new("Frame")
+		Line.Name = "Line"
+		Line.AnchorPoint = Vector2.new(0.5, 0.5)
+		Line.Parent = HudFrame
+		Line.Position = UDim2.new(0, Position.X, 0, Position.Y)
+		Line.Size = UDim2.new(0, (Origin - Destination).Magnitude, 0, 0.02)
+		Line.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
+		Line.BorderColor3 = Color3.fromRGB(128, 204, 255)
+		Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
+		
+		return Line
+	end
+
 	function Main:CreateTab(name, icon, iconcolor)
 		local Tabs = {}
 
