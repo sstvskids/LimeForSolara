@@ -23,8 +23,8 @@ local Tabs = {
 --1.20000005, -0.5, 0, 0.036033392, -0.746451914, 0.664462984, -0.353553385, 0.612372398, 0.707106769, -0.934720039, -0.26040262, -0.241844743 blocking c1
 --game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"]
 --game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"].Title
-local function IsAlive(entity)
-	return entity and entity:FindFirstChildOfClass("Humanoid") and entity:FindFirstChild("HumanoidRootPart") and entity:FindFirstChildOfClass("Humanoid").Health > 0
+local function IsAlive(v)
+	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
 
 local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam)
@@ -183,8 +183,8 @@ spawn(function()
 	local AutoClicker = Tabs.Combat:CreateToggle({
 		Name = "AutoClicker",
 		Callback = function(callback)
+			Enabled = callback
 			if callback then
-				Enabled = false
 				repeat
 					if Randomize then
 						CPS = math.random(MinCPS, MaxCPS)
@@ -199,8 +199,6 @@ spawn(function()
 						end
 					end
 				until not Enabled
-			else
-				Enabled = false
 			end
 		end
 	})
@@ -316,19 +314,33 @@ spawn(function()
 end)
 
 local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget = nil, nil, nil, nil, nil
+local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
-	local Sword = nil
+	local Sword, RotationMode = nil, nil
 
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
 			if callback then
 				IsKillAuraEnabled = true
-				Loop = Service.RunService.RenderStepped:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function() 
 					if IsAlive(LocalPlayer.Character) then
 						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck)
 						if Entity then
+							local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
+							local LookCFrame2 = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+								if RotationMode == "Normal" then
+									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame2 + OldTorsoC0
+								--[[
+								elseif RotationMode == "Smooth" then
+									Service.TweenService:Create(LocalPlayer.Character.LowerTorso:FindFirstChild("Root"), TweenInfo.new(0.4), {C0 = LookCFrame2 + OldTorsoC0}):Play()
+								--]]
+								elseif RotationMode == "None" then
+									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+								end
+							end
 							KillAuraTarget = Entity
 							Sword = CheckTool("Sword")
 							if Sword then
@@ -371,6 +383,7 @@ spawn(function()
 								}
 								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 							end
+							LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 						end
 					else
 						repeat
@@ -401,6 +414,14 @@ spawn(function()
 			if callback then
 				KillAuraSortMode = callback
 			end
+		end
+	})
+	local KillAuraRotation = KillAura:CreateDropdown({
+		Name = "KillAura Rotations",
+		List = {"Normal", "None"},
+		Default = "None",
+		Callback = function(callback)
+			RotationMode = callback
 		end
 	})
 	local KillAuraAutoBlock = KillAura:CreateDropdown({
@@ -510,47 +531,29 @@ end)
 --]]
 
 spawn(function()
-	local SelectedMode, OldIndex = nil, nil
 	local RemotePath, OldRemote = nil, nil
 	local Velocity = Tabs.Combat:CreateToggle({
 		Name = "Velocity",
 		Callback = function(callback)
 			if callback then
 				RemotePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
-				if SelectedMode == "Cancel" then
-					OldIndex = hookfunction(RemotePath:FindFirstChild("KnockBackApplied").FireClient, function(self, ...)
-						local args = {...}
-						if typeof(args[1]) == "Vector3" then
-							local OldDirection = args[1]
-							local NewDirection = OldDirection * Vector3.new(-1, -1, -1)
-							args[1] = NewDirection
-						end
-						return OldIndex(self, unpack(args))
-					end)
-				elseif SelectedMode == "Destroy" then
-					if RemotePath then
-						OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
-						OldRemote.Parent = game.Workspace
-						RemotePath:FindFirstChild("KnockBackApplied"):Destroy()
-					end
+				if RemotePath then
+					OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
+					OldRemote.Parent = game.Workspace
+					RemotePath:FindFirstChild("KnockBackApplied"):Destroy()
 				end
 			else
-				if SelectedMode == "Cancel" then
-					hookfunction(RemotePath:FindFirstChild("KnockBackApplied").FireClient, OldIndex)
-				elseif SelectedMode == "Destroy" then
-					if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
-						OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
-					end
+				if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
+					OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
 				end
 			end
 		end
 	})
 	local VelocityMode = Velocity:CreateDropdown({
 		Name = "Velocity Mode",
-		List = {"Cancel", "Destroy"},
+		List = {"Cancel"},
 		Default = "Cancel",
-		Callback = function(callback)
-			SelectedMode = callback
+		Callback = function(Callback)
 		end
 	})
 end)
@@ -649,7 +652,43 @@ spawn(function()
 		end
 	})
 end)
---[[[
+
+--[[
+spawn(function()
+	local IsEnabled, Shooted = false, false
+	local Damage = Tabs.Exploit:CreateToggle({
+		Name = "Damage",
+		AutoDisable = true,
+		Callback = function(callback)
+			if callback then
+				IsEnabled = true
+				local Bow = CheckTool("Bow")
+				if Bow then
+					if IsEnabled and not Shooted then
+						local args = {
+							[1] = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + Vector3.new(0, 3, 0),
+							[2] = 0.10
+						}
+						Bow:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Fire"):InvokeServer(unpack(args))
+						task.wait(0.25)
+						Shooted = true
+					end
+				else
+					local Bow1 = GetTool("Bow")
+					if Bow1 then
+						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Bow1)
+					end
+				end
+			else
+				if Shooted then
+					IsEnabled = false
+					Shooted = false
+				end
+			end
+		end
+	})
+end)
+
 spawn(function()
 	local Loop, SelectedMode = nil, nil
 	local Disabler = Tabs.Exploit:CreateToggle({
@@ -711,7 +750,7 @@ spawn(function()
 			end
 		end)
 	end
-
+	
 	local Flight = Tabs.Move:CreateToggle({
 		Name = "Flight",
 		Callback = function(callback)
@@ -743,8 +782,11 @@ spawn(function()
 							game.Workspace.Gravity = 0
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
 						elseif SelectedMode == "Jump" then
+							game.Workspace.Gravity = OldGravity
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 							repeat
-								wait()
+								task.wait()
 							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos
 							if IsEnabled then
 								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
@@ -795,7 +837,7 @@ spawn(function()
 	local FlightSpeed = Flight:CreateSlider({
 		Name = "Speed",
 		Min = 0,
-		Max = 28,
+		Max = 100,
 		Default = 28,
 		Callback = function(callback)
 			if callback then
@@ -981,8 +1023,8 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, VelocitySpeed, AutoJump, IsEnabled = nil, nil, false, false
-
+	local Loop, VelocitySpeed, Velocity, JumpCount = nil, nil, nil, 0
+	local SelectedMode, IsEnabled = nil, false
 	local Speed = Tabs.Move:CreateToggle({
 		Name = "Speed",
 		Callback = function(callback)
@@ -990,24 +1032,33 @@ spawn(function()
 				IsEnabled = true
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
-						local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						spawn(function()
-							while IsEnabled do
-								wait()
-								if AutoJump then
-									LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Jump = true
-								end
+						Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
+						if SelectedMode == "Static" then
+							JumpCount = 0
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+						elseif SelectedMode == "Hop" then
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
+							if JumpCount == 0 and IsEnabled then
+								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+								JumpCount = 1
 							end
-						end)
+							repeat
+								wait()
+							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed
+							if IsEnabled then
+								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							end
+						end
 					else
 						repeat
-							task.wait()
+							wait()
 						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
 				IsEnabled = false
+				JumpCount = 0
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
@@ -1015,24 +1066,24 @@ spawn(function()
 			end
 		end
 	})
+	local SpeedModde = Speed:CreateDropdown({
+		Name = "Speed Modes",
+		List = {"Static", "Hop"},
+		Default = "Static",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
+			end
+		end
+	})
 	local SpeedSpeedValue = Speed:CreateSlider({
 		Name = "Speeds",
 		Min = 0,
-		Max = 32, 
+		Max = 100, 
 		Default = 32,
 		Callback = function(callback)
 			if callback then
 				VelocitySpeed = callback
-			end
-		end
-	})
-	local SpeedAutoJump = Speed:CreateMiniToggle({
-		Name = "Auto Jump",
-		Callback = function(callback)
-			if callback then
-				AutoJump = true
-			else
-				AutoJump = false
 			end
 		end
 	})
@@ -1071,45 +1122,67 @@ spawn(function()
 end)
 
 spawn(function()
-	local function Hightlight(v)
-		if v ~= LocalPlayer and IsAlive(v.Character) then
-			if not v.Character:FindFirstChildOfClass("Highlight") then
-				local highlight = Instance.new("Highlight")
-				highlight.Parent = v.Character
-				highlight.FillTransparency = 1
-				highlight.OutlineTransparency = 0.45
-				highlight.OutlineColor = Color3.new(0.470588, 0.886275, 1)
-			end
+	local Loop, RenderSelf = nil, false
+	local function Highlight(v)
+		if not v:FindFirstChildWhichIsA("Highlight") then
+			local highlight = Instance.new("Highlight")
+			highlight.Parent = v
+			highlight.FillTransparency = 1
+			highlight.OutlineTransparency = 0.45
+			highlight.OutlineColor = Color3.new(0.470588, 0.886275, 1)
 		end
 	end
-
 	local function RemoveHighlight(v)
-		if v ~= LocalPlayer and IsAlive(v.Character) and v.Character:FindFirstChildOfClass("Highlight") then
-			v.Character:FindFirstChildOfClass("Highlight"):Destroy()
+		if v:FindFirstChildWhichIsA("Highlight") then
+			v:FindFirstChildWhichIsA("Highlight"):Destroy()
 		end
 	end
-
-	local Loop = nil
 	local Chams = Tabs.Visual:CreateToggle({
 		Name = "Chams",
 		Callback = function(callback)
 			if callback then
-				Service.Players.PlayerAdded:Connect(Hightlight)
-				Service.Players.PlayerRemoving:Connect(RemoveHighlight)
 				Loop = Service.RunService.Heartbeat:Connect(function()
-					Service.Players.PlayerAdded:Connect(Hightlight)
-					Service.Players.PlayerRemoving:Connect(RemoveHighlight)
-					for i,v in pairs(Service.Players:GetChildren()) do
-						Hightlight(v)
+					for i, v in pairs(game.Workspace:GetChildren()) do
+						if v:IsA("Model") and IsAlive(v) then
+							if AntiBotGlobal then
+								if Service.Players:FindFirstChild(v.Name) then
+									if RenderSelf or v.Name ~= LocalPlayer.Name then
+										Highlight(v)
+									else
+										RemoveHighlight(v)
+									end
+								else
+									RemoveHighlight(v)
+								end
+							else
+								if RenderSelf or v.Name ~= LocalPlayer.Name then
+									Highlight(v)
+								else
+									RemoveHighlight(v)
+								end
+							end
+						end
 					end
 				end)
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				for i,v in pairs(Service.Players:GetChildren()) do
-					RemoveHighlight(v)
+				for i, v in pairs(game.Workspace:GetChildren()) do
+					if v:IsA("Model") and IsAlive(v) then
+						RemoveHighlight(v)
+					end
 				end
+			end
+		end
+	})
+	local ChamsRenderSelf = Chams:CreateMiniToggle({
+		Name = "Render Self",
+		Callback = function(callback)
+			if callback then
+				RenderSelf = true
+			else
+				RenderSelf = false
 			end
 		end
 	})
@@ -1129,7 +1202,6 @@ spawn(function()
 			if callback then
 				if shared.Lime then
 					shared.Lime.Uninject = true
-					cleardrawcache()
 				end
 			else
 				if shared.Lime then
@@ -1142,64 +1214,93 @@ spawn(function()
 end)
 
 spawn(function()
-	local IsInBox = {}
-	local function CreateBox(v)
-		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-			local Box = Drawing.new("Square")
-			Box.Color = Color3.fromRGB(255, 255, 255)
-			Box.Thickness = 1
-			Box.Filled = false
-			Box.Transparency = 1
-			IsInBox[v] = Box
+	local Loop, RenderSelf = nil, false
+	local function AddBox(v)
+		if not v:FindFirstChildWhichIsA("BillboardGui") then
+			local Frame, UIStoke = nil, nil
+			local BillboardGui = Instance.new("BillboardGui")
+			BillboardGui.Parent = v
+			BillboardGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+			BillboardGui.Active = true
+			BillboardGui.AlwaysOnTop = true
+			BillboardGui.LightInfluence = 1.000
+			BillboardGui.Size = UDim2.new(4.5, 0, 6.5, 0)
+			if BillboardGui then
+				if not BillboardGui:FindFirstChildWhichIsA("Frame") then
+					Frame = Instance.new("Frame")
+					Frame.Parent = BillboardGui
+					Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+					Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					Frame.BackgroundTransparency = 1.000
+					Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+					Frame.Size = UDim2.new(0.949999988, 0, 0.949999988, 0)
+					if Frame then
+						if not Frame:FindFirstChildWhichIsA("UIStroke") then
+							UIStoke = Instance.new("UIStroke")
+							UIStoke.Parent = Frame
+							UIStoke.Color = Color3.fromRGB(128, 204, 255)
+							UIStoke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+							UIStoke.LineJoinMode = Enum.LineJoinMode.Miter
+							UIStoke.Thickness = 2
+							UIStoke.Transparency = 0
+						end
+					end
+				end
+			end
 		end
 	end
-
 	local function RemoveBox(v)
-		if IsInBox[v] then
-			IsInBox[v]:Remove()
-			IsInBox[v] = nil
+		if v:FindFirstChildWhichIsA("BillboardGui") then
+			v:FindFirstChildWhichIsA("BillboardGui"):Destroy()
 		end
 	end
-
-	local Loop = nil
 	local ESP = Tabs.Visual:CreateToggle({
 		Name = "ESP",
 		Callback = function(callback)
 			if callback then
-				Service.Players.PlayerAdded:Connect(CreateBox)
-				Service.Players.PlayerRemoving:Connect(RemoveBox)
-				for i, v in pairs(Service.Players:GetPlayers()) do
-					CreateBox(v)
-				end
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for plr, box in pairs(IsInBox) do
-						if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-							local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
-							if OnScreen then
-								local HumanoidRootPart = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, plr.Character:FindFirstChild("HumanoidRootPart").Position)
-								local Head = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("Head").Position + Vector3.new(0, 0.5, 0)))
-								local Leg = game.Workspace.CurrentCamera.WorldToViewportPoint(game.Workspace.CurrentCamera, (plr.Character:FindFirstChild("HumanoidRootPart").Position - Vector3.new(0, 3, 0)))
-								local Size = math.abs(Head.Y - Leg.Y)
-
-								box.Size = Vector2.new(Size, Size) 
-								box.Position = Vector2.new(HumanoidRootPart.X - Size / 2, HumanoidRootPart.Y - Size / 2)
-								box.Visible = true
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					for i, v in pairs(game.Workspace:GetChildren()) do
+						if v:IsA("Model") and IsAlive(v) then
+							if AntiBotGlobal then
+								if Service.Players:FindFirstChild(v.Name) then
+									if RenderSelf or v.Name ~= LocalPlayer.Name then
+										AddBox(v)
+									else
+										RemoveBox(v)
+									end
+								else
+									RemoveBox(v)
+								end
 							else
-								box.Visible = false
+								if RenderSelf or v.Name ~= LocalPlayer.Name then
+									AddBox(v)
+								else
+									RemoveBox(v)
+								end
 							end
-						else
-							box.Visible = false
 						end
 					end
 				end)
 			else
-				if Loop then
+				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				for _, box in pairs(IsInBox) do
-					box:Remove()
+				for i, v in pairs(game.Workspace:GetChildren()) do
+					if v:IsA("Model") and IsAlive(v) then
+						RemoveBox(v)
+					end
 				end
-				IsInBox = {}
+			end
+		end
+	})
+	local ESPRenderSelf = ESP:CreateMiniToggle({
+		Name = "Render Self",
+		Callback = function(callback)
+			if callback then
+				RenderSelf = true
+			else
+				RenderSelf = false
 			end
 		end
 	})
@@ -1302,58 +1403,58 @@ spawn(function()
 end)
 
 spawn(function()
-	local IsTraced = {}
-	local function CreateLine(v)
-		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-			local Line = Drawing.new("Line")
-			Line.Thickness = 1
-			Line.Transparency = 1
-			Line.Color = Color3.fromRGB(255, 255, 255)
-			IsTraced[v] = Line
+	local Loop, Lines = nil, {}
+	local function UpdateLine(v)
+		if IsAlive(v) then
+			local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToScreenPoint(v:FindFirstChild("HumanoidRootPart").Position)
+			if OnScreen then
+				local Origin = Vector2.new(game.Workspace.CurrentCamera.ViewportSize.X / 2, game.Workspace.CurrentCamera.ViewportSize.Y / 2)
+				local Destination = Vector2.new(Vector.X, Vector.Y)
+
+				if not Lines[v] then
+					Lines[v] = Main:CreateLine(Origin, Destination)
+				else
+					local Line = Lines[v]
+					Line.Position = UDim2.new(0, (Origin + Destination).X / 2, 0, (Origin + Destination).Y / 2)
+					Line.Size = UDim2.new(0, (Origin - Destination).Magnitude, 0, 0.02)
+					Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
+				end
+			elseif Lines[v] then
+				Lines[v]:Destroy()
+				Lines[v] = nil
+			end
+		elseif Lines[v] then
+			Lines[v]:Destroy()
+			Lines[v] = nil
 		end
 	end
-
-	local function RemoveLine(v)
-		if IsTraced[v] then
-			IsTraced[v]:Remove()
-			IsTraced[v] = nil
-		end
-	end
-
-	local Loop = nil
 	local Tracers = Tabs.Visual:CreateToggle({
 		Name = "Tracers",
 		Callback = function(callback)
 			if callback then
-				Service.Players.PlayerAdded:Connect(CreateLine)
-				Service.Players.PlayerRemoving:Connect(RemoveLine)
-				for i, v in pairs(Service.Players:GetPlayers()) do
-					CreateLine(v)
-				end
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for plr, line in pairs(IsTraced) do
-						if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-							local Vector, OnScreen = game.Workspace.CurrentCamera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
-							if OnScreen then
-								line.From = Vector2.new(game.Workspace.CurrentCamera.ViewportSize.X / 2, game.Workspace.CurrentCamera.ViewportSize.Y / 2)
-								line.To = Vector2.new(Vector.X, Vector.Y)
-								line.Visible = true
-							else
-								line.Visible = false
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					for i, v in pairs(game.Workspace:GetChildren()) do
+						if v:IsA("Model") and IsAlive(v) then
+							if v.Name ~= LocalPlayer.Name then
+								UpdateLine(v)
 							end
-						else
-							line.Visible = false
+						end
+					end
+					for z, l in pairs(Lines) do
+						if not IsAlive(z) then
+							l:Destroy()
+							Lines[z] = nil
 						end
 					end
 				end)
 			else
-				if Loop then
+				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				for _, line in pairs(IsTraced) do
-					line:Remove()
+				for i, v in pairs(Lines) do
+					v:Destroy()
 				end
-				IsTraced = {}
+				Lines = {}
 			end
 		end
 	})
