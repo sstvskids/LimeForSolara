@@ -10,6 +10,8 @@ local Service = {
 }
 
 local LocalPlayer = Service.Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
 local Main = Library:CreateMain()
 local Tabs = {
@@ -27,19 +29,42 @@ local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
 
-local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam)
+local function CheckWall(v)
+	local Raycast, Result = nil, nil
+
+	local Direction = (v:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
+	local Distance = (v:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+	if Direction and Distance then
+		Raycast = RaycastParams.new()
+		Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
+		Raycast.FilterType = Enum.RaycastFilterType.Exclude
+		Result = workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction * Distance, Raycast)
+		if Result then
+			if not v:IsAncestorOf(Result.Instance) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam, EntityWall)
 	local Entity, MinDist, Distances
 
 	for _, entities in pairs(game.Workspace:GetChildren()) do
 		if entities:IsA("Model") and entities.Name ~= LocalPlayer.Name then
 			if IsAlive(entities) then
 				if not EntityCheck then
-					Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+					if not EntityWall or CheckWall(entities) then
+						Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+					end
 				else
 					for _, player in pairs(Service.Players:GetPlayers()) do
 						if player.Name == entities.Name then
 							if not EntityTeam or player.Team ~= LocalPlayer.Team then
-								Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+								if not EntityWall or CheckWall(entities) then
+									Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+								end
 							end
 						end
 					end
@@ -175,6 +200,7 @@ spawn(function()
 	})
 end)
 
+local IsAutoClickerClicking = nil
 spawn(function()
 	local MaxCPS, MinCPS, Randomize = nil, nil, false
 	local CPS = nil
@@ -194,9 +220,12 @@ spawn(function()
 					wait(1 / CPS)
 					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
 					if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+						IsAutoClickerClicking = true
 						if Tool then
 							Tool:Activate()
 						end
+					else
+						IsAutoClickerClicking = false
 					end
 				until not Enabled
 			end
@@ -313,8 +342,8 @@ spawn(function()
 	})
 end)
 
-local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget = nil, nil, nil, nil, nil
-local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
+local ScaffoldRotation, IsScaffoldEnabled = nil, nil
+local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget, KillAuraWallCheck = nil, nil, nil, nil, nil, true
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword, RotationMode = nil, nil
@@ -326,20 +355,22 @@ spawn(function()
 				IsKillAuraEnabled = true
 				Loop = Service.RunService.RenderStepped:Connect(function() 
 					if IsAlive(LocalPlayer.Character) then
-						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck)
+						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
 						if Entity then
 							local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
-							local LookCFrame2 = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
-							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-								if RotationMode == "Normal" then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame2 + OldTorsoC0
-								--[[
-								elseif RotationMode == "Smooth" then
-									Service.TweenService:Create(LocalPlayer.Character.LowerTorso:FindFirstChild("Root"), TweenInfo.new(0.4), {C0 = LookCFrame2 + OldTorsoC0}):Play()
-								--]]
-								elseif RotationMode == "None" then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+							local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+							if not IsScaffoldEnabled and ScaffoldRotation ~= nil then
+								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+									if RotationMode == "Normal" then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
+									elseif RotationMode == "None" then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+									end
 								end
+							else
+								repeat
+									task.wait()
+								until IsScaffoldEnabled and ScaffoldRotation == nil
 							end
 							KillAuraTarget = Entity
 							Sword = CheckTool("Sword")
@@ -443,6 +474,16 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Range = callback
+			end
+		end
+	})
+	local KillAuraCheckForWall = KillAura:CreateMiniToggle({
+		Name = "Through Walls",
+		Callback = function(callback)
+			if callback then
+				KillAuraWallCheck = false
+			else
+				KillAuraWallCheck = true
 			end
 		end
 	})
@@ -936,6 +977,7 @@ spawn(function()
 		end
 	})
 end)
+
 --[[ OLD LONGJUMP SAVING
 spawn(function()
 	local OldGravity, StartJump = game.Workspace.Gravity, nil
@@ -1493,7 +1535,7 @@ spawn(function()
 							PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
 						end
 						if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
-							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -145 then
+							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -148 then
 								if Mode == "TP" then
 									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
 								elseif Mode == "Tween" then
@@ -1554,6 +1596,37 @@ spawn(function()
 end)
 
 spawn(function()
+	local Loop = nil
+	local AutoTool = Tabs.Player:CreateToggle({
+		Name = "Auto Tool",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if not IsAutoClickerClicking then
+						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+							if Mouse.Target.Name == "Block" then
+								task.wait(0.28)
+								local Pickaxe = CheckTool("Pickaxe")
+								if not Pickaxe then
+									local PickaxeTool = GetTool("Pickaxe")
+									if PickaxeTool then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(PickaxeTool)
+									end
+								end
+							end
+						end
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local SelectedMode = nil
 	local PhaseDist = nil
 	local Phase = Tabs.Player:CreateToggle({
@@ -1591,8 +1664,8 @@ spawn(function()
 end)
 
 spawn(function()	
-	local Loop, Expand, Downwards, Sound = nil, nil, false, false
-	local PlacePos, NearestPos, IsPlaying = nil, nil, true
+	local Loop, Expand, Downwards = nil, nil, false
+	local PlacePos, PickMode = nil,nil
 
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
@@ -1613,8 +1686,9 @@ spawn(function()
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
 		Callback = function(callback)
+			IsScaffoldEnabled = callback
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
+				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						for i = 1, Expand do
 							if Downwards then
@@ -1622,11 +1696,34 @@ spawn(function()
 							else
 								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
 							end
-							local args = {
-								[1] = PlacePos
-							}
+							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+								if ScaffoldRotation == "Normal" then
+									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.Angles(0, math.pi, 0)
+								elseif ScaffoldRotation == "None" then
+									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+								end
+							end
+							if PickMode == "None" then
+								local args = {
+									[1] = PlacePos
+								}
 
-							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+							elseif PickMode == "Switch" then
+								local Block = CheckTool("Block")
+								if Block then
+									local args = {
+										[1] = PlacePos
+									}
+
+									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+								else
+									local BlockTool = GetTool("Block")
+									if BlockTool then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(BlockTool)
+									end
+								end
+							end
 						end
 					else
 						repeat
@@ -1638,7 +1735,34 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
+				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 				PlacePos = nil
+				if PickMode == "Switch" then
+					local Block = CheckTool("Block")
+					if Block then
+						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):UnequipTools(Block)
+					end
+				end
+			end
+		end
+	})
+	local ScaffoldPickMode = Scaffold:CreateDropdown({
+		Name = "Scaffold Block Picking",
+		List = {"Switch", "None"},
+		Default = "None",
+		Callback = function(callback)
+			if callback then
+				PickMode = callback
+			end
+		end
+	})
+	local ScaffoldRotations = Scaffold:CreateDropdown({
+		Name = "Scaffold Rotations",
+		List = {"Normal", "None"},
+		Default = "None",
+		Callback = function(callback)
+			if callback then
+				ScaffoldRotation = callback
 			end
 		end
 	})
