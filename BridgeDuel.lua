@@ -1,5 +1,5 @@
 repeat wait() until game:IsLoaded()
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
+-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
 	TweenService = game:GetService("TweenService"),
@@ -183,6 +183,7 @@ local AntiBotGlobal = false
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				AntiBotGlobal = true
@@ -650,6 +651,7 @@ spawn(function()
 
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Detector",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -777,6 +779,7 @@ spawn(function()
 	local Loop, FlightSpeed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
+	--local FireCount, Start2 = 1, nil
 
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		Service.UserInputService.JumpRequest:Connect(function()
@@ -819,6 +822,24 @@ spawn(function()
 						else
 							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
 						end
+						--[[
+						if Start2 == nil and FireCount == 1 then
+							Start2 = tick()
+						end
+						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial == Enum.Material.Air then
+							if (tick() - Start2) > 4.5 then
+								warn("Flight is no longer safe, and could lead to a ban")
+								task.wait()
+								Start2 = nil
+							end
+						else
+							Start2 = nil
+							repeat
+								task.wait()
+							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air
+							Start2 = tick()
+						end
+						--]]
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 						if SelectedMode == "Float" then
 							game.Workspace.Gravity = 0
@@ -848,6 +869,7 @@ spawn(function()
 				if OldBoost then
 					Boost = true
 				end
+				--FireCount, Start2 = 1, nil
 				Velocity, Start = nil, nil
 				game.Workspace.Gravity = OldGravity
 				HumanoidRootPartY =  LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
@@ -1123,7 +1145,7 @@ spawn(function()
 		Name = "Speeds",
 		Min = 0,
 		Max = 100, 
-		Default = 32,
+		Default = 28,
 		Callback = function(callback)
 			if callback then
 				VelocitySpeed = callback
@@ -1138,6 +1160,7 @@ spawn(function()
 
 	local Ambience = Tabs.Visual:CreateToggle({
 		Name = "Ambience",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -1373,21 +1396,65 @@ spawn(function()
 end)
 
 spawn(function()
+	local Loop, Arraylist, Watermark = nil, false, false
 	local HUD = Tabs.Visual:CreateToggle({
 		Name = "HUD",
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
-				if shared.Lime then
-					shared.Lime.Hud = true
-				end
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if shared.Lime and shared.Lime.Visual then
+						shared.Lime.Visual.Hud = true
+						if Arraylist then
+							shared.Lime.Visual.Arraylist = true
+						else
+							shared.Lime.Visual.Arraylist = false
+						end
+						if Watermark then
+							shared.Lime.Visual.Watermark = true
+						else
+							shared.Lime.Visual.Watermark = false
+						end
+					end
+				end)
 			else
-				if shared.Lime then
-					shared.Lime.Hud = false
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				if shared.Lime and shared.Lime.Visual then
+					shared.Lime.Visual.Hud = false
+					if Arraylist then
+						shared.Lime.Visual.Arraylist = false
+					end
+					if Watermark then
+						shared.Lime.Visual.Watermark = false
+					end
 				end
 			end
 		end
-	}) 
+	})
+	local HUDArraylist = HUD:CreateMiniToggle({
+		Name = "Arraylist",
+		Enabled = true,
+		Callback = function(callback)
+			if callback then
+				Arraylist = true
+			else
+				Arraylist = false
+			end
+		end
+	})
+	local HUDWatermark = HUD:CreateMiniToggle({
+		Name = "Watermark",
+		Enabled = true,
+		Callback = function(callback)
+			if callback then
+				Watermark = true
+			else
+				Watermark = false
+			end
+		end
+	})
 end)
 
 spawn(function()
@@ -1604,7 +1671,7 @@ spawn(function()
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if not IsAutoClickerClicking then
 						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-							if Mouse.Target.Name == "Block" then
+							if Mouse.Target and Mouse.Target:IsA("Part") and Mouse.Target.Name == "Block" then
 								task.wait(0.28)
 								local Pickaxe = CheckTool("Pickaxe")
 								if not Pickaxe then
