@@ -14,7 +14,11 @@ local Library = {}
 if not shared.Lime then
 	shared.Lime = {
 		Uninject = false,
-		Hud = true
+		Visual = {
+			Hud = true,
+			Arraylist = true,
+			Watermark = true
+		}
 	}
 end
 
@@ -124,7 +128,7 @@ function Library:CreateMain()
 		end
 	end)
 		--]]
-	
+
 	spawn(function()
 		RunService.Stepped:Connect(function()
 			if shared.Lime.Uninject then
@@ -214,7 +218,7 @@ function Library:CreateMain()
 	spawn(function()
 		RunService.Stepped:Connect(function()
 			if HudFrame ~= nil then
-				if shared.Lime.Hud then
+				if shared.Lime.Visual.Hud then
 					HudFrame.Visible = true
 				else
 					HudFrame.Visible = false
@@ -254,6 +258,18 @@ function Library:CreateMain()
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 	TitleGradient.Parent = LibraryTitle
+	
+	spawn(function()
+		RunService.Stepped:Connect(function()
+			if HudFrame ~= nil then
+				if shared.Lime.Visual.Watermark then
+					LibraryTitle.Visible = true
+				else
+					LibraryTitle.Visible = false
+				end
+			end
+		end)
+	end)
 
 	local ArrayTable = {}
 	local ArrayFrame = Instance.new("Frame")
@@ -269,6 +285,18 @@ function Library:CreateMain()
 	UIListLayout_4.Parent = ArrayFrame
 	UIListLayout_4.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout_4.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	
+	spawn(function()
+		RunService.Stepped:Connect(function()
+			if HudFrame ~= nil then
+				if shared.Lime.Visual.Arraylist then
+					ArrayFrame.Visible = true
+				else
+					ArrayFrame.Visible = false
+				end
+			end
+		end)
+	end)
 
 	local function AddArray(name)
 		local TextLabel = Instance.new("TextLabel")
@@ -441,10 +469,10 @@ function Library:CreateMain()
 
 		return TargetHUD
 	end
-
+	
 	function Main:CreateLine(Origin, Destination)
 		local Position = (Origin + Destination) / 2
-		
+
 		local Line = Instance.new("Frame")
 		Line.Name = "Line"
 		Line.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -454,7 +482,7 @@ function Library:CreateMain()
 		Line.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
 		Line.BorderColor3 = Color3.fromRGB(128, 204, 255)
 		Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
-		
+
 		return Line
 	end
 
@@ -935,7 +963,7 @@ function Library:CreateMain()
 					end
 				end)
 			end
-			
+
 			spawn(function()
 				RunService.Stepped:Connect(function()
 					if shared.Lime.Uninject then
@@ -1058,7 +1086,7 @@ function Library:CreateMain()
 					end
 				end)
 				--]]
-				
+
 				spawn(function()
 					RunService.Stepped:Connect(function()
 						if MiniToggle.AutoDisable then
