@@ -13,7 +13,6 @@ local AutoSave, MainFile = true, nil
 local Library = {}
 if not shared.Lime then
 	shared.Lime = {
-		Uninject = false,
 		Visual = {
 			Hud = true,
 			Arraylist = true,
@@ -39,21 +38,9 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	spawn(function()
 		RunService.Stepped:Connect(function()
 			if AutoSave then
-				if shared.Lime.Uninject then
-					AutoSave = false
-				end
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
 		end)
-		--[[
-		while AutoSave do
-			wait()
-			if Library.Uninject then
-				AutoSave = false
-				break
-			end
-		end
-		--]]
 	end)
 end
 
@@ -114,33 +101,6 @@ function Library:CreateMain()
 	else
 		ScreenGui.Parent = CoreGui
 	end
-
-	--[[
-	spawn(function()
-		while true do
-			wait()
-			if Library.Uninject and ScreenGui ~= nil then
-				ScreenGui:Destroy()
-				if ScreenGui == nil then
-					Library.Uninject = false
-				end
-			end
-		end
-	end)
-		--]]
-
-	spawn(function()
-		RunService.Stepped:Connect(function()
-			if shared.Lime.Uninject then
-				if ScreenGui ~= nil then
-					ScreenGui:Destroy()
-				end
-				if ScreenGui == nil then
-					shared.Lime.Uninject = false
-				end
-			end
-		end)
-	end)
 
 	local MainFrame = nil
 	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
@@ -312,6 +272,7 @@ function Library:CreateMain()
 		TextLabel.TextScaled = true
 		TextLabel.TextSize = 18.000
 		TextLabel.TextWrapped = true
+		TextLabel.ZIndex = -1
 		TextLabel.TextXAlignment = Enum.TextXAlignment.Right
 		TweenService:Create(TextLabel, TweenInfo.new(1.8), {TextTransparency = 0, BackgroundTransparency = 0.750}):Play()
 
@@ -551,6 +512,7 @@ function Library:CreateMain()
 				Enabled = ToggleButton.Enabled or false,
 				AutoEnable = ToggleButton.AutoEnable or false,
 				AutoDisable = ToggleButton.AutoDisable or false,
+				Hide = ToggleButton.Hide or false,
 				Callback = ToggleButton.Callback or function() end
 			}
 			if not ConfigSetting.ToggleButton[ToggleButton.Name] then
@@ -699,7 +661,9 @@ function Library:CreateMain()
 								if ToggleButton.Enabled then
 									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(128, 204, 255)}):Play()
 									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
-									AddArray(ToggleButton.Name)
+									if not ToggleButton.Hide then
+										AddArray(ToggleButton.Name)
+									end
 								else
 									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
@@ -714,33 +678,6 @@ function Library:CreateMain()
 								if ToggleButton.Callback then
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
-							end)
-							--[[
-							spawn(function()
-								while true do
-									wait()
-									if Library.Uninject then
-										for i,v in pairs(KeybindFrame:GetChildren()) do
-											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
-												v:Destroy()
-											end
-										end
-										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-									end
-								end
-							end)
-							--]]
-							spawn(function()
-								RunService.Stepped:Connect(function()
-									if shared.Lime.Uninject then
-										for i,v in pairs(KeybindFrame:GetChildren()) do
-											if v:IsA("TextButton") and v.Name == ToggleButton.Name then
-												v:Destroy()
-											end
-										end
-										Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-									end
-								end)
 							end)
 						else
 							for i,v in pairs(KeybindFrame:GetChildren()) do
@@ -783,33 +720,8 @@ function Library:CreateMain()
 								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							end       
 						end
-						--[[
-						spawn(function()
-							while true do
-								wait()
-								if Library.Uninject then
-									if Keybinds then
-										Keybinds.Text = ""
-										Keybinds.PlaceholderText = "None"
-									end
-								end
-								if ToggleButton.Keybind ~= "Home" then
-									if Keybinds then
-										Keybinds.PlaceholderText = ""
-										Keybinds.Text = ToggleButton.Keybind
-									end
-								end
-							end
-						end)
-						--]]
 						spawn(function()
 							RunService.Stepped:Connect(function()
-								if shared.Lime.Uninject then
-									if Keybinds then
-										Keybinds.Text = ""
-										Keybinds.PlaceholderText = "None"
-									end
-								end
 								if ToggleButton.Keybind ~= "Home" then
 									if Keybinds then
 										Keybinds.PlaceholderText = ""
@@ -963,44 +875,7 @@ function Library:CreateMain()
 					end
 				end)
 			end
-
-			spawn(function()
-				RunService.Stepped:Connect(function()
-					if shared.Lime.Uninject then
-						if ToggleButton.Enabled then
-							ToggleButton.Enabled = false
-							ToggleButtonClicked()
-
-							if ToggleButton.Callback then
-								ToggleButton.Callback(ToggleButton.Enabled)
-							end
-						end
-						if ToggleButton.Keybind then
-							ToggleButton.Keybind = "Home"
-						end
-					end
-				end)
-			end)
-			--[[
-			spawn(function()
-				while true do
-					wait()
-					if shared.Lime.Uninject then
-						if ToggleButton.Enabled then
-							ToggleButton.Enabled = false
-							ToggleButtonClicked()
-
-							if ToggleButton.Callback then
-								ToggleButton.Callback(ToggleButton.Enabled)
-							end
-						end
-						if ToggleButton.Keybind then
-							ToggleButton.Keybind = "Home"
-						end
-					end
-				end
-			end)
-			--]]
+			
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
 					Name = MiniToggle.Name,
@@ -1069,37 +944,9 @@ function Library:CreateMain()
 					end
 				end
 
-				--[[
-				spawn(function()
-					while true do
-						wait()
-						if MiniToggle.AutoDisable then
-							if MiniToggle.AutoDisable and MiniToggle.Enabled then
-								MiniToggle.Enabled = false
-								MiniToggleClick()
-
-								if MiniToggle.Callback then
-									MiniToggle.Callback(MiniToggle.Enabled)
-								end
-							end
-						end
-					end
-				end)
-				--]]
-
 				spawn(function()
 					RunService.Stepped:Connect(function()
 						if MiniToggle.AutoDisable then
-							if MiniToggle.Enabled then
-								MiniToggle.Enabled = false
-								MiniToggleClick()
-
-								if MiniToggle.Callback then
-									MiniToggle.Callback(MiniToggle.Enabled)
-								end
-							end
-						end
-						if shared.Lime.Uninject then
 							if MiniToggle.Enabled then
 								MiniToggle.Enabled = false
 								MiniToggleClick()
