@@ -179,6 +179,15 @@ local function GetPlace(pos)
 	return NewPos
 end
 
+local function CloneMe(v)
+	if v and v:IsA("Model") then
+		v.Archivable = true
+		local clone = v:Clone()
+		v.Archivable = false
+		return clone
+	end
+end
+
 local AntiBotGlobal = false
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
@@ -441,7 +450,7 @@ spawn(function()
 	})
 	local KillAuraSort = KillAura:CreateDropdown({
 		Name = "Sort Mode",
-		List = {"Distance", "Furthest", "Health", "Threat"},
+		List = {"Furthest", "Health", "Threat", "Distance"},
 		Default = "Distance",
 		Callback = function(callback)
 			if callback then
@@ -650,7 +659,7 @@ spawn(function()
 	local Loop, AutoLeave, IsStaff = nil, false, false
 
 	local Detector = Tabs.Exploit:CreateToggle({
-		Name = "Detector",
+		Name = "Anti Staff",
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
@@ -696,6 +705,69 @@ spawn(function()
 		end
 	})
 end)
+
+spawn(function()
+	local OldCharacter, NewCharacter = nil, nil
+	local Loop, Delays, MoveTo = nil, nil, nil
+
+	local FakeLag = Tabs.Exploit:CreateToggle({
+		Name = "Fake Lag",
+		Callback = function(callback)
+			if callback then
+				OldCharacter = LocalPlayer.Character
+				if OldCharacter then
+					NewCharacter = CloneMe(OldCharacter)
+					if NewCharacter then
+						NewCharacter.Parent = game.Workspace
+						game:GetService("TweenService"):Create(NewCharacter.HumanoidRootPart, TweenInfo.new(0.4), {CFrame = CFrame.new(NewCharacter.HumanoidRootPart.Position, NewCharacter.HumanoidRootPart.Position + OldCharacter.HumanoidRootPart.CFrame.LookVector)}):Play()
+						Loop = Service.RunService.Heartbeat:Connect(function()
+							if IsAlive(OldCharacter) then
+								if OldCharacter and NewCharacter then
+									game.Workspace.CurrentCamera.CameraSubject = NewCharacter.Humanoid
+									LocalPlayer.Character = NewCharacter
+									OldCharacter.HumanoidRootPart.Anchored = true
+									task.wait(0.15)
+									OldCharacter.HumanoidRootPart.Anchored = false
+									MoveTo = game:GetService("TweenService"):Create(OldCharacter.HumanoidRootPart, TweenInfo.new(Delays), {CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3})
+									MoveTo:Play()
+								end
+							else
+								repeat
+									task.wait()
+								until IsAlive(OldCharacter)
+							end
+						end)
+					end
+				end
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				MoveTo:Pause()
+				if OldCharacter then
+					LocalPlayer.Character = OldCharacter
+					game.Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				end
+				if NewCharacter then
+					NewCharacter:Destroy()
+				end
+			end
+		end
+	})
+	local DisablerDelay = FakeLag:CreateSlider({
+		Name = "Delay",
+		Min = 0.4,
+		Max = 5,
+		Default = 0.4,
+		Callback = function(callback)
+			if callback then
+				Delays = callback
+			end
+		end
+	})
+end)
+
+
 
 --[[
 spawn(function()
@@ -880,7 +952,7 @@ spawn(function()
 	})
 	local FlightMode = Flight:CreateDropdown({
 		Name = "Flight Mode",
-		List = {"Float", "Jump"},
+		List = {"Jump", "Float"},
 		Default = "Float",
 		Callback = function(callback)
 			if callback then
@@ -1079,7 +1151,7 @@ spawn(function()
 		end
 	})
 	local NoSlowMode = NoSlowDown:CreateDropdown({
-		Name = "NoSlow Method",
+		Name = "No Slowdown Method",
 		List = {"Spoof"},
 		Default = "Spoof",
 		Callback = function(callback)
@@ -1133,7 +1205,7 @@ spawn(function()
 	})
 	local SpeedModde = Speed:CreateDropdown({
 		Name = "Speed Modes",
-		List = {"Static", "Hop"},
+		List = {"Hop", "Static"},
 		Default = "Static",
 		Callback = function(callback)
 			if callback then
@@ -1149,6 +1221,57 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				VelocitySpeed = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local Loop, Radius, Speed = nil, nil, 1.85
+	local Angle = 0
+	local TargeStrafe = Tabs.Move:CreateToggle({
+		Name = "Target Strafe",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function(ticks)
+					if IsAlive(LocalPlayer.Character) then
+						if KillAuraSortMode == "Health" then 
+							if KillAuraTarget and IsAlive(KillAuraTarget) then
+								Angle = Angle + (Speed * ticks)
+								local xOffset = math.cos(Angle) * Radius
+								local zOffset = math.sin(Angle) * Radius
+								Service.TweenService:Create(LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(0.35), {CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(xOffset, 0, zOffset)) * CFrame.Angles(0, Angle, 0)}):Play()
+							else
+								repeat
+									task.wait()
+								until KillAuraTarget ~= nil and IsAlive(KillAuraTarget)
+							end
+						else
+							repeat
+								task.wait()
+							until KillAuraSortMode == "Health"
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer.Character)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+			end
+		end
+	})
+	local TargetStrafeRadius = TargeStrafe:CreateSlider({
+		Name = "Radius",
+		Min = 0,
+		Max = 9,
+		Default = 4,
+		Callback = function(callback)
+			if callback then
+				Radius = callback
 			end
 		end
 	})
@@ -1256,25 +1379,10 @@ end)
 
 spawn(function()
 	local ClickGui = Tabs.Visual:CreateToggle({
-		Name = "ClickGUI",
+		Name = "Click GUI",
 		AutoEnable = true,
+		Hide = true,
 		Callback = function(callback)
-		end
-	}) 
-	local UninjectLime = ClickGui:CreateMiniToggle({
-		Name = "Uninject",
-		AutoDisable = true,
-		Callback = function(callback)
-			if callback then
-				if shared.Lime then
-					shared.Lime.Uninject = true
-				end
-			else
-				if shared.Lime then
-					task.wait(1.85)
-					shared.Lime.Uninject = false
-				end
-			end
 		end
 	})
 end)
@@ -1545,15 +1653,22 @@ spawn(function()
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					for i, v in pairs(game.Workspace:GetChildren()) do
 						if v:IsA("Model") and IsAlive(v) then
-							if v.Name ~= LocalPlayer.Name then
-								UpdateLine(v)
+							if AntiBotGlobal then
+								if Service.Players:FindFirstChild(v.Name) then
+									if v.Name ~= LocalPlayer.Name then
+										UpdateLine(v)
+									end
+								else
+									if Lines[v] then
+										Lines[v]:Destroy()
+										Lines[v] = nil
+									end
+								end
+							else
+								if v.Name ~= LocalPlayer.Name then
+									UpdateLine(v)
+								end
 							end
-						end
-					end
-					for z, l in pairs(Lines) do
-						if not IsAlive(z) then
-							l:Destroy()
-							Lines[z] = nil
 						end
 					end
 				end)
@@ -1652,7 +1767,7 @@ spawn(function()
 	})
 	local AntiVoidMode = AntiVoid:CreateDropdown({
 		Name = "AntiVoid Mode",
-		List = {"TP", "Tween"},
+		List = {"Tween", "TP"},
 		Default = "TP",
 		Callback = function(callback)
 			if callback then
