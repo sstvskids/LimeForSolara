@@ -1240,7 +1240,7 @@ spawn(function()
 								Angle = Angle + (Speed * ticks)
 								local xOffset = math.cos(Angle) * Radius
 								local zOffset = math.sin(Angle) * Radius
-								Service.TweenService:Create(LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(0.35), {CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(xOffset, 0, zOffset)) * CFrame.Angles(0, Angle, 0)}):Play()
+								Service.TweenService:Create(LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(0.4), {CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(xOffset, 0, zOffset)) * CFrame.Angles(0, Angle, 0)}):Play()
 							else
 								repeat
 									task.wait()
@@ -1261,6 +1261,17 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
+			end
+		end
+	})
+	local TargetStrafeSpeed = TargeStrafe:CreateSlider({
+		Name = "Speedd",
+		Min = 0.35,
+		Max = 3,
+		Default = 1.35,
+		Callback = function(callback)
+			if callback then
+				Speed = callback
 			end
 		end
 	})
