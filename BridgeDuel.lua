@@ -212,34 +212,41 @@ end)
 
 local IsAutoClick = false
 spawn(function()
-	local MaxCPS, MinCPS, Randomize = nil, nil, false
-	local CPS = nil
-	local Enabled = false
+	local Loop, MaxCPS, MinCPS, Randomize = nil, nil, nil, false
+	local CPS, Delays = nil, nil
+	local Start, ClickTime = nil, 0
 
 	local AutoClicker = Tabs.Combat:CreateToggle({
 		Name = "AutoClicker",
 		Callback = function(callback)
 			if callback then
-				Enabled = true
-				repeat
+				Start, ClickTime = nil, 0
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+					Start = tick()
 					if Randomize then
 						CPS = math.random(MinCPS, MaxCPS)
 					else
 						CPS = MaxCPS
 					end
-					wait(1 / CPS)
-					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-					if Tool and Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-						IsAutoClick = true
-						Tool:Activate()
-					else
-						if not Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then	
-							IsAutoClick = false
+					if CPS ~= nil then
+						Delays = 1 / CPS
+					end
+					if Tool then
+						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+							if Start - ClickTime >= Delays then
+								IsAutoClick = true
+								Tool:Activate()
+								ClickTime = Start
+							end
 						end
 					end
-				until not Enabled
+				end)
 			else
-				Enabled = false
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				Start, ClickTime, IsAutoClick = nil, 0, false
 			end
 		end
 	})
