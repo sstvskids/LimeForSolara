@@ -210,7 +210,7 @@ spawn(function()
 	})
 end)
 
-local IsAutoClickerClicking = nil
+local IsAutoClick = false
 spawn(function()
 	local MaxCPS, MinCPS, Randomize = nil, nil, false
 	local CPS = nil
@@ -219,8 +219,8 @@ spawn(function()
 	local AutoClicker = Tabs.Combat:CreateToggle({
 		Name = "AutoClicker",
 		Callback = function(callback)
-			Enabled = callback
 			if callback then
+				Enabled = true
 				repeat
 					if Randomize then
 						CPS = math.random(MinCPS, MaxCPS)
@@ -229,15 +229,17 @@ spawn(function()
 					end
 					wait(1 / CPS)
 					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-					if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-						IsAutoClickerClicking = true
-						if Tool then
-							Tool:Activate()
-						end
+					if Tool and Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+						IsAutoClick = true
+						Tool:Activate()
 					else
-						IsAutoClickerClicking = false
+						if not Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then	
+							IsAutoClick = false
+						end
 					end
 				until not Enabled
+			else
+				Enabled = false
 			end
 		end
 	})
@@ -274,6 +276,7 @@ spawn(function()
 		end
 	})
 end)
+
 --[[
 spawn(function()
 	local MinHealth = nil
@@ -725,9 +728,7 @@ spawn(function()
 								if OldCharacter and NewCharacter then
 									game.Workspace.CurrentCamera.CameraSubject = NewCharacter.Humanoid
 									LocalPlayer.Character = NewCharacter
-									OldCharacter.HumanoidRootPart.Anchored = true
 									task.wait(0.15)
-									OldCharacter.HumanoidRootPart.Anchored = false
 									MoveTo = game:GetService("TweenService"):Create(OldCharacter.HumanoidRootPart, TweenInfo.new(Delays), {CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3})
 									MoveTo:Play()
 								end
@@ -1795,7 +1796,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
-					if not IsAutoClickerClicking then
+					if not IsAutoClick then
 						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
 							if Mouse.Target and Mouse.Target:IsA("Part") and Mouse.Target.Name == "Block" then
 								task.wait(0.28)
