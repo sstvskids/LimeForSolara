@@ -43,40 +43,43 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) and isfolder(GameConfigFolder
 			if AutoSave then
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
-		end)
-		LocalPlayer.Chatted:Connect(function(msg)
-			local msgsave = ".config save {name}"
-			local msgload = ".config load {name}"
-			local msgdelete = ".config delete {name}"
+			LocalPlayer.Chatted:Connect(function(msg)
+				local parts = string.split(msg, " ")
+				if parts[1] == ".config" then
+					local command = parts[2]
+					local name = parts[3]
 
-			if msg:sub(1, #msgsave) == msgsave then
-				local name = msg:sub(#msgsave + 1):gsub("%s+", "")
-				local path = GameConfigFolder .. "/" .. name .. ".lua"
-				if isfile(path) then
-					local filemain = readfile(path)
-					writefile(MainFile, filemain)
-					print("Config loaded from: " .. name)
+					if command == "save" and name then
+						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
+						writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+						warn("Configuration saved as " .. name)
+					elseif command == "load" and name then
+						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
+						if isfile(MainFile) then
+							local loadedConfig = readfile(MainFile)
+							local LoadedSettings = HttpService:JSONDecode(loadedConfig)
+							if LoadedSettings then
+								ConfigSetting = LoadedSettings
+								warn("Configuration " .. name .. " loaded successfully.")
+							else
+								warn("Failed to load " .. name)
+							end
+						else
+							warn("Configuration file not found.")
+						end
+					elseif command == "delete" and name then
+						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
+						if isfile(MainFile) then
+							delfile(MainFile)
+							warn("Configuration " .. name .. " deleted successfully.")
+						else
+							warn("Configuration file not found.")
+						end
+					else
+						warn("Invalid command. Use .config save, .config load, or .config delete.")
+					end
 				end
-			elseif msg:sub(1, #msgload) == msgload then
-				local name = msg:sub(#msgload + 1):gsub("%s+", "")
-				local path = GameConfigFolder .. "/" .. name .. ".lua"
-				if isfile(path) then
-					local filemain = readfile(path)
-					writefile(MainFile, filemain)
-					print("Config loaded from: " .. name)
-				else
-					print("File not found: " .. name)
-				end
-			elseif msg:sub(1, #msgdelete) == msgdelete then
-				local name = msg:sub(#msgdelete + 1):gsub("%s+", "")
-				local path = GameConfigFolder .. "/" .. name .. ".lua"
-				if isfile(path) then
-					delfile(path)
-					print("Config deleted: " .. name)
-				else
-					print("File not found: " .. name)
-				end
-			end
+			end)
 		end)
 	end)
 end
