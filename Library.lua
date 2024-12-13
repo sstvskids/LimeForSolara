@@ -7,14 +7,10 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game.Players.LocalPlayer
-local MainFolder, ConfigFolder, GameConfigFolder = "Lime", "Lime/configs", "configs/" .. game.PlaceId
+local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
 local AutoSave, MainFile = true, nil
 local Library = {}
-
 if not shared.Lime then
 	shared.Lime = {
 		Visual = {
@@ -25,8 +21,9 @@ if not shared.Lime then
 	}
 end
 
-if isfolder(MainFolder) and isfolder(ConfigFolder) and isfolder(GameConfigFolder) then
-	MainFile = MainFolder .. "/" .. game.PlaceId .. ".lua"
+if isfolder(MainFolder) and isfolder(ConfigFolder) then
+	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+
 	if isfile(MainFile) then
 		local GetMain = readfile(MainFile)
 		if GetMain then
@@ -43,43 +40,6 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) and isfolder(GameConfigFolder
 			if AutoSave then
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
-			LocalPlayer.Chatted:Connect(function(msg)
-				local parts = string.split(msg, " ")
-				if parts[1] == ".config" then
-					local command = parts[2]
-					local name = parts[3]
-
-					if command == "save" and name then
-						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
-						writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
-						warn("Configuration saved as " .. name)
-					elseif command == "load" and name then
-						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
-						if isfile(MainFile) then
-							local loadedConfig = readfile(MainFile)
-							local LoadedSettings = HttpService:JSONDecode(loadedConfig)
-							if LoadedSettings then
-								ConfigSetting = LoadedSettings
-								warn("Configuration " .. name .. " loaded successfully.")
-							else
-								warn("Failed to load " .. name)
-							end
-						else
-							warn("Configuration file not found.")
-						end
-					elseif command == "delete" and name then
-						MainFile = GameConfigFolder .. "/" .. name .. ".lua"
-						if isfile(MainFile) then
-							delfile(MainFile)
-							warn("Configuration " .. name .. " deleted successfully.")
-						else
-							warn("Configuration file not found.")
-						end
-					else
-						warn("Invalid command. Use .config save, .config load, or .config delete.")
-					end
-				end
-			end)
 		end)
 	end)
 end
