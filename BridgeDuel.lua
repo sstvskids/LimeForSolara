@@ -125,12 +125,14 @@ local function GetITemC0()
 end
 
 local function AnimateC0(anim)
-	local Tool = GetITemC0()
-	if Tool then
-		local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = OldC0 * anim.CFrame})
-		if Tween then
-			Tween:Play()
-			Tween.Completed:Wait()
+	if LocalPlayer.Character:FindFirstChildWhichIsA("Tool") then
+		local Tool = GetITemC0()
+		if Tool then
+			local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = OldC0 * anim.CFrame})
+			if Tween then
+				Tween:Play()
+				Tween.Completed:Wait()
+			end
 		end
 	end
 end
@@ -192,7 +194,6 @@ local AntiBotGlobal = false
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
-		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				AntiBotGlobal = true
@@ -371,7 +372,7 @@ local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, Kil
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword, RotationMode = nil, nil
-	local SwordModel = GetITemC0()
+	local SwordModel = nil
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
@@ -425,6 +426,7 @@ spawn(function()
 								KillAuraTarget = Entity
 								Sword = CheckTool("Sword")
 								if Sword then
+									SwordModel = GetITemC0()
 									if KillAuraBlock == "Packet" then
 										local args = {
 											[1] = true,
@@ -795,7 +797,6 @@ spawn(function()
 
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Anti Staff",
-		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -1723,7 +1724,6 @@ spawn(function()
 
 	local Ambience = Tabs.Visual:CreateToggle({
 		Name = "Ambience",
-		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -2272,11 +2272,14 @@ spawn(function()
 							KillCount = KillCount + 1
 							if KillCount ~= OldKillCount then
 								Dead[KillAuraTarget] = true
+								game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
+								--[[
 								local args = {
 									[1] = Kill(KillAuraTarget),
 									[2] = "All"
 								}
-								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
+								--]]
 								wait()
 								OldKillCount = KillCount
 							end
