@@ -1,3 +1,4 @@
+repeat wait() until game:IsLoaded()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
@@ -365,96 +366,131 @@ end)
 local IsTPAura = false
 local IsFakeLag = false
 local IsScaffold = false
+local C0Animation = nil
 local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget, KillAuraWallCheck = nil, nil, nil, nil, nil, true
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword, RotationMode = nil, nil
-
+	local SwordModel = GetITemC0()
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
 			if callback then
 				IsKillAuraEnabled = true
-				Loop = Service.RunService.RenderStepped:Connect(function() 
-					if IsAlive(LocalPlayer.Character) then
-						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
-						if Entity then
-							local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
-							local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
-							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-								if not IsFakeLag then
-									if RotationMode == "Normal" then
-										if not IsScaffold then
-											LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
-										end
-									elseif RotationMode == "None" then
-										if not IsScaffold then
-											LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-										end
+				spawn(function()
+					while IsKillAuraEnabled do
+						task.wait()
+						if Swing then
+							if C0Animation ~= nil then
+								if KillAuraBlock == "Packet" then
+									for i, v in pairs(C0Animation) do
+										AnimateC0(v)
 									end
 								else
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-									repeat
-										task.wait()
-									until not IsFakeLag
+									for i, v in pairs(C0Animation) do
+										AnimateC0(v)
+									end
 								end
-							end
-							KillAuraTarget = Entity
-							Sword = CheckTool("Sword")
-							if Sword then
-								if KillAuraBlock == "Packet" then
-									local args = {
-										[1] = true,
-										[2] = Sword.Name
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-								elseif KillAuraBlock == "None" then
-									local args = {
-										[1] = false,
-										[2] = Sword.Name
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-								end
-								if Swing and KillAuraBlock == "None" then
-									Sword:Activate()
-								end
-								local args = {
-									[1] = Entity,
-									[2] = HitCritical,
-									[3] = Sword.Name
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
 							else
+								Sword:Activate()
+							end
+						end
+					end
+				end)
+				spawn(function()
+					Loop = Service.RunService.RenderStepped:Connect(function() 
+						if IsAlive(LocalPlayer.Character) then
+							local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
+							if Entity then
+								local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
+								local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+									if not IsFakeLag then
+										if RotationMode == "Normal" then
+											if not IsScaffold then
+												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
+											end
+										elseif RotationMode == "None" then
+											if not IsScaffold then
+												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+											end
+										end
+									else
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+										repeat
+											task.wait()
+										until not IsFakeLag
+									end
+								end
+								KillAuraTarget = Entity
+								Sword = CheckTool("Sword")
+								if Sword then
+									if KillAuraBlock == "Packet" then
+										local args = {
+											[1] = true,
+											[2] = Sword.Name
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+									elseif KillAuraBlock == "None" then
+										local args = {
+											[1] = false,
+											[2] = Sword.Name
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+									end
+									local args = {
+										[1] = Entity,
+										[2] = HitCritical,
+										[3] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+								else
+									if SwordModel and OldC0 then
+										if SwordModel.C0 ~= OldC0 then
+											SwordModel.C0 = OldC0
+										end
+									end
+									if KillAuraBlock == "Packet" then
+										local args = {
+											[1] = false,
+											[2] = Sword.Name
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+									end
+								end
+							else
+								if SwordModel and OldC0 then
+									if SwordModel.C0 ~= OldC0 then
+										SwordModel.C0 = OldC0
+									end
+								end
 								if KillAuraBlock == "Packet" then
 									local args = {
 										[1] = false,
 										[2] = Sword.Name
 									}
 									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								end
+								if not IsScaffold then
+									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 								end
 							end
 						else
-							if KillAuraBlock == "Packet" then
-								local args = {
-									[1] = false,
-									[2] = Sword.Name
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-							end
-							if not IsScaffold then
-								LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-							end
+							repeat
+								task.wait()
+							until IsAlive(LocalPlayer.Character)
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
-					end
+					end)
 				end)
 			else
 				IsKillAuraEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
+				end
+				if SwordModel and OldC0 then
+					if SwordModel.C0 ~= OldC0 then
+						SwordModel.C0 = OldC0
+					end
 				end
 				if KillAuraBlock == "Packet" then
 					local args = {
@@ -1643,6 +1679,45 @@ end)
 --]]
 
 spawn(function()
+	local Loop, SelectedMode = nil, nil
+	local Animation = Tabs.Visual:CreateToggle({
+		Name = "Animation",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if SelectedMode == "Lime" then
+						C0Animation = {
+							{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
+							{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
+						}
+					elseif SelectedMode == "Eternal" then
+						C0Animation = {
+							{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
+							{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
+						}
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				C0Animation = nil
+			end
+		end
+	})
+	local AnimationSword = Animation:CreateDropdown({
+		Name = "Sword Hit Animation",
+		List = {"Eternal", "Lime"},
+		Default = "Lime",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local OldTime, NewTime = Service.Lighting.ClockTime, nil
 	local Loop = nil
 
@@ -2049,25 +2124,7 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local Loop, ItemModel = nil, nil
-	local Viewmodel = Tabs.Visual:CreateToggle({
-		Name = "Viewmodel",
-		Callback = function(callback)
-			if callback then
-				ItemModel = nil
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					ItemModel = GetITemC0()
-					if ItemModel then
-						
-					end
-				end)
-			end
-		end
-	})
-end)
---]]
+
 spawn(function()
 	local Loop = nil
 	local AutoTool = Tabs.Player:CreateToggle({
