@@ -2009,6 +2009,53 @@ spawn(function()
 end)
 
 spawn(function()
+	local Loop, Dead, KillCount = nil, {}, 0
+	local OldKillCount = KillCount
+	local OldSound = game:GetService("ReplicatedStorage"):WaitForChild("Assets"):FindFirstChildWhichIsA("Sound").SoundId
+	local KillEffect = Tabs.Visual:CreateToggle({
+		Name = "Kill Effects",
+		Callback = function(callback)
+			if callback then
+				Dead = {}
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if KillAuraTarget then
+						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
+							game:GetService("ReplicatedStorage"):WaitForChild("Assets"):FindFirstChildWhichIsA("Sound").SoundId = 85950005322040
+							KillCount = KillCount + 1
+							if KillCount ~= OldKillCount then
+								Dead[KillAuraTarget] = true
+								local Explosion = Instance.new("Explosion")
+								Explosion.Parent = game.Workspace
+								Explosion.Position = KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
+								Explosion.BlastRadius = 0
+								Explosion.BlastPressure = 0
+								Explosion.DestroyJointRadiusPercent = 0
+								Explosion.ExplosionType = Enum.ExplosionType.NoCraters
+								task.wait(0.25)
+								OldKillCount = KillCount
+								Explosion:Destroy()
+							end
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+				game:GetService("ReplicatedStorage"):WaitForChild("Assets"):FindFirstChildWhichIsA("Sound").SoundId = OldSound
+			end
+		end
+	})
+	local KillEffectMode = KillEffect:CreateDropdown({
+		Name = "Kill Effects Type",
+		List = {"Explosion"},
+		Default = "Explosion",
+		Callback = function(callback)
+		end
+	})
+end)
+
+spawn(function()
 	local Loop, UserID, UseDisplay = nil, nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
 	local TargetHUD = Tabs.Visual:CreateToggle({
@@ -2247,51 +2294,6 @@ spawn(function()
 			if callback then
 				Mode = callback
 			end
-		end
-	})
-end)
-
-spawn(function()
-	local Loop, Dead, KillCount = nil, {}, 0
-	local OldKillCount = KillCount
-	local KillEffect = Tabs.Visual:CreateToggle({
-		Name = "Kill Effects",
-		Callback = function(callback)
-			if callback then
-				Dead = {}
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if KillAuraTarget then
-						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-							PlaySound(85950005322040)
-							KillCount = KillCount + 1
-							if KillCount ~= OldKillCount then
-								Dead[KillAuraTarget] = true
-								local Explosion = Instance.new("Explosion")
-								Explosion.Parent = game.Workspace
-								Explosion.Position = KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
-								Explosion.BlastRadius = 0
-								Explosion.BlastPressure = 0
-								Explosion.DestroyJointRadiusPercent = 0
-								Explosion.ExplosionType = Enum.ExplosionType.NoCraters
-								task.wait(0.25)
-								OldKillCount = KillCount
-								Explosion:Destroy()
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-				end
-			end
-		end
-	})
-	local KillEffectMode = KillEffect:CreateDropdown({
-		Name = "Kill Effects Type",
-		List = {"Explosion"},
-		Default = "Explosion",
-		Callback = function(callback)
 		end
 	})
 end)
