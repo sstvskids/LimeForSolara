@@ -43,6 +43,39 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	end)
 end
 
+local SimsHolder, SimsGreen = nil, nil
+spawn(function()
+	RunService.Stepped:Connect(function()
+		for i, v in pairs(Players:GetPlayers()) do
+			if v.Name:match("Eternal") then
+				if not v.Character:FindFirstChild("Head"):FindFirstChild("Sigma5Moment") then
+					SimsHolder = Instance.new("BillboardGui")
+					SimsHolder.Name = "Sigma5Moment"
+					SimsHolder.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+					SimsHolder.Active = true
+					SimsHolder.AlwaysOnTop = true
+					SimsHolder.LightInfluence = 1.000
+					SimsHolder.MaxDistance = math.huge
+					SimsHolder.Size = UDim2.new(12, 0, 12, 0)
+					SimsHolder.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+					SimsHolder.Parent = v.Character:FindFirstChild("Head")
+					
+					SimsGreen = Instance.new("ImageLabel")
+					SimsGreen.Parent = SimsHolder
+					SimsGreen.AnchorPoint = Vector2.new(0.5, 0.5)
+					SimsGreen.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					SimsGreen.BackgroundTransparency = 1.000
+					SimsGreen.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					SimsGreen.BorderSizePixel = 0
+					SimsGreen.Position = UDim2.new(0.5, 0, 0.5, 0)
+					SimsGreen.Size = UDim2.new(0.215, 0, 0.245, 0)
+					SimsGreen.Image = "rbxassetid://17329562110"
+				end
+			end
+		end
+	end)
+end)
+
 function MakeDraggable(object)
 	local dragging, dragInput, dragStart, startPos
 
