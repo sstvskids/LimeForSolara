@@ -1,6 +1,5 @@
 repeat wait() until game:IsLoaded()
-local Library = require(game.ReplicatedStorage.Lime.LibraryStudio)
---local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
 	TweenService = game:GetService("TweenService"),
