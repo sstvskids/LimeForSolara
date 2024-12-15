@@ -2020,7 +2020,7 @@ spawn(function()
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if KillAuraTarget then
 						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-							game:GetService("ReplicatedStorage"):WaitForChild("Assets"):FindFirstChildWhichIsA("Sound").SoundId = 85950005322040
+							game:GetService("ReplicatedStorage"):WaitForChild("Assets"):FindFirstChildWhichIsA("Sound").SoundId = "rbxassetid://85950005322040"
 							KillCount = KillCount + 1
 							if KillCount ~= OldKillCount then
 								Dead[KillAuraTarget] = true
