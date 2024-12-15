@@ -1508,7 +1508,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
 spawn(function()
 	local Loop = nil
 	local Step = Tabs.Move:CreateToggle({
@@ -1535,7 +1535,7 @@ spawn(function()
 		end
 	})
 end)
-
+--]]
 spawn(function()
 	local Loop, Radius, Rage = nil, nil, false
 	local Angle, Speed = 0, 4
