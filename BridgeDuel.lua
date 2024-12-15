@@ -142,10 +142,9 @@ local function PlaySound(id)
 	Sound.SoundId = "rbxassetid://" .. id
 	Sound.Parent = game:GetService("SoundService")
 	Sound:Play()
-	repeat
-		wait()
-	until not Sound.Playing
-	Sound:Destroy()
+	Sound.Ended:Connect(function()
+		Sound:Destroy()
+	end)
 end
 
 local function GetStaff()
@@ -2248,6 +2247,51 @@ spawn(function()
 			if callback then
 				Mode = callback
 			end
+		end
+	})
+end)
+
+spawn(function()
+	local Loop, Dead, KillCount = nil, {}, 0
+	local OldKillCount = KillCount
+	local KillEffect = Tabs.Visual:CreateToggle({
+		Name = "Kill Effects",
+		Callback = function(callback)
+			if callback then
+				Dead = {}
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if KillAuraTarget then
+						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
+							PlaySound(85950005322040)
+							KillCount = KillCount + 1
+							if KillCount ~= OldKillCount then
+								Dead[KillAuraTarget] = true
+								local Explosion = Instance.new("Explosion")
+								Explosion.Parent = game.Workspace
+								Explosion.Position = KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
+								Explosion.BlastRadius = 0
+								Explosion.BlastPressure = 0
+								Explosion.DestroyJointRadiusPercent = 0
+								Explosion.ExplosionType = Enum.ExplosionType.NoCraters
+								task.wait(0.25)
+								OldKillCount = KillCount
+								Explosion:Destroy()
+							end
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+			end
+		end
+	})
+	local KillEffectMode = KillEffect:CreateDropdown({
+		Name = "Kill Effects Type",
+		List = {"Explosion"},
+		Default = "Explosion",
+		Callback = function(callback)
 		end
 	})
 end)
