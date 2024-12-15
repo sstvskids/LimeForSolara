@@ -29,6 +29,19 @@ local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
 
+local function GetWall()
+	local Result, Raycast = nil, nil
+	Raycast = RaycastParams.new()
+	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
+	Raycast.FilterType = Enum.RaycastFilterType.Exclude
+	Raycast.IgnoreWater = true
+
+	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.3
+	Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+
+	return Result and Result.Instance
+end
+
 local function CheckWall(v)
 	local Raycast, Result = nil, nil
 
@@ -38,7 +51,7 @@ local function CheckWall(v)
 		Raycast = RaycastParams.new()
 		Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
 		Raycast.FilterType = Enum.RaycastFilterType.Exclude
-		Result = workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction * Distance, Raycast)
+		Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction * Distance, Raycast)
 		if Result then
 			if not v:IsAncestorOf(Result.Instance) then
 				return false
@@ -1491,6 +1504,33 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				VelocitySpeed = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local Loop = nil
+	local Step = Tabs.Move:CreateToggle({
+		Name = "Step",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if IsAlive(LocalPlayer.Character) then
+						local Wall = GetWall()
+						if Wall then
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer.Character)
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
 			end
 		end
 	})
