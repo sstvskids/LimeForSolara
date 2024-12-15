@@ -1,5 +1,6 @@
 repeat wait() until game:IsLoaded()
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
+local Library = require(game.ReplicatedStorage.Lime.LibraryStudio)
+--local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
 	TweenService = game:GetService("TweenService"),
@@ -1741,9 +1742,11 @@ spawn(function()
 					Loop:Disconnect()
 				end
 				C0Animation = nil
-				if SwordModel and OldC0 then
-					if SwordModel.C0 ~= OldC0 then
-						SwordModel.C0 = OldC0
+				if SwordModel ~= nil then
+					if OldC0 ~= nil then
+						if SwordModel.C0 ~= OldC0 then
+							SwordModel.C0 = OldC0
+						end
 					end
 				end
 			end
@@ -2195,6 +2198,11 @@ spawn(function()
 								if v.Name ~= LocalPlayer.Name then
 									UpdateLine(v)
 								end
+							end
+						else
+							if Lines[v] then
+								Lines[v]:Destroy()
+								Lines[v] = nil
 							end
 						end
 					end
