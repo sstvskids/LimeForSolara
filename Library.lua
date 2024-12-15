@@ -23,7 +23,6 @@ end
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
-
 	if isfile(MainFile) then
 		local GetMain = readfile(MainFile)
 		if GetMain then
@@ -580,15 +579,43 @@ function Library:CreateMain()
 			local ToggleMenuOpened = false
 			local ToggleMenuOld = UDim2.new(1, 0, 0, 0)
 			local ToggleMenuNew = UDim2.new(1, 0, 0, 125)
-			local ToggleMenu = Instance.new("Frame")
-			ToggleMenu.Parent = TogglesList
-			ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-			ToggleMenu.BackgroundTransparency = 0.150
-			ToggleMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			ToggleMenu.BorderSizePixel = 0
-			ToggleMenu.Position = UDim2.new(0, 0, 25, 0)
-			ToggleMenu.Size = UDim2.new(1, 0, 0, 125)
-			ToggleMenu.Visible = false
+			local ToggleMenu, ScrollingMenu = nil, nil
+			if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+				if ToggleMenu == nil then
+					ToggleMenu = Instance.new("Frame")
+					ToggleMenu.Parent = TogglesList
+					ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					ToggleMenu.BackgroundTransparency = 1
+					ToggleMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					ToggleMenu.BorderSizePixel = 0
+					ToggleMenu.Position = UDim2.new(0, 0, 25, 0)
+					ToggleMenu.Size = UDim2.new(1, 0, 0, 125)
+					ToggleMenu.Visible = false
+
+					ScrollingMenu = Instance.new("ScrollingFrame")
+					ScrollingMenu.Parent = ToggleMenu
+					ScrollingMenu.Active = true
+					ScrollingMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					ScrollingMenu.BackgroundTransparency = 0.150
+					ScrollingMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					ScrollingMenu.BorderSizePixel = 0
+					ScrollingMenu.Size = UDim2.new(1, 0, 0, 125)
+					ScrollingMenu.ScrollBarThickness = 0
+				end
+			elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+				if ToggleMenu == nil then
+					ToggleMenu = Instance.new("Frame")
+					ToggleMenu.Parent = TogglesList
+					ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					ToggleMenu.BackgroundTransparency = 0.150
+					ToggleMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					ToggleMenu.BorderSizePixel = 0
+					ToggleMenu.Position = UDim2.new(0, 0, 25, 0)
+					ToggleMenu.Size = UDim2.new(1, 0, 0, 125)
+					ToggleMenu.Visible = false
+					ScrollingMenu = nil
+				end
+			end
 
 			--Here
 			local Keybinds = nil
@@ -596,7 +623,7 @@ function Library:CreateMain()
 				if Keybinds == nil then
 					local MobileKeybinds, IsKeybind = nil, false
 					Keybinds = Instance.new("TextButton")
-					Keybinds.Parent = ToggleMenu
+					Keybinds.Parent = ScrollingMenu
 					Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 					Keybinds.BackgroundTransparency = 1.000
 					Keybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -735,8 +762,17 @@ function Library:CreateMain()
 			end
 
 			local UIListLayout_2 = Instance.new("UIListLayout")
-			UIListLayout_2.Parent = ToggleMenu
 			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+
+			if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+				if ToggleMenu ~= nil then
+					UIListLayout_2.Parent = ScrollingMenu
+				end
+			elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+				if ToggleMenu ~= nil then
+					UIListLayout_2.Parent = ToggleMenu
+				end
+			end
 
 			local function ToggleButtonClicked()
 				if ToggleButton.Enabled then
@@ -892,12 +928,20 @@ function Library:CreateMain()
 				end
 
 				local MiniToggleHolder = Instance.new("Frame")
-				MiniToggleHolder.Parent = ToggleMenu
 				MiniToggleHolder.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 				MiniToggleHolder.BackgroundTransparency = 1.000
 				MiniToggleHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				MiniToggleHolder.BorderSizePixel = 0
 				MiniToggleHolder.Size = UDim2.new(1, 0, 0, 25)
+				if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						MiniToggleHolder.Parent = ScrollingMenu
+					end
+				elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						MiniToggleHolder.Parent = ToggleMenu
+					end
+				end
 
 				local MiniToggleHolderName = Instance.new("TextLabel")
 				MiniToggleHolderName.Parent = MiniToggleHolder
@@ -998,12 +1042,20 @@ function Library:CreateMain()
 				local Value
 				local Dragged = false
 				local SliderHolder = Instance.new("Frame")
-				SliderHolder.Parent = ToggleMenu
 				SliderHolder.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 				SliderHolder.BackgroundTransparency = 1.000
 				SliderHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderHolder.BorderSizePixel = 0
 				SliderHolder.Size = UDim2.new(1, 0, 0, 28)
+				if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						SliderHolder.Parent = ScrollingMenu
+					end
+				elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						SliderHolder.Parent = ToggleMenu
+					end
+				end
 
 				local SliderHolderName = Instance.new("TextLabel")
 				SliderHolderName.Parent = SliderHolder
@@ -1119,7 +1171,6 @@ function Library:CreateMain()
 
 				local Selected
 				local DropdownHolder = Instance.new("TextButton")
-				DropdownHolder.Parent = ToggleMenu
 				DropdownHolder.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 				DropdownHolder.BackgroundTransparency = 1.000
 				DropdownHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -1132,6 +1183,15 @@ function Library:CreateMain()
 				DropdownHolder.TextSize = 16.000
 				DropdownHolder.TextWrapped = true
 				DropdownHolder.TextXAlignment = Enum.TextXAlignment.Left
+				if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						DropdownHolder.Parent = ScrollingMenu
+					end
+				elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+					if ToggleMenu ~= nil then
+						DropdownHolder.Parent = ToggleMenu
+					end
+				end
 
 				local DropdownSelected = Instance.new("TextLabel")
 				DropdownSelected.Parent = DropdownHolder
