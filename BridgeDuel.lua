@@ -367,12 +367,11 @@ end)
 local IsTPAura = false
 local IsFakeLag = false
 local IsScaffold = false
-local C0Animation = nil
+local C0Animation, SwordModel = nil, nil
 local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget, KillAuraWallCheck = nil, nil, nil, nil, nil, true
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword, RotationMode = nil, nil
-	local SwordModel = nil
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
@@ -1703,6 +1702,11 @@ spawn(function()
 					Loop:Disconnect()
 				end
 				C0Animation = nil
+				if SwordModel and OldC0 then
+					if SwordModel.C0 ~= OldC0 then
+						SwordModel.C0 = OldC0
+					end
+				end
 			end
 		end
 	})
