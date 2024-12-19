@@ -379,7 +379,7 @@ end)
 local IsTPAura = false
 local IsFakeLag = false
 local IsScaffold = false
-local C0Animation, SwordModel = nil, nil
+local C0, SwordModel = nil, nil
 local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget, KillAuraWallCheck = nil, nil, nil, nil, nil, true
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
@@ -393,18 +393,25 @@ spawn(function()
 					while IsKillAuraEnabled do
 						task.wait()
 						if Swing then
-							if C0Animation ~= nil then
+							if C0 ~= nil then
 								if KillAuraBlock == "Packet" then
-									for i, v in pairs(C0Animation) do
+									for i, v in pairs(C0) do
 										AnimateC0(v)
 									end
 								else
-									for i, v in pairs(C0Animation) do
+									for i, v in pairs(C0) do
 										AnimateC0(v)
 									end
 								end
 							else
-								Sword:Activate()
+								if SwordModel and OldC0 then
+									if SwordModel.C0 ~= OldC0 then
+										SwordModel.C0 = OldC0
+									end
+								end
+								if SwordModel.C0 == OldC0 then
+									Sword:Activate()
+								end
 							end
 						end
 					end
@@ -1824,18 +1831,18 @@ end)
 
 spawn(function()
 	local Loop, SelectedMode = nil, nil
-	local Animation = Tabs.Visual:CreateToggle({
-		Name = "Animation",
+	local  = Tabs.Visual:CreateToggle({
+		Name = "",
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if SelectedMode == "Lime" then
-						C0Animation = {
+						C0 = {
 							{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
 							{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
 						}
 					elseif SelectedMode == "Eternal" then
-						C0Animation = {
+						C0 = {
 							{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
 							{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
 						}
@@ -1845,14 +1852,7 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				C0Animation = nil
-				if SwordModel ~= nil then
-					if OldC0 ~= nil then
-						if SwordModel.C0 ~= OldC0 then
-							SwordModel.C0 = OldC0
-						end
-					end
-				end
+				C0 = nil
 			end
 		end
 	})
