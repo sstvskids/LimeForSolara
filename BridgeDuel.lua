@@ -1,5 +1,6 @@
 repeat wait() until game:IsLoaded()
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
+local Library = require(game.ReplicatedStorage.Lime.LibraryStudio)
+--local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
 	TweenService = game:GetService("TweenService"),
@@ -29,19 +30,6 @@ local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
 
-local function GetWall()
-	local Result, Raycast = nil, nil
-	Raycast = RaycastParams.new()
-	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
-	Raycast.FilterType = Enum.RaycastFilterType.Exclude
-	Raycast.IgnoreWater = true
-
-	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.3
-	Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
-
-	return Result and Result.Instance
-end
-
 local function CheckWall(v)
 	local Raycast, Result = nil, nil
 
@@ -51,7 +39,7 @@ local function CheckWall(v)
 		Raycast = RaycastParams.new()
 		Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
 		Raycast.FilterType = Enum.RaycastFilterType.Exclude
-		Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction * Distance, Raycast)
+		Result = workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction * Distance, Raycast)
 		if Result then
 			if not v:IsAncestorOf(Result.Instance) then
 				return false
@@ -138,14 +126,12 @@ local function GetITemC0()
 end
 
 local function AnimateC0(anim)
-	if LocalPlayer.Character:FindFirstChildWhichIsA("Tool") then
-		local Tool = GetITemC0()
-		if Tool then
-			local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = OldC0 * anim.CFrame})
-			if Tween then
-				Tween:Play()
-				Tween.Completed:Wait()
-			end
+	local Tool = GetITemC0()
+	if Tool then
+		local Tween = Service.TweenService:Create(Tool, TweenInfo.new(anim.Time), {C0 = OldC0 * anim.CFrame})
+		if Tween then
+			Tween:Play()
+			Tween.Completed:Wait()
 		end
 	end
 end
@@ -155,9 +141,10 @@ local function PlaySound(id)
 	Sound.SoundId = "rbxassetid://" .. id
 	Sound.Parent = game:GetService("SoundService")
 	Sound:Play()
-	Sound.Ended:Connect(function()
-		Sound:Destroy()
-	end)
+	repeat
+		wait()
+	until not Sound.Playing
+	Sound:Destroy()
 end
 
 local function GetStaff()
@@ -206,6 +193,7 @@ local AntiBotGlobal = false
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				AntiBotGlobal = true
@@ -376,107 +364,62 @@ spawn(function()
 	})
 end)
 
-local IsTPAura = false
-local IsFakeLag = false
-local IsScaffold = false
-local C0Animation, SwordModel = nil, nil
+local ScaffoldRotation, IsScaffoldEnabled = nil, nil
 local KillAuraSortMode, KillAuraTeamCheck, KillAuraBlock, IsKillAuraEnabled, KillAuraTarget, KillAuraWallCheck = nil, nil, nil, nil, nil, true
 spawn(function()
 	local Loop, Range, Swing = nil, nil, false
 	local Sword, RotationMode = nil, nil
+
 	local KillAura = Tabs.Combat:CreateToggle({
 		Name = "Kill Aura",
 		Callback = function(callback)
 			if callback then
 				IsKillAuraEnabled = true
-				spawn(function()
-					while IsKillAuraEnabled do
-						task.wait()
-						if Swing then
-							if C0Animation ~= nil then
-								if KillAuraBlock == "Packet" then
-									for i, v in pairs(C0Animation) do
-										AnimateC0(v)
-									end
-								else
-									for i, v in pairs(C0Animation) do
-										AnimateC0(v)
-									end
-								end
-							else
-								Sword:Activate()
-							end
-						end
-					end
-				end)
-				spawn(function()
-					Loop = Service.RunService.RenderStepped:Connect(function() 
-						if IsAlive(LocalPlayer.Character) then
-							local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
-							if Entity then
-								local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
-								local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+				Loop = Service.RunService.RenderStepped:Connect(function() 
+					if IsAlive(LocalPlayer.Character) then
+						local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
+						if Entity then
+							local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
+							local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+							if not IsScaffoldEnabled and ScaffoldRotation ~= nil then
 								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-									if not IsFakeLag then
-										if RotationMode == "Normal" then
-											if not IsScaffold then
-												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
-											end
-										elseif RotationMode == "None" then
-											if not IsScaffold then
-												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-											end
-										end
-									else
+									if RotationMode == "Normal" then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
+									elseif RotationMode == "None" then
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-										repeat
-											task.wait()
-										until not IsFakeLag
-									end
-								end
-								KillAuraTarget = Entity
-								Sword = CheckTool("Sword")
-								if Sword then
-									SwordModel = GetITemC0()
-									if KillAuraBlock == "Packet" then
-										local args = {
-											[1] = true,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-									elseif KillAuraBlock == "None" then
-										local args = {
-											[1] = false,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-									end
-									local args = {
-										[1] = Entity,
-										[2] = HitCritical,
-										[3] = Sword.Name
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-								else
-									if SwordModel and OldC0 then
-										if SwordModel.C0 ~= OldC0 then
-											SwordModel.C0 = OldC0
-										end
-									end
-									if KillAuraBlock == "Packet" then
-										local args = {
-											[1] = false,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 									end
 								end
 							else
-								if SwordModel and OldC0 then
-									if SwordModel.C0 ~= OldC0 then
-										SwordModel.C0 = OldC0
-									end
+								repeat
+									task.wait()
+								until IsScaffoldEnabled and ScaffoldRotation == nil
+							end
+							KillAuraTarget = Entity
+							Sword = CheckTool("Sword")
+							if Sword then
+								if KillAuraBlock == "Packet" then
+									local args = {
+										[1] = true,
+										[2] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+								elseif KillAuraBlock == "None" then
+									local args = {
+										[1] = false,
+										[2] = Sword.Name
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 								end
+								if Swing and KillAuraBlock == "None" then
+									Sword:Activate()
+								end
+								local args = {
+									[1] = Entity,
+									[2] = HitCritical,
+									[3] = Sword.Name
+								}
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+							else
 								if KillAuraBlock == "Packet" then
 									local args = {
 										[1] = false,
@@ -484,26 +427,27 @@ spawn(function()
 									}
 									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 								end
-								if not IsScaffold then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-								end
 							end
 						else
-							repeat
-								task.wait()
-							until IsAlive(LocalPlayer.Character)
+							if KillAuraBlock == "Packet" then
+								local args = {
+									[1] = false,
+									[2] = Sword.Name
+								}
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+							end
+							LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 						end
-					end)
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer.Character)
+					end
 				end)
 			else
 				IsKillAuraEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
-				end
-				if SwordModel and OldC0 then
-					if SwordModel.C0 ~= OldC0 then
-						SwordModel.C0 = OldC0
-					end
 				end
 				if KillAuraBlock == "Packet" then
 					local args = {
@@ -512,9 +456,7 @@ spawn(function()
 					}
 					game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 				end
-				if not IsScaffold then
-					LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-				end
+				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 			end
 		end
 	})
@@ -589,85 +531,8 @@ spawn(function()
 	})
 end)
 
-spawn(function()
-	local Loop, Ranges, TeamCheck = nil, nil, false
-	local Entity, Sword = nil, nil
-	local TeleportAura = Tabs.Combat:CreateToggle({
-		Name = "Teleport Aura",
-		Callback = function(callback)
-			if callback then
-				IsTPAura = true
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if not IsKillAuraEnabled then
-						local PlaygroundService = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService")
-						if PlaygroundService then
-							Entity = GetNearestEntity(Ranges, AntiBotGlobal, KillAuraSortMode, TeamCheck, false)
-							if Entity then
-								if Entity:FindFirstChild("HumanoidRootPart").Position.Y > 18 then
-									Sword = CheckTool("Sword")
-									if Sword then
-										Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, Entity:FindFirstChild("HumanoidRootPart").Position.Y + 6.5, Entity:FindFirstChild("HumanoidRootPart").Position.Z)}):Play()
-										local args = {
-											[1] = Entity,
-											[2] = HitCritical,
-											[3] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-									else
-										repeat
-											task.wait()
-										until Sword ~= nil
-									end
-								end
-							else
-								repeat
-									task.wait()
-								until Entity
-							end
-						else
-							repeat
-								task.wait()
-							until PlaygroundService
-						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
-					end
-				end)
-			else
-				IsTPAura = true
-				if Loop ~= nil then
-					Loop:Disconnect()
-				end
-			end
-		end
-	})
-	local TeleportAuraRange = TeleportAura:CreateSlider({
-		Name = "Ranges",
-		Min = 0,
-		Max = 120,
-		Default = 120,
-		Callback = function(callback)
-			if callback then
-				Ranges = callback
-			end
-		end
-	})
-	local TeleportAuraTeamCheck = TeleportAura:CreateMiniToggle({
-		Name = "Teams",
-		Callback = function(callback)
-			if callback then
-				TeamCheck = true
-			else
-				TeamCheck = false
-			end
-		end
-	})
-end)
-
 --[[
-OLD TP AURA:
+TELEPORT AURA IN DEV:
 spawn(function()
 	local Loop, TPRange, OldCameraType, OldCameraSubject = nil, nil, game.Workspace.CurrentCamera.CameraType, game.Workspace.CurrentCamera.CameraSubject 
 	local Sword = nil
@@ -759,35 +624,98 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, Reported, Notify = nil, {}, false
-
+	local Loop, Loop2 = nil, nil
+	local Notify, InGameReport = false, false
+	local Reported = {}
+	local Blacklisted = {
+		"trash",
+		"l",
+		"noob",
+		"kid",
+		"ked",
+		"fat",
+		"shut",
+		"dumb",
+		"stupid",
+		"gay",
+		"gei",
+		"dead",
+		"die",
+		"died",
+		"death",
+		"mother",
+		"dad",
+		"mom",
+		"orphan",
+		"sad",
+		"no life",
+		"get a life",
+		"hate",
+		"old",
+		"ugly",
+		"bald",
+		"ez",
+		"cry",
+		"bozo",
+		"clown",
+		"🤓",
+		"💀",
+		"shi"
+	}
 	local AutoReport = Tabs.Exploit:CreateToggle({
 		Name = "Auto Report",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					for i, v in pairs(Service.Players:GetPlayers()) do
-						if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
-							table.insert(Reported, v.Name)
-							local args = {
-								[1] = v.Name
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
-							if Notify then
-								game:GetService("StarterGui"):SetCore("SendNotification", { 
-									Title = "Lime | Auto Report",
-									Text = "Reported " .. v.Name,
-									Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-									Duration = 5,
-								})
+				Loop2 = Service.RunService.Heartbeat:Connect(function()
+					if InGameReport then
+						for i, v in pairs(Service.Players:GetPlayers()) do
+							if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
+								table.insert(Reported, v.Name)
+								local args = {
+									[1] = v.Name
+								}
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
+							end
+						end
+					end
+				end)
+				Loop = game:GetService("TextChatService").MessageReceived:Connect(function(word)
+					for i,v in pairs(Blacklisted) do
+						if v then
+							if string.lower(word.Text):match(string.lower(v)) or string.upper(word.Text):match(string.upper(v)) then
+								local Noob = Service.Players:GetPlayerByUserId(word.TextSource.UserId)
+								if Noob ~= LocalPlayer then
+									Service.Players:ReportAbuse(Noob.Name, "Swearing", "He said " .. word.Text .. " to me")
+									if Notify then
+										game:GetService("StarterGui"):SetCore("SendNotification", { 
+											Title = "Lime | Auto Report",
+											Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
+											Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+											Duration = 5,
+										})
+									end
+								end
 							end
 						end
 					end
 				end)
 			else
-				if Loop then
+				if Loop ~= nil then
 					Loop:Disconnect()
 				end
+				if Loop2 ~= nil then
+					Loop2:Disconnect()
+				end
+			end
+		end
+	})
+	local AutoReportInGame = AutoReport:CreateMiniToggle({
+		Name = "In Game Report",
+		Callback = function(callback)
+			if callback then
+				InGameReport = true
+			else
+				InGameReport = false
 			end
 		end
 	})
@@ -808,6 +736,7 @@ spawn(function()
 
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Anti Staff",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -853,62 +782,62 @@ spawn(function()
 	})
 end)
 
---[[
-OLD DISABLER
 spawn(function()
-	local Loop, SelectedMode = nil, nil
-	local Disabler = Tabs.Exploit:CreateToggle({
-		Name = "Disabler",
+	local Loop = nil
+	local Phase = Tabs.Exploit:CreateToggle({
+		Name = "Phase",
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
-					if SelectedMode == "Playground" then
-						if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
-							local args = {
-								[1] = false
-							}
-
-							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
+					if IsAlive(LocalPlayer.Character) then
+						for i, v in pairs(LocalPlayer.Character:GetChildren()) do
+							if v:IsA("MeshPart") and v.Name:match("Torso") then
+								v.CanCollide = false
+							end
 						end
+						for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+							if b:IsA("Part") and b.Name:match("Root") then
+								b.CanCollide = false
+							end
+						end
+					else
+						repeat
+							task.wait()
+						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				local args = {
-					[1] = true
-				}
-
-				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
-			end
-		end
-	})
-	local DisablerMode = Disabler:CreateDropdown({
-		Name = "Disabler Modes",
-		List = {"Playground"},
-		Default = "Playground",
-		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
+				for i, v in pairs(LocalPlayer.Character:GetChildren()) do
+					if v:IsA("MeshPart") and v.Name:match("Torso") then
+						v.CanCollide = true
+					end
+				end
+				for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+					if b:IsA("Part") and b.Name:match("Root") then
+						b.CanCollide = true
+					end
+				end
 			end
 		end
 	})
 end)
 
+--[[
+local IsFakeLag = false
 spawn(function()
-	local Loop, Delays, MoveTo, SelectedMode, Paused = nil, nil, nil, nil, false
 	local OldCharacter, NewCharacter = nil, nil
+	local Loop, Delays, MoveTo, SelectedMode = nil, nil, nil, nil
 	local Start, Counter = nil, 0
-	local function CheckTool2(name)
-		local TooResults
-		for _,tool in pairs(OldCharacter:GetChildren()) do
-			if tool:IsA("Tool") and tool.Name:match(name) then
-				TooResults = tool
-			end
+	local OldInventory = {}
+	for i,v in pairs(LocalPlayer.Backpack:GetChildren()) do
+		if v:IsA("Tool") then
+			table.insert(OldInventory, v)
 		end
-		return TooResults
 	end
+
 	local FakeLag = Tabs.Exploit:CreateToggle({
 		Name = "Fake Lag",
 		Callback = function(callback)
@@ -928,45 +857,35 @@ spawn(function()
 								NewCharacter:FindFirstChildOfClass("Humanoid").Health = OldCharacter:FindFirstChildOfClass("Humanoid").Health
 								local Tool = NewCharacter:FindFirstChildWhichIsA("Tool")
 								if Tool then
-									if not CheckTool2(Tool.Name) then
-										Paused = true
-										LocalPlayer.Character = OldCharacter
-										task.wait(1)
-										for _, z in pairs(LocalPlayer.Backpack:GetChildren()) do
-											if z:IsA("Tool") and z.Name == Tool.Name then
-												LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(z)
-												task.wait()
-												LocalPlayer.Character = NewCharacter
-												Paused = false
+									print(Tool.Name)
+									if not OldCharacter:FindFirstChildWhichIsA("Tool") then
+										for i, v in pairs(OldInventory) do
+											if v and v.Name == Tool.Name then
+												OldCharacter:FindFirstChildOfClass("Humanoid"):EquipTool(v)
+												print("Equipped")
 											end
 										end
 									end
 								end
 								if SelectedMode == "Pulse" then
-									if not Paused then
-										game.Workspace.CurrentCamera.CameraSubject = NewCharacter:FindFirstChildOfClass("Humanoid")
-										LocalPlayer.Character = NewCharacter
-										Start = tick()
-										if Start - Counter >= 0.38 then
-											Counter = Start
-											OldCharacter.HumanoidRootPart.CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3
-										end
-
+									game.Workspace.CurrentCamera.CameraSubject = NewCharacter:FindFirstChildOfClass("Humanoid")
+									LocalPlayer.Character = NewCharacter
+									Start = tick()
+									if Start - Counter >= 0.38 then
+										Counter = Start
+										OldCharacter.HumanoidRootPart.CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3
 									end
 								elseif SelectedMode == "Smooth" then
-									if not Paused then
-										game.Workspace.CurrentCamera.CameraSubject = NewCharacter:FindFirstChildOfClass("Humanoid")
-										LocalPlayer.Character = NewCharacter
-										task.wait(0.15)
-										MoveTo = game:GetService("TweenService"):Create(OldCharacter.HumanoidRootPart, TweenInfo.new(Delays), {CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3})
-										if MoveTo ~= nil then
-											MoveTo:Play()
-										end
+									game.Workspace.CurrentCamera.CameraSubject = NewCharacter:FindFirstChildOfClass("Humanoid")
+									LocalPlayer.Character = NewCharacter
+									task.wait(0.15)
+									MoveTo = game:GetService("TweenService"):Create(OldCharacter.HumanoidRootPart, TweenInfo.new(Delays), {CFrame = NewCharacter.HumanoidRootPart.CFrame - NewCharacter.HumanoidRootPart.CFrame.LookVector * 3})
+									if MoveTo ~= nil then
+										MoveTo:Play()
 									end
 								end
 							end
 						else
-							Paused = false
 							game.Workspace.CurrentCamera.CameraSubject = OldCharacter:FindFirstChildOfClass("Humanoid")
 							LocalPlayer.Character = OldCharacter
 							if NewCharacter ~= nil then
@@ -980,7 +899,6 @@ spawn(function()
 					end)
 				end
 			else
-				Paused = false
 				IsFakeLag = false
 				if Loop ~= nil then
 					Loop:Disconnect()
@@ -1053,6 +971,47 @@ spawn(function()
 					IsEnabled = false
 					Shooted = false
 				end
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local Loop, SelectedMode = nil, nil
+	local Disabler = Tabs.Exploit:CreateToggle({
+		Name = "Disabler",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					if SelectedMode == "Playground" then
+						if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
+							local args = {
+								[1] = false
+							}
+
+							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
+						end
+					end
+				end)
+			else
+				if Loop ~= nil then
+					Loop:Disconnect()
+				end
+				local args = {
+					[1] = true
+				}
+
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PlaygroundService"):WaitForChild("RF"):WaitForChild("SetAntiCheat"):InvokeServer(unpack(args))
+			end
+		end
+	})
+	local DisablerMode = Disabler:CreateDropdown({
+		Name = "Disabler Modes",
+		List = {"Playground"},
+		Default = "Playground",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
 			end
 		end
 	})
@@ -1508,36 +1467,9 @@ spawn(function()
 		end
 	})
 end)
---[[
+
 spawn(function()
-	local Loop = nil
-	local Step = Tabs.Move:CreateToggle({
-		Name = "Step",
-		Callback = function(callback)
-			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						local Wall = GetWall()
-						if Wall then
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
-					end
-				end)
-			else
-				if Loop ~= nil then
-					Loop:Disconnect()
-				end
-			end
-		end
-	})
-end)
---]]
-spawn(function()
-	local Loop, Radius, Rage = nil, nil, false
+	local Loop, Radius, Controllable = nil, nil, false
 	local Angle, Speed = 0, 4
 	local TargetStrafe = Tabs.Move:CreateToggle({
 		Name = "Target Strafe",
@@ -1545,40 +1477,34 @@ spawn(function()
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function(ticks)
 					if IsKillAuraEnabled then
-						if not IsScaffold then
-							if not IsFakeLag then
-								if not IsTPAura then
-									if KillAuraTarget ~= nil then
-										Angle = Angle + (Speed * ticks)
-										local XOffset = math.cos(Angle) * Radius
-										local ZOffset = math.sin(Angle) * Radius
-										if IsAlive(LocalPlayer.Character) then
-											if IsAlive(KillAuraTarget) then
-												local Distance = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Magnitude
-												if Distance < Radius then
-													LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget:FindFirstChild("HumanoidRootPart").Position + (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit * Radius, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
-													local Offset = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
-													local Offset2 = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit
-													local Perpendicular = Vector3.new(-Offset.Z, 0, Offset.X).Unit
-													local NewPosition = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) + Perpendicular * 0.25
-													if not Rage then
-														local NewPosition = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08
-														if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Magnitude > 0 then
-															LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08), KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
-														end
-													end
-												end
+						if KillAuraTarget ~= nil then
+							Angle = Angle + (Speed * ticks)
+							local XOffset = math.cos(Angle) * Radius
+							local ZOffset = math.sin(Angle) * Radius
+							if IsAlive(LocalPlayer.Character) then
+								if IsAlive(KillAuraTarget) then
+									local Distance = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Magnitude
+									if Distance < Radius then
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget:FindFirstChild("HumanoidRootPart").Position + (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit * Radius, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
+										local Offset = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
+										local Offset2 = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit
+										local Perpendicular = Vector3.new(-Offset.Z, 0, Offset.X).Unit
+										local NewPosition = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) + Perpendicular * 0.25
+										if Controllable then
+											local NewPosition = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08
+											if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Magnitude > 0 then
+												LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08), KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
 											end
-										end
-										if IsAlive(LocalPlayer.Character) then
-											if IsAlive(KillAuraTarget) then
-												if Rage then
-													LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(XOffset, 0, ZOffset))
-												end
-											end	
 										end
 									end
 								end
+							end
+							if IsAlive(LocalPlayer.Character) then
+								if IsAlive(KillAuraTarget) then
+									if not Controllable then
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(XOffset, 0, ZOffset))
+									end
+								end	
 							end
 						end
 					end
@@ -1600,12 +1526,12 @@ spawn(function()
 		end
 	})
 	local TargetStrafeControllable = TargetStrafe:CreateMiniToggle({
-		Name = "Rage",
+		Name = "Controllable",
 		Callback = function(callback)
 			if callback then
-				Rage = true
+				Controllable = true
 			else
-				Rage = false
+				Controllable = false
 			end
 		end
 	})
@@ -1718,57 +1644,12 @@ end)
 --]]
 
 spawn(function()
-	local Loop, SelectedMode = nil, nil
-	local Animation = Tabs.Visual:CreateToggle({
-		Name = "Animation",
-		Callback = function(callback)
-			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if SelectedMode == "Lime" then
-						C0Animation = {
-							{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
-							{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
-						}
-					elseif SelectedMode == "Eternal" then
-						C0Animation = {
-							{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
-							{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
-						}
-					end
-				end)
-			else
-				if Loop ~= nil then
-					Loop:Disconnect()
-				end
-				C0Animation = nil
-				if SwordModel ~= nil then
-					if OldC0 ~= nil then
-						if SwordModel.C0 ~= OldC0 then
-							SwordModel.C0 = OldC0
-						end
-					end
-				end
-			end
-		end
-	})
-	local AnimationSword = Animation:CreateDropdown({
-		Name = "Sword Hit Animation",
-		List = {"Eternal", "Lime"},
-		Default = "Lime",
-		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
-			end
-		end
-	})
-end)
-
-spawn(function()
 	local OldTime, NewTime = Service.Lighting.ClockTime, nil
 	local Loop = nil
 
 	local Ambience = Tabs.Visual:CreateToggle({
 		Name = "Ambience",
+		Enabled = true,
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
@@ -2051,50 +1932,6 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, Dead, KillCount = nil, {}, 0
-	local OldKillCount = KillCount
-	local KillEffect = Tabs.Visual:CreateToggle({
-		Name = "Kill Effects",
-		Callback = function(callback)
-			if callback then
-				Dead = {}
-				Loop = Service.RunService.Heartbeat:Connect(function()
-					if KillAuraTarget then
-						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-							KillCount = KillCount + 1
-							if KillCount ~= OldKillCount then
-								Dead[KillAuraTarget] = true
-								local Explosion = Instance.new("Explosion")
-								Explosion.Parent = game.Workspace
-								Explosion.Position = KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
-								Explosion.BlastRadius = 0
-								Explosion.BlastPressure = 0
-								Explosion.DestroyJointRadiusPercent = 0
-								Explosion.ExplosionType = Enum.ExplosionType.NoCraters
-								task.wait(0.25)
-								OldKillCount = KillCount
-								Explosion:Destroy()
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-				end
-			end
-		end
-	})
-	local KillEffectMode = KillEffect:CreateDropdown({
-		Name = "Kill Effects Type",
-		List = {"Explosion"},
-		Default = "Explosion",
-		Callback = function(callback)
-		end
-	})
-end)
-
-spawn(function()
 	local Loop, UserID, UseDisplay = nil, nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
 	local TargetHUD = Tabs.Visual:CreateToggle({
@@ -2198,11 +2035,6 @@ spawn(function()
 									UpdateLine(v)
 								end
 							end
-						else
-							if Lines[v] then
-								Lines[v]:Destroy()
-								Lines[v] = nil
-							end
 						end
 					end
 				end)
@@ -2214,6 +2046,24 @@ spawn(function()
 					v:Destroy()
 				end
 				Lines = {}
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local Loop, ItemModel = nil, nil
+	local Viewmodel = Tabs.Visual:CreateToggle({
+		Name = "Viewmodel",
+		Callback = function(callback)
+			if callback then
+				ItemModel = nil
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					ItemModel = GetITemC0()
+					if ItemModel then
+						
+					end
+				end)
 			end
 		end
 	})
@@ -2366,14 +2216,11 @@ spawn(function()
 							KillCount = KillCount + 1
 							if KillCount ~= OldKillCount then
 								Dead[KillAuraTarget] = true
-								game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
-								--[[
 								local args = {
 									[1] = Kill(KillAuraTarget),
 									[2] = "All"
 								}
-								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
-								--]]
+								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
 								wait()
 								OldKillCount = KillCount
 							end
@@ -2444,21 +2291,23 @@ end)
 
 spawn(function()
 	local SelectedMode = nil
-	local PhaseDist = nil
-	local Phase = Tabs.Player:CreateToggle({
-		Name = "Phase",
+	local ClipDist = nil
+	local Clip = Tabs.Player:CreateToggle({
+		Name = "Clip",
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
 				if SelectedMode == "VClip" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, PhaseDist, 0))
+					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, ClipDist, 0))
+				elseif SelectedMode == "HClip" then
+					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + Vector3.new(0, ClipDist, 0))
 				end
 			end
 		end
 	})
-	local PhaseMode = Phase:CreateDropdown({
+	local ClipMode = Clip:CreateDropdown({
 		Name = "Phase Modes",
-		List = {"VClip"},
+		List = {"HClip", "VClip"},
 		Default = "VClip",
 		Callback = function(callback)
 			if callback then
@@ -2466,21 +2315,21 @@ spawn(function()
 			end
 		end
 	})
-	local PhaseDistance = Phase:CreateSlider({
+	local ClipDistance = Clip:CreateSlider({
 		Name = "Distance",
 		Min = 0,
 		Max = 12,
 		Default = 6,
 		Callback = function(callback)
 			if callback then
-				PhaseDist = callback
+				ClipDist = callback
 			end
 		end
 	})
 end)
 
 spawn(function()	
-	local Loop, Expand, Downwards, Rotations = nil, nil, false, nil
+	local Loop, Expand, Downwards = nil, nil, false
 	local PlacePos, PickMode = nil,nil
 
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
@@ -2502,8 +2351,8 @@ spawn(function()
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
 		Callback = function(callback)
+			IsScaffoldEnabled = callback
 			if callback then
-				IsScaffold = true
 				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						for i = 1, Expand do
@@ -2513,9 +2362,9 @@ spawn(function()
 								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
 							end
 							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-								if Rotations == "Normal" then
+								if ScaffoldRotation == "Normal" then
 									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.Angles(0, math.pi, 0)
-								elseif Rotations == "None" then
+								elseif ScaffoldRotation == "None" then
 									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 								end
 							end
@@ -2548,7 +2397,6 @@ spawn(function()
 					end
 				end)
 			else
-				IsScaffold = false
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
@@ -2579,7 +2427,7 @@ spawn(function()
 		Default = "None",
 		Callback = function(callback)
 			if callback then
-				Rotations = callback
+				ScaffoldRotation = callback
 			end
 		end
 	})
