@@ -35,11 +35,12 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 
 	AutoSave = true
 	spawn(function()
-		RunService.Stepped:Connect(function()
+		while true do
+			task.wait()
 			if AutoSave then
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
-		end)
+		end
 	end)
 end
 
@@ -59,7 +60,7 @@ spawn(function()
 					SimsHolder.Size = UDim2.new(12, 0, 12, 0)
 					SimsHolder.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
 					SimsHolder.Parent = v.Character:FindFirstChild("Head")
-					
+
 					SimsGreen = Instance.new("ImageLabel")
 					SimsGreen.Parent = SimsHolder
 					SimsGreen.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -194,21 +195,10 @@ function Library:CreateMain()
 	HudFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HudFrame.BorderSizePixel = 0
 	HudFrame.Size = UDim2.new(1, 0, 1, 0)
-	--[[
-	spawn(function()
-		while true do
-			wait()
-			if Library.Hud then
-				HudFrame.Visible = true
-			else
-				HudFrame.Visible = false
-			end
-		end
-	end)
-	--]]
 
 	spawn(function()
-		RunService.Stepped:Connect(function()
+		while true do
+			task.wait()
 			if HudFrame ~= nil then
 				if shared.Lime.Visual.Hud then
 					HudFrame.Visible = true
@@ -216,7 +206,7 @@ function Library:CreateMain()
 					HudFrame.Visible = false
 				end
 			end
-		end)
+		end
 	end)
 
 	local LibraryTitle = Instance.new("TextLabel")
@@ -250,9 +240,10 @@ function Library:CreateMain()
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
 	TitleGradient.Parent = LibraryTitle
-	
+
 	spawn(function()
-		RunService.Stepped:Connect(function()
+		while true do
+			task.wait()
 			if HudFrame ~= nil then
 				if shared.Lime.Visual.Watermark then
 					LibraryTitle.Visible = true
@@ -260,7 +251,7 @@ function Library:CreateMain()
 					LibraryTitle.Visible = false
 				end
 			end
-		end)
+		end
 	end)
 
 	local ArrayTable = {}
@@ -277,9 +268,10 @@ function Library:CreateMain()
 	UIListLayout_4.Parent = ArrayFrame
 	UIListLayout_4.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout_4.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	
+
 	spawn(function()
-		RunService.Stepped:Connect(function()
+		while true do
+			task.wait()
 			if HudFrame ~= nil then
 				if shared.Lime.Visual.Arraylist then
 					ArrayFrame.Visible = true
@@ -287,7 +279,7 @@ function Library:CreateMain()
 					ArrayFrame.Visible = false
 				end
 			end
-		end)
+		end
 	end)
 
 	local function AddArray(name)
@@ -462,7 +454,7 @@ function Library:CreateMain()
 
 		return TargetHUD
 	end
-	
+
 	function Main:CreateLine(Origin, Destination)
 		local Position = (Origin + Destination) / 2
 
@@ -673,27 +665,16 @@ function Library:CreateMain()
 							Keybinds.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 							local MobileKeybinds = Instance.new("TextButton")
 							MobileKeybinds.Parent = KeybindFrame
-							--[[
+
 							spawn(function()
 								while true do
-									wait()
+									task.wait()
 									if ToggleButton.Enabled then
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
 									else
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
 									end
 								end
-							end)
-							--]]
-
-							spawn(function()
-								RunService.Stepped:Connect(function()
-									if ToggleButton.Enabled then
-										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
-									else
-										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(175, 0, 0)
-									end
-								end)
 							end)
 
 							local MobileKeybindText = string.len(ToggleButton.Name)
@@ -781,14 +762,15 @@ function Library:CreateMain()
 							end       
 						end
 						spawn(function()
-							RunService.Stepped:Connect(function()
+							while true do
+								task.wait()
 								if ToggleButton.Keybind ~= "Home" then
 									if Keybinds then
 										Keybinds.PlaceholderText = ""
 										Keybinds.Text = ToggleButton.Keybind
 									end
 								end
-							end)
+							end
 						end)
 					end)
 				end
@@ -860,7 +842,8 @@ function Library:CreateMain()
 			--]]
 
 			spawn(function()
-				RunService.Stepped:Connect(function()
+				while true do
+					task.wait()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -881,7 +864,7 @@ function Library:CreateMain()
 							end
 						end
 					end
-				end)
+				end
 			end)
 
 			if ToggleButton.Enabled then
@@ -944,12 +927,12 @@ function Library:CreateMain()
 					end
 				end)
 			end
-			
+
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
 					Name = MiniToggle.Name,
 					Enabled = MiniToggle.Enabled or false,
-					AutoDisable = MiniToggle.AutoDisable or false,
+					--AutoDisable = MiniToggle.AutoDisable or false,
 					Callback = MiniToggle.Callback or function() end
 				}
 				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
@@ -1020,9 +1003,11 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
-
+				
+				--[[
 				spawn(function()
-					RunService.Stepped:Connect(function()
+					while true do
+						task.wait()
 						if MiniToggle.AutoDisable then
 							if MiniToggle.Enabled then
 								MiniToggle.Enabled = false
@@ -1033,8 +1018,9 @@ function Library:CreateMain()
 								end
 							end
 						end
-					end)
+					end
 				end)
+				--]]
 
 				if MiniToggle.Enabled then
 					MiniToggle.Enabled = true
