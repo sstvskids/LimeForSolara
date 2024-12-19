@@ -1832,7 +1832,7 @@ end)
 spawn(function()
 	local Loop, SelectedMode = nil, nil
 	local  Animation = Tabs.Visual:CreateToggle({
-		Name = "",
+		Name = "Animation",
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
