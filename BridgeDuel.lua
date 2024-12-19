@@ -1831,7 +1831,7 @@ end)
 
 spawn(function()
 	local Loop, SelectedMode = nil, nil
-	local  = Tabs.Visual:CreateToggle({
+	local  Animation = Tabs.Visual:CreateToggle({
 		Name = "",
 		Callback = function(callback)
 			if callback then
