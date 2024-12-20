@@ -36,7 +36,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	AutoSave = true
 	spawn(function()
 		while true do
-			task.wait()
+			task.wait(5)
 			if AutoSave then
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
