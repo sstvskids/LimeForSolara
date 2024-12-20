@@ -2102,17 +2102,17 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Loop = Service.RunService.Heartbeat:Connect(function()
-					if shared.Lime and shared.Lime.Visual then
-						shared.Lime.Visual.Hud = true
+					if Library.Visual then
+						Library.Visual.Hud = true
 						if Arraylist then
-							shared.Lime.Visual.Arraylist = true
+							Library.Visual.Arraylist = true
 						else
-							shared.Lime.Visual.Arraylist = false
+							Library.Visual.Arraylist = false
 						end
 						if Watermark then
-							shared.Lime.Visual.Watermark = true
+							Library.Visual.Watermark = true
 						else
-							shared.Lime.Visual.Watermark = false
+							Library.Visual.Watermark = false
 						end
 					end
 				end)
@@ -2120,13 +2120,13 @@ spawn(function()
 				if Loop ~= nil then
 					Loop:Disconnect()
 				end
-				if shared.Lime and shared.Lime.Visual then
-					shared.Lime.Visual.Hud = false
+				if Library.Visual then
+					Library.Visual.Hud = false
 					if Arraylist then
-						shared.Lime.Visual.Arraylist = false
+						Library.Visual.Arraylist = false
 					end
 					if Watermark then
-						shared.Lime.Visual.Watermark = false
+						Library.Visual.Watermark = false
 					end
 				end
 			end
