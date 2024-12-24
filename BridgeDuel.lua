@@ -22,9 +22,7 @@ local Tabs = {
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
 }
---1.20000005, -0.5, 0, 0.036033392, -0.746451914, 0.664462984, -0.353553385, 0.612372398, 0.707106769, -0.934720039, -0.26040262, -0.241844743 blocking c1
---game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"]
---game:GetService("Players").LocalPlayer.PlayerGui.MainGui["BRIDGE DUEL"].Title
+
 local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
@@ -393,24 +391,26 @@ spawn(function()
 					while IsKillAuraEnabled do
 						task.wait()
 						if Swing then
-							if C0Animation ~= nil then
-								if KillAuraBlock == "Packet" then
-									for i, v in pairs(C0Animation) do
-										AnimateC0(v)
+							if KillAuraTarget then
+								if C0Animation ~= nil then
+									if KillAuraBlock == "Packet" then
+										for i, v in pairs(C0Animation) do
+											AnimateC0(v)
+										end
+									else
+										for i, v in pairs(C0Animation) do
+											AnimateC0(v)
+										end
 									end
 								else
-									for i, v in pairs(C0Animation) do
-										AnimateC0(v)
-									end
+									Sword:Activate()
 								end
-							else
-								Sword:Activate()
 							end
 						end
 					end
 				end)
 				spawn(function()
-					Loop = Service.RunService.RenderStepped:Connect(function() 
+					Loop = Service.RunService.Heartbeat:Connect(function() 
 						if IsAlive(LocalPlayer.Character) then
 							local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
 							if Entity then
@@ -429,9 +429,6 @@ spawn(function()
 										end
 									else
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-										repeat
-											task.wait()
-										until not IsFakeLag
 									end
 								end
 								KillAuraTarget = Entity
@@ -458,6 +455,7 @@ spawn(function()
 									}
 									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
 								else
+									KillAuraTarget = nil
 									if SwordModel and OldC0 then
 										if SwordModel.C0 ~= OldC0 then
 											SwordModel.C0 = OldC0
@@ -472,6 +470,7 @@ spawn(function()
 									end
 								end
 							else
+								KillAuraTarget = nil
 								if SwordModel and OldC0 then
 									if SwordModel.C0 ~= OldC0 then
 										SwordModel.C0 = OldC0
@@ -488,10 +487,6 @@ spawn(function()
 									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 								end
 							end
-						else
-							repeat
-								task.wait()
-							until IsAlive(LocalPlayer.Character)
 						end
 					end)
 				end)
@@ -613,26 +608,10 @@ spawn(function()
 											[3] = Sword.Name
 										}
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-									else
-										repeat
-											task.wait()
-										until Sword ~= nil
 									end
 								end
-							else
-								repeat
-									task.wait()
-								until Entity
 							end
-						else
-							repeat
-								task.wait()
-							until PlaygroundService
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -700,9 +679,6 @@ spawn(function()
 							else
 								game.Workspace.CurrentCamera.CameraSubject = OldCameraSubject
 								game.Workspace.CurrentCamera.CameraType = OldCameraType
-								repeat
-									task.wait()
-								until IsAlive(LocalPlayer.Character)
 							end
 						end
 					end
@@ -757,7 +733,8 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
+Up Coming Auto Report:
 spawn(function()
 	local Loop, Loop2 = nil, nil
 	local Notify, InGameReport = false, false
@@ -819,16 +796,14 @@ spawn(function()
 						if v then
 							if string.lower(word.Text):match(string.lower(v)) or string.upper(word.Text):match(string.upper(v)) then
 								local Noob = Service.Players:GetPlayerByUserId(word.TextSource.UserId)
-								if Noob ~= LocalPlayer then
-									Service.Players:ReportAbuse(Noob.Name, "Swearing", "He said " .. word.Text .. " to me")
-									if Notify then
-										game:GetService("StarterGui"):SetCore("SendNotification", { 
-											Title = "Lime | Auto Report",
-											Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
-											Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-											Duration = 5,
-										})
-									end
+								Service.Players:ReportAbuse(Noob.Name, "Swearing", "He said " .. word.Text .. " to me")
+								if Notify then
+									game:GetService("StarterGui"):SetCore("SendNotification", { 
+										Title = "Lime | Auto Report",
+										Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
+										Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+										Duration = 5,
+									})
 								end
 							end
 						end
@@ -851,6 +826,52 @@ spawn(function()
 				InGameReport = true
 			else
 				InGameReport = false
+			end
+		end
+	})
+	local AutoReportNotify = AutoReport:CreateMiniToggle({
+		Name = "Notify",
+		Callback = function(callback)
+			if callback then
+				Notify = true
+			else
+				Notify = false
+			end
+		end
+	})
+end)
+--]]
+
+spawn(function()
+	local Loop, Reported, Notify = nil, {}, false
+
+	local AutoReport = Tabs.Exploit:CreateToggle({
+		Name = "Auto Report",
+		Callback = function(callback)
+			if callback then
+				Loop = Service.RunService.Heartbeat:Connect(function()
+					for i, v in pairs(Service.Players:GetPlayers()) do
+						if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
+							table.insert(Reported, v.Name)
+							local args = {
+								[1] = v.Name
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
+							if Notify then
+								game:GetService("StarterGui"):SetCore("SendNotification", { 
+									Title = "Lime | Auto Report",
+									Text = "Reported " .. v.Name,
+									Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+									Duration = 5,
+								})
+							end
+						end
+					end
+				end)
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
 			end
 		end
 	})
@@ -934,10 +955,6 @@ spawn(function()
 								b.CanCollide = false
 							end
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1079,9 +1096,6 @@ spawn(function()
 								NewCharacter:Destroy()
 							end
 							NewCharacter = nil
-							repeat
-								task.wait()
-							until IsAlive(OldCharacter)
 						end
 					end)
 				end
@@ -1201,9 +1215,6 @@ spawn(function()
 									NewCharacter:Destroy()
 								end
 								NewCharacter = nil
-								repeat
-									task.wait()
-								until IsAlive(OldCharacter)
 							end
 						end)
 					end
@@ -1307,17 +1318,15 @@ spawn(function()
 							game.Workspace.Gravity = OldGravity
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-							repeat
+							while SelectedMode == "Jump" do
 								task.wait()
-							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos
-							if IsEnabled then
-								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+								if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos then
+									if IsEnabled then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+									end
+								end
 							end
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1419,19 +1428,15 @@ spawn(function()
 					wait(0.28)
 					local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-				else
-					repeat
-						wait()
-					until not IsEnabled
 				end
 			else
 				if WaitToLand then
-					task.wait(0.45)
-					repeat
-						wait()
-					until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air
-					game.Workspace.Gravity = OldGravity
-					IsEnabled = false
+					while task.wait(0.45) do
+						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air then
+							game.Workspace.Gravity = OldGravity
+							IsEnabled = false
+						end
+					end
 				else
 					task.wait(1)
 					game.Workspace.Gravity = OldGravity
@@ -1524,10 +1529,6 @@ spawn(function()
 						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed ~= 16 then
 							LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1569,17 +1570,15 @@ spawn(function()
 								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 								JumpCount = 1
 							end
-							repeat
-								wait()
-							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed
-							if IsSpeedEnabled then
-								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							while SelectedMode == "Hop" do
+								task.wait()
+								if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed then
+									if IsSpeedEnabled then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+									end
+								end
 							end
 						end
-					else
-						repeat
-							wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1627,10 +1626,6 @@ spawn(function()
 						if Wall then
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1641,7 +1636,7 @@ spawn(function()
 		end
 	})
 end)
---]]
+
 spawn(function()
 	local Loop, Radius, Rage = nil, nil, false
 	local Angle, Speed = 0, 4
@@ -1775,20 +1770,8 @@ spawn(function()
 								local xOffset = math.cos(Angle) * Radius
 								local zOffset = math.sin(Angle) * Radius
 								Service.TweenService:Create(LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(0.4), {CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(xOffset, 0, zOffset)) * CFrame.Angles(0, Angle, 0)}):Play()
-							else
-								repeat
-									task.wait()
-								until KillAuraTarget ~= nil and IsAlive(KillAuraTarget)
 							end
-						else
-							repeat
-								task.wait()
-							until KillAuraSortMode == "Health"
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -1976,6 +1959,16 @@ spawn(function()
 		Callback = function(callback)
 		end
 	})
+	local ClickGUIQueue = ClickGui:CreateMiniToggle({
+		Name = "Auto Execute",
+		Callback = function(callback)
+			if callback then
+				queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua'))()")
+			else
+				queue_on_teleport(nil)
+			end
+		end
+	})
 end)
 
 spawn(function()
@@ -2155,7 +2148,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
 spawn(function()
 	local Loop, Dead, KillCount = nil, {}, 0
 	local OldKillCount = KillCount
@@ -2199,7 +2192,7 @@ spawn(function()
 		end
 	})
 end)
-
+--]]
 spawn(function()
 	local Loop, UserID, UseDisplay = nil, nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
@@ -2207,7 +2200,7 @@ spawn(function()
 		Name = "Target HUD",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
+				Loop = Service.RunService.Heartbeat:Connect(function()
 					if IsKillAuraEnabled then
 						if KillAuraTarget ~= nil then
 							PName = KillAuraTarget.Name
@@ -2230,9 +2223,6 @@ spawn(function()
 						end
 					else
 						Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
-						repeat
-							wait()
-						until IsKillAuraEnabled
 					end
 				end)
 			else
@@ -2324,7 +2314,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
 spawn(function()
 	local Loop = nil
 	local AutoTool = Tabs.Player:CreateToggle({
@@ -2355,7 +2345,7 @@ spawn(function()
 		end
 	})
 end)
-
+--]]
 spawn(function()
 	local Loop, LastPosition, Mode, ShowLastPos = nil, nil, nil, false
 
@@ -2412,10 +2402,6 @@ spawn(function()
 								end
 							end
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
@@ -2649,10 +2635,6 @@ spawn(function()
 								end
 							end
 						end
-					else
-						repeat
-							task.wait()
-						until IsAlive(LocalPlayer.Character)
 					end
 				end)
 			else
