@@ -232,29 +232,31 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Start, ClickTime = nil, 0
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-					Start = tick()
-					if Randomize then
-						CPS = math.random(MinCPS, MaxCPS)
-					else
-						CPS = MaxCPS
-					end
-					if CPS ~= nil then
-						Delays = 1 / CPS
-					end
-					if Tool then
-						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-							if Start - ClickTime >= Delays then
-								IsAutoClick = true
-								Tool:Activate()
-								ClickTime = Start
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+						Start = tick()
+						if Randomize then
+							CPS = math.random(MinCPS, MaxCPS)
+						else
+							CPS = MaxCPS
+						end
+						if CPS ~= nil then
+							Delays = 1 / CPS
+						end
+						if Tool then
+							if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+								if Start - ClickTime >= Delays then
+									IsAutoClick = true
+									Tool:Activate()
+									ClickTime = Start
+								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -337,7 +339,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -412,50 +414,66 @@ spawn(function()
 					end
 				end)
 				spawn(function()
-					Loop = Service.RunService.RenderStepped:Connect(function() 
-						if IsAlive(LocalPlayer.Character) then
-							local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
-							if Entity then
-								local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
-								local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
-								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-									if not IsFakeLag then
-										if RotationMode == "Normal" then
-											if not IsScaffold then
-												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
+					if not Loop then
+						Loop = Service.RunService.RenderStepped:Connect(function() 
+							if IsAlive(LocalPlayer.Character) then
+								local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
+								if Entity then
+									local Direction = (Vector3.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y, Entity:FindFirstChild("HumanoidRootPart").Position.Z) - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit
+									local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
+									if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+										if not IsFakeLag then
+											if RotationMode == "Normal" then
+												if not IsScaffold then
+													LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
+												end
+											elseif RotationMode == "None" then
+												if not IsScaffold then
+													LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+												end
 											end
-										elseif RotationMode == "None" then
-											if not IsScaffold then
-												LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+										else
+											LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+										end
+									end
+									KillAuraTarget = Entity
+									Sword = CheckTool("Sword")
+									if Sword then
+										SwordModel = GetITemC0()
+										if KillAuraBlock == "Packet" then
+											local args = {
+												[1] = true,
+												[2] = Sword.Name
+											}
+											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+										elseif KillAuraBlock == "None" then
+											local args = {
+												[1] = false,
+												[2] = Sword.Name
+											}
+											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+										end
+										local args = {
+											[1] = Entity,
+											[2] = HitCritical,
+											[3] = Sword.Name
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+									else
+										KillAuraTarget = nil
+										if SwordModel and OldC0 then
+											if SwordModel.C0 ~= OldC0 then
+												SwordModel.C0 = OldC0
 											end
 										end
-									else
-										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+										if KillAuraBlock == "Packet" then
+											local args = {
+												[1] = false,
+												[2] = Sword.Name
+											}
+											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+										end
 									end
-								end
-								KillAuraTarget = Entity
-								Sword = CheckTool("Sword")
-								if Sword then
-									SwordModel = GetITemC0()
-									if KillAuraBlock == "Packet" then
-										local args = {
-											[1] = true,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-									elseif KillAuraBlock == "None" then
-										local args = {
-											[1] = false,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-									end
-									local args = {
-										[1] = Entity,
-										[2] = HitCritical,
-										[3] = Sword.Name
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
 								else
 									KillAuraTarget = nil
 									if SwordModel and OldC0 then
@@ -470,31 +488,17 @@ spawn(function()
 										}
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 									end
-								end
-							else
-								KillAuraTarget = nil
-								if SwordModel and OldC0 then
-									if SwordModel.C0 ~= OldC0 then
-										SwordModel.C0 = OldC0
+									if not IsScaffold then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
 								end
-								if KillAuraBlock == "Packet" then
-									local args = {
-										[1] = false,
-										[2] = Sword.Name
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-								end
-								if not IsScaffold then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-								end
 							end
-						end
-					end)
+						end)
+					end
 				end)
 			else
 				IsKillAuraEnabled = false
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -595,31 +599,33 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsTPAura = true
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if not IsKillAuraEnabled then
-						local PlaygroundService = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService")
-						if PlaygroundService then
-							Entity = GetNearestEntity(Ranges, AntiBotGlobal, KillAuraSortMode, TeamCheck, false)
-							if Entity then
-								if Entity:FindFirstChild("HumanoidRootPart").Position.Y > 18 then
-									Sword = CheckTool("Sword")
-									if Sword then
-										Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, Entity:FindFirstChild("HumanoidRootPart").Position.Y + 6.5, Entity:FindFirstChild("HumanoidRootPart").Position.Z)}):Play()
-										local args = {
-											[1] = Entity,
-											[2] = HitCritical,
-											[3] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if not IsKillAuraEnabled then
+							local PlaygroundService = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService")
+							if PlaygroundService then
+								Entity = GetNearestEntity(Ranges, AntiBotGlobal, KillAuraSortMode, TeamCheck, false)
+								if Entity then
+									if Entity:FindFirstChild("HumanoidRootPart").Position.Y > 18 then
+										Sword = CheckTool("Sword")
+										if Sword then
+											Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, Entity:FindFirstChild("HumanoidRootPart").Position.Y + 6.5, Entity:FindFirstChild("HumanoidRootPart").Position.Z)}):Play()
+											local args = {
+												[1] = Entity,
+												[2] = HitCritical,
+												[3] = Sword.Name
+											}
+											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+										end
 									end
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				IsTPAura = true
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -688,7 +694,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -815,7 +821,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -855,25 +861,27 @@ spawn(function()
 		Name = "Auto Report",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for i, v in pairs(Service.Players:GetPlayers()) do
-						if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
-							table.insert(Reported, v.Name)
-							local args = {
-								[1] = v.Name
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
-							if Notify then
-								game:GetService("StarterGui"):SetCore("SendNotification", { 
-									Title = "Lime | Auto Report",
-									Text = "Reported " .. v.Name,
-									Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-									Duration = 5,
-								})
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						for i, v in pairs(Service.Players:GetPlayers()) do
+							if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
+								table.insert(Reported, v.Name)
+								local args = {
+									[1] = v.Name
+								}
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
+								if Notify then
+									game:GetService("StarterGui"):SetCore("SendNotification", { 
+										Title = "Lime | Auto Report",
+										Text = "Reported " .. v.Name,
+										Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+										Duration = 5,
+									})
+								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				if Loop then
 					Loop:Disconnect()
@@ -901,31 +909,33 @@ spawn(function()
 		Name = "Anti Staff",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					local Staff = GetStaff()
-					if Staff and not IsStaff then
-						IsStaff = true
-						PlaySound(4809574295)
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Staff",
-							Text = Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId,
-							Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-							Duration = 15,
-						})
-
-						if AutoLeave then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						local Staff = GetStaff()
+						if Staff and not IsStaff then
+							IsStaff = true
+							PlaySound(4809574295)
 							game:GetService("StarterGui"):SetCore("SendNotification", { 
 								Title = "Lime | Staff",
-								Text = "Leaving the game..",
-								Duration = 5,
+								Text = Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId,
+								Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+								Duration = 15,
 							})
-							wait(2)
-							LocalPlayer:Kick("Leaved the game..")
+
+							if AutoLeave then
+								game:GetService("StarterGui"):SetCore("SendNotification", { 
+									Title = "Lime | Staff",
+									Text = "Leaving the game..",
+									Duration = 5,
+								})
+								wait(2)
+								LocalPlayer:Kick("Leaved the game..")
+							end
 						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -951,22 +961,24 @@ spawn(function()
 		Name = "Phase",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						for i, v in pairs(LocalPlayer.Character:GetChildren()) do
-							if v:IsA("MeshPart") and v.Name:match("Torso") then
-								v.CanCollide = false
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							for i, v in pairs(LocalPlayer.Character:GetChildren()) do
+								if v:IsA("MeshPart") and v.Name:match("Torso") then
+									v.CanCollide = false
+								end
+							end
+							for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+								if b:IsA("Part") and b.Name:match("Root") then
+									b.CanCollide = false
+								end
 							end
 						end
-						for i, b in pairs(LocalPlayer.Character:GetChildren()) do
-							if b:IsA("Part") and b.Name:match("Root") then
-								b.CanCollide = false
-							end
-						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1005,7 +1017,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1112,7 +1124,7 @@ spawn(function()
 			else
 				Paused = false
 				IsFakeLag = false
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1233,7 +1245,7 @@ spawn(function()
 			else
 				IsEnabled = false
 				if not IsFakeLag then
-					if Loop ~= nil then
+					if Loop then
 						Loop:Disconnect()
 						Loop = nil
 					end
@@ -1288,22 +1300,23 @@ spawn(function()
 				if Boost ~= false then
 					OldBoost = Boost
 				end
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						if Boost then
-							if Start == nil then
-								Start = tick()
-							end
-							if (tick() - Start) < 2 then
-								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed + 8)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							if Boost then
+								if Start == nil then
+									Start = tick()
+								end
+								if (tick() - Start) < 2 then
+									Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed + 8)
+								else
+									Start = nil
+									Boost = false
+									Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed - 8)
+								end
 							else
-								Start = nil
-								Boost = false
-								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed - 8)
+								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
 							end
-						else
-							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
-						end
 						--[[
 						if Start2 == nil and FireCount == 1 then
 							Start2 = tick()
@@ -1322,28 +1335,29 @@ spawn(function()
 							Start2 = tick()
 						end
 						--]]
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						if SelectedMode == "Float" then
-							game.Workspace.Gravity = 0
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
-						elseif SelectedMode == "Jump" then
-							game.Workspace.Gravity = OldGravity
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-							while SelectedMode == "Jump" do
-								task.wait()
-								if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos then
-									if IsEnabled then
-										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+							if SelectedMode == "Float" then
+								game.Workspace.Gravity = 0
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, HumanoidRootPartY + YPos, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) * LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.Rotation
+							elseif SelectedMode == "Jump" then
+								game.Workspace.Gravity = OldGravity
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+								while SelectedMode == "Jump" do
+									task.wait()
+									if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos then
+										if IsEnabled then
+											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+										end
 									end
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				IsEnabled = false
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1545,7 +1559,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1571,34 +1585,36 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsSpeedEnabled = true
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
-						if SelectedMode == "Static" then
-							JumpCount = 0
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						elseif SelectedMode == "Hop" then
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
 							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
-							if JumpCount == 0 and IsSpeedEnabled then
-								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-								JumpCount = 1
-							end
-							while SelectedMode == "Hop" do
-								task.wait()
-								if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed then
-									if IsSpeedEnabled then
-										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+							if SelectedMode == "Static" then
+								JumpCount = 0
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+							elseif SelectedMode == "Hop" then
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
+								if JumpCount == 0 and IsSpeedEnabled then
+									LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+									JumpCount = 1
+								end
+								while SelectedMode == "Hop" do
+									task.wait()
+									if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed then
+										if IsSpeedEnabled then
+											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+										end
 									end
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				IsSpeedEnabled = false
 				JumpCount = 0
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1644,7 +1660,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1793,7 +1809,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1831,21 +1847,23 @@ spawn(function()
 		Name = "Animation",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if SelectedMode == "Lime" then
-						C0Animation = {
-							{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
-							{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
-						}
-					elseif SelectedMode == "Eternal" then
-						C0Animation = {
-							{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
-							{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
-						}
-					end
-				end)
-			else
-				if Loop ~= nil then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if SelectedMode == "Lime" then
+							C0Animation = {
+								{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
+								{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
+							}
+						elseif SelectedMode == "Eternal" then
+							C0Animation = {
+								{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
+								{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
+							}
+						end
+					end)
+				end
+				else
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1880,11 +1898,13 @@ spawn(function()
 		Name = "Ambience",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					Service.Lighting.ClockTime = NewTime
-				end)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						Service.Lighting.ClockTime = NewTime
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -1925,31 +1945,33 @@ spawn(function()
 		Name = "Chams",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for i, v in pairs(game.Workspace:GetChildren()) do
-						if v:IsA("Model") and IsAlive(v) then
-							if AntiBotGlobal then
-								if Service.Players:FindFirstChild(v.Name) then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						for i, v in pairs(game.Workspace:GetChildren()) do
+							if v:IsA("Model") and IsAlive(v) then
+								if AntiBotGlobal then
+									if Service.Players:FindFirstChild(v.Name) then
+										if RenderSelf or v.Name ~= LocalPlayer.Name then
+											Highlight(v)
+										else
+											RemoveHighlight(v)
+										end
+									else
+										RemoveHighlight(v)
+									end
+								else
 									if RenderSelf or v.Name ~= LocalPlayer.Name then
 										Highlight(v)
 									else
 										RemoveHighlight(v)
 									end
-								else
-									RemoveHighlight(v)
-								end
-							else
-								if RenderSelf or v.Name ~= LocalPlayer.Name then
-									Highlight(v)
-								else
-									RemoveHighlight(v)
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2029,31 +2051,33 @@ spawn(function()
 		Name = "ESP",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for i, v in pairs(game.Workspace:GetChildren()) do
-						if v:IsA("Model") and IsAlive(v) then
-							if AntiBotGlobal then
-								if Service.Players:FindFirstChild(v.Name) then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						for i, v in pairs(game.Workspace:GetChildren()) do
+							if v:IsA("Model") and IsAlive(v) then
+								if AntiBotGlobal then
+									if Service.Players:FindFirstChild(v.Name) then
+										if RenderSelf or v.Name ~= LocalPlayer.Name then
+											AddBox(v)
+										else
+											RemoveBox(v)
+										end
+									else
+										RemoveBox(v)
+									end
+								else
 									if RenderSelf or v.Name ~= LocalPlayer.Name then
 										AddBox(v)
 									else
 										RemoveBox(v)
 									end
-								else
-									RemoveBox(v)
-								end
-							else
-								if RenderSelf or v.Name ~= LocalPlayer.Name then
-									AddBox(v)
-								else
-									RemoveBox(v)
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2085,12 +2109,14 @@ spawn(function()
 		Name = "Fullbright",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					Service.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-					Service.Lighting.Brightness = 10
-				end)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						Service.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+						Service.Lighting.Brightness = 10
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2108,23 +2134,25 @@ spawn(function()
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if Library.Visual then
-						Library.Visual.Hud = true
-						if Arraylist then
-							Library.Visual.Arraylist = true
-						else
-							Library.Visual.Arraylist = false
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if Library.Visual then
+							Library.Visual.Hud = true
+							if Arraylist then
+								Library.Visual.Arraylist = true
+							else
+								Library.Visual.Arraylist = false
+							end
+							if Watermark then
+								Library.Visual.Watermark = true
+							else
+								Library.Visual.Watermark = false
+							end
 						end
-						if Watermark then
-							Library.Visual.Watermark = true
-						else
-							Library.Visual.Watermark = false
-						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2216,33 +2244,35 @@ spawn(function()
 		Name = "Target HUD",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsKillAuraEnabled then
-						if KillAuraTarget ~= nil then
-							PName = KillAuraTarget.Name
-							PHumanoid = KillAuraTarget:FindFirstChildOfClass("Humanoid")
-							for i, v in pairs(Service.Players:GetPlayers()) do
-								if v and v ~= LocalPlayer and v.Name:match(KillAuraTarget.Name) then
-									UserID = v.UserId
-								end						
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsKillAuraEnabled then
+							if KillAuraTarget ~= nil then
+								PName = KillAuraTarget.Name
+								PHumanoid = KillAuraTarget:FindFirstChildOfClass("Humanoid")
+								for i, v in pairs(Service.Players:GetPlayers()) do
+									if v and v ~= LocalPlayer and v.Name:match(KillAuraTarget.Name) then
+										UserID = v.UserId
+									end						
+								end
+								if UserID ~= nil then
+									PIMG = Service.Players:GetUserThumbnailAsync(UserID, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
+								else
+									PIMG = "rbxassetid://14025674892"
+								end
+								if UseDisplay then
+									Main:CreateTargetHUD(PHumanoid.DisplayName, PIMG, PHumanoid, true)
+								else
+									Main:CreateTargetHUD(PName, PIMG, PHumanoid, true)
+								end
 							end
-							if UserID ~= nil then
-								PIMG = Service.Players:GetUserThumbnailAsync(UserID, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
-							else
-								PIMG = "rbxassetid://14025674892"
-							end
-							if UseDisplay then
-								Main:CreateTargetHUD(PHumanoid.DisplayName, PIMG, PHumanoid, true)
-							else
-								Main:CreateTargetHUD(PName, PIMG, PHumanoid, true)
-							end
+						else
+							Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
 						end
-					else
-						Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2292,35 +2322,37 @@ spawn(function()
 		Name = "Tracers",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					for i, v in pairs(game.Workspace:GetChildren()) do
-						if v:IsA("Model") and IsAlive(v) then
-							if AntiBotGlobal then
-								if Service.Players:FindFirstChild(v.Name) then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						for i, v in pairs(game.Workspace:GetChildren()) do
+							if v:IsA("Model") and IsAlive(v) then
+								if AntiBotGlobal then
+									if Service.Players:FindFirstChild(v.Name) then
+										if v.Name ~= LocalPlayer.Name then
+											UpdateLine(v)
+										end
+									else
+										if Lines[v] then
+											Lines[v]:Destroy()
+											Lines[v] = nil
+										end
+									end
+								else
 									if v.Name ~= LocalPlayer.Name then
 										UpdateLine(v)
 									end
-								else
-									if Lines[v] then
-										Lines[v]:Destroy()
-										Lines[v] = nil
-									end
 								end
 							else
-								if v.Name ~= LocalPlayer.Name then
-									UpdateLine(v)
+								if Lines[v] then
+									Lines[v]:Destroy()
+									Lines[v] = nil
 								end
 							end
-						else
-							if Lines[v] then
-								Lines[v]:Destroy()
-								Lines[v] = nil
-							end
 						end
-					end
-				end)
+					end)
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2356,7 +2388,7 @@ spawn(function()
 					end
 				end)
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2385,47 +2417,49 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				LastPosition = LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						if ShowLastPos then
-							PositionHighlight.Transparency = 0.75
-						else
-							PositionHighlight.Transparency = 1
-						end
-						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air then
-							LastPosition = LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position
-							PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
-						end
-						if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
-							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -152 then
-								if Mode == "TP" then
-									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
-								elseif Mode == "Tween" then
-									local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
-									TweenY:Play()
-									TweenY.Completed:Wait(1)
-									local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
-									TweenX:Play()
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							if ShowLastPos then
+								PositionHighlight.Transparency = 0.75
+							else
+								PositionHighlight.Transparency = 1
+							end
+							if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air then
+								LastPosition = LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position
+								PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
+							end
+							if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
+								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -152 then
+									if Mode == "TP" then
+										LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
+									elseif Mode == "Tween" then
+										local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
+										TweenY:Play()
+										TweenY.Completed:Wait(1)
+										local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+										TweenX:Play()
+									end
+								end
+							else
+								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < 18 then
+									if Mode == "TP" then
+										LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
+									elseif Mode == "Tween" then
+										local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
+										TweenY:Play()
+										TweenY.Completed:Wait(1)
+										local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
+										TweenX:Play()
+									end
 								end
 							end
-						else
-							if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < 18 then
-								if Mode == "TP" then
-									LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
-								elseif Mode == "Tween" then
-									local TweenY = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.X, LastPosition.Y + 9, LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Z)})
-									TweenY:Play()
-									TweenY.Completed:Wait(1)
-									local TweenX = Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(LastPosition.X, LastPosition.Y + 9, LastPosition.Z)})
-									TweenX:Play()
-								end
-							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				PositionHighlight.Transparency = 1
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2472,13 +2506,14 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Dead = {}
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if KillAuraTarget ~= nil then
-						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-							KillCount = KillCount + 1
-							if KillCount ~= OldKillCount then
-								Dead[KillAuraTarget] = true
-								game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if KillAuraTarget ~= nil then
+							if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
+								KillCount = KillCount + 1
+								if KillCount ~= OldKillCount then
+									Dead[KillAuraTarget] = true
+									game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
 								--[[
 								local args = {
 									[1] = Kill(KillAuraTarget),
@@ -2486,14 +2521,16 @@ spawn(function()
 								}
 								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
 								--]]
-								wait()
-								OldKillCount = KillCount
+									wait()
+									OldKillCount = KillCount
+								end
 							end
 						end
-					end
-				end)
+					end)
+
+				end
 			else
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
@@ -2619,48 +2656,50 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsScaffold = true
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						for i = 1, Expand do
-							if Downwards then
-								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5 + 3))
-							else
-								PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
-							end
-							if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
-								if Rotations == "Normal" then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.Angles(0, math.pi, 0)
-								elseif Rotations == "None" then
-									LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							for i = 1, Expand do
+								if Downwards then
+									PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5 + 3))
+								else
+									PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
 								end
-							end
-							if PickMode == "None" then
-								local args = {
-									[1] = PlacePos
-								}
-
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-							elseif PickMode == "Switch" then
-								local Block = CheckTool("Block")
-								if Block then
+								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
+									if Rotations == "Normal" then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.Angles(0, math.pi, 0)
+									elseif Rotations == "None" then
+										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+									end
+								end
+								if PickMode == "None" then
 									local args = {
 										[1] = PlacePos
 									}
 
 									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-								else
-									local BlockTool = GetTool("Block")
-									if BlockTool then
-										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(BlockTool)
+								elseif PickMode == "Switch" then
+									local Block = CheckTool("Block")
+									if Block then
+										local args = {
+											[1] = PlacePos
+										}
+
+										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+									else
+										local BlockTool = GetTool("Block")
+										if BlockTool then
+											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(BlockTool)
+										end
 									end
 								end
 							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				IsScaffold = false
-				if Loop ~= nil then
+				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
