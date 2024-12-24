@@ -256,6 +256,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				Start, ClickTime, IsAutoClick = nil, 0, false
 			end
@@ -338,6 +339,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -494,6 +496,7 @@ spawn(function()
 				IsKillAuraEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				if SwordModel and OldC0 then
 					if SwordModel.C0 ~= OldC0 then
@@ -618,6 +621,7 @@ spawn(function()
 				IsTPAura = true
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -686,6 +690,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				game.Workspace.CurrentCamera.CameraSubject = OldCameraSubject
 				game.Workspace.CurrentCamera.CameraType = OldCameraType
@@ -812,6 +817,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				if Loop2 ~= nil then
 					Loop2:Disconnect()
@@ -871,6 +877,7 @@ spawn(function()
 			else
 				if Loop then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -920,6 +927,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				IsStaff = false
 			end
@@ -960,6 +968,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				for i, v in pairs(LocalPlayer.Character:GetChildren()) do
 					if v:IsA("MeshPart") and v.Name:match("Torso") then
@@ -998,6 +1007,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				local args = {
 					[1] = true
@@ -1104,6 +1114,7 @@ spawn(function()
 				IsFakeLag = false
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				if MoveTo ~= nil then
 					MoveTo:Pause()
@@ -1224,6 +1235,7 @@ spawn(function()
 				if not IsFakeLag then
 					if Loop ~= nil then
 						Loop:Disconnect()
+						Loop = nil
 					end
 					OldCharacter:FindFirstChild("HumanoidRootPart").CFrame = OldCharacter:FindFirstChild("HumanoidRootPart").CFrame
 					game.Workspace.Gravity = OldGravity
@@ -1333,6 +1345,7 @@ spawn(function()
 				IsEnabled = false
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				if OldBoost then
 					Boost = true
@@ -1534,6 +1547,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
 			end
@@ -1586,6 +1600,7 @@ spawn(function()
 				JumpCount = 0
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 			end
@@ -1631,6 +1646,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -1687,6 +1703,7 @@ spawn(function()
 			else
 				if Loop then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -1739,6 +1756,7 @@ spawn(function()
 			else
 				if Loop then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -1777,6 +1795,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -1828,6 +1847,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				C0Animation = nil
 				if SwordModel ~= nil then
@@ -1866,6 +1886,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				Service.Lighting.ClockTime = OldTime
 			end
@@ -1930,6 +1951,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				for i, v in pairs(game.Workspace:GetChildren()) do
 					if v:IsA("Model") and IsAlive(v) then
@@ -2033,6 +2055,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				for i, v in pairs(game.Workspace:GetChildren()) do
 					if v:IsA("Model") and IsAlive(v) then
@@ -2069,6 +2092,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				Service.Lighting.Ambient = OldAmbience
 				Service.Lighting.Brightness = OldBrightness
@@ -2102,6 +2126,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				if Library.Visual then
 					Library.Visual.Hud = false
@@ -2170,6 +2195,7 @@ spawn(function()
 			else
 				if Loop then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -2218,6 +2244,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), false)
 			end
@@ -2295,6 +2322,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				for i, v in pairs(Lines) do
 					v:Destroy()
@@ -2330,6 +2358,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -2398,6 +2427,7 @@ spawn(function()
 				PositionHighlight.Transparency = 1
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 			end
 		end
@@ -2465,6 +2495,7 @@ spawn(function()
 			else
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				Dead = {}
 			end
@@ -2631,6 +2662,7 @@ spawn(function()
 				IsScaffold = false
 				if Loop ~= nil then
 					Loop:Disconnect()
+					Loop = nil
 				end
 				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 				PlacePos = nil
