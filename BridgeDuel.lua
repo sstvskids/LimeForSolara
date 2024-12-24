@@ -232,7 +232,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Start, ClickTime = nil, 0
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					local Tool = LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
 					Start = tick()
 					if Randomize then
@@ -412,7 +412,7 @@ spawn(function()
 					end
 				end)
 				spawn(function()
-					Loop = Service.RunService.Heartbeat:Connect(function() 
+					Loop = Service.RunService.RenderStepped:Connect(function() 
 						if IsAlive(LocalPlayer.Character) then
 							local Entity = GetNearestEntity(Range, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck, KillAuraWallCheck)
 							if Entity then
@@ -595,7 +595,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsTPAura = true
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if not IsKillAuraEnabled then
 						local PlaygroundService = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService")
 						if PlaygroundService then
@@ -659,7 +659,7 @@ spawn(function()
 		Name = "Teleport Aura",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsKillAuraEnabled then
 						if IsAlive(LocalPlayer.Character) then
 							local Target = GetNearestEntity(TPRange, AntiBotGlobal, KillAuraSortMode, KillAuraTeamCheck)
@@ -783,7 +783,7 @@ spawn(function()
 		Name = "Auto Report",
 		Callback = function(callback)
 			if callback then
-				Loop2 = Service.RunService.Heartbeat:Connect(function()
+				Loop2 = Service.RunService.RenderStepped:Connect(function()
 					if InGameReport then
 						for i, v in pairs(Service.Players:GetPlayers()) do
 							if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
@@ -855,7 +855,7 @@ spawn(function()
 		Name = "Auto Report",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					for i, v in pairs(Service.Players:GetPlayers()) do
 						if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
 							table.insert(Reported, v.Name)
@@ -901,7 +901,7 @@ spawn(function()
 		Name = "Anti Staff",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					local Staff = GetStaff()
 					if Staff and not IsStaff then
 						IsStaff = true
@@ -951,7 +951,7 @@ spawn(function()
 		Name = "Phase",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						for i, v in pairs(LocalPlayer.Character:GetChildren()) do
 							if v:IsA("MeshPart") and v.Name:match("Torso") then
@@ -993,7 +993,7 @@ spawn(function()
 		Name = "Disabler",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if SelectedMode == "Playground" then
 						if game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):FindFirstChild("PlaygroundService") then
 							local args = {
@@ -1049,7 +1049,7 @@ spawn(function()
 				IsFakeLag = true
 				OldCharacter = LocalPlayer.Character
 				if OldCharacter then
-					Loop = Service.RunService.Heartbeat:Connect(function()
+					Loop = Service.RunService.RenderStepped:Connect(function()
 						if IsAlive(OldCharacter) then
 							if NewCharacter == nil then
 								NewCharacter = CloneMe(OldCharacter)
@@ -1208,7 +1208,7 @@ spawn(function()
 						game:GetService("TweenService"):Create(OldCharacter.HumanoidRootPart, TweenInfo.new(0.2), {CFrame = CFrame.new(OldCharacter.HumanoidRootPart.Position.X, (OldCharacter.HumanoidRootPart.Position.Y + 20), OldCharacter.HumanoidRootPart.Position.Z)}):Play()
 					end
 					if OldCharacter and NewCharacter then
-						Loop = Service.RunService.Heartbeat:Connect(function()
+						Loop = Service.RunService.RenderStepped:Connect(function()
 							if IsAlive(OldCharacter) then
 								if IsAlive(OldCharacter) and IsAlive(NewCharacter) then
 									NewCharacter:FindFirstChildOfClass("Humanoid").MaxHealth = OldCharacter:FindFirstChildOfClass("Humanoid").MaxHealth
@@ -1288,7 +1288,7 @@ spawn(function()
 				if Boost ~= false then
 					OldBoost = Boost
 				end
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						if Boost then
 							if Start == nil then
@@ -1571,7 +1571,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsSpeedEnabled = true
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
 						if SelectedMode == "Static" then
@@ -1635,7 +1635,7 @@ spawn(function()
 		Name = "Step",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						local Wall = GetWall()
 						if Wall then
@@ -1660,7 +1660,7 @@ spawn(function()
 		Name = "Target Strafe",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function(ticks)
+				Loop = Service.RunService.RenderStepped:Connect(function(ticks)
 					if IsKillAuraEnabled then
 						if not IsScaffold then
 							if not IsFakeLag then
@@ -1738,7 +1738,7 @@ spawn(function()
 		Name = "Target Strafe",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsKillAuraEnabled then
 						if KillAuraTarget ~= nil then
 							if IsAlive(LocalPlayer.Character) then
@@ -1780,7 +1780,7 @@ spawn(function()
 		Name = "Target Strafe",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function(ticks)
+				Loop = Service.RunService.RenderStepped:Connect(function(ticks)
 					if IsAlive(LocalPlayer.Character) then
 						if KillAuraSortMode == "Health" then 
 							if KillAuraTarget and IsAlive(KillAuraTarget) then
@@ -1831,7 +1831,7 @@ spawn(function()
 		Name = "Animation",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if SelectedMode == "Lime" then
 						C0Animation = {
 							{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
@@ -1880,7 +1880,7 @@ spawn(function()
 		Name = "Ambience",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					Service.Lighting.ClockTime = NewTime
 				end)
 			else
@@ -1925,7 +1925,7 @@ spawn(function()
 		Name = "Chams",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					for i, v in pairs(game.Workspace:GetChildren()) do
 						if v:IsA("Model") and IsAlive(v) then
 							if AntiBotGlobal then
@@ -2029,7 +2029,7 @@ spawn(function()
 		Name = "ESP",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					for i, v in pairs(game.Workspace:GetChildren()) do
 						if v:IsA("Model") and IsAlive(v) then
 							if AntiBotGlobal then
@@ -2085,7 +2085,7 @@ spawn(function()
 		Name = "Fullbright",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					Service.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
 					Service.Lighting.Brightness = 10
 				end)
@@ -2108,7 +2108,7 @@ spawn(function()
 		Enabled = true,
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if Library.Visual then
 						Library.Visual.Hud = true
 						if Arraylist then
@@ -2172,7 +2172,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Dead = {}
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if KillAuraTarget then
 						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
 							KillCount = KillCount + 1
@@ -2216,7 +2216,7 @@ spawn(function()
 		Name = "Target HUD",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsKillAuraEnabled then
 						if KillAuraTarget ~= nil then
 							PName = KillAuraTarget.Name
@@ -2292,7 +2292,7 @@ spawn(function()
 		Name = "Tracers",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					for i, v in pairs(game.Workspace:GetChildren()) do
 						if v:IsA("Model") and IsAlive(v) then
 							if AntiBotGlobal then
@@ -2339,7 +2339,7 @@ spawn(function()
 		Name = "Auto Tool",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if not IsAutoClick then
 						if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
 							if Mouse.Target and Mouse.Target:IsA("Part") and Mouse.Target.Name == "Block" then
@@ -2385,7 +2385,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				LastPosition = LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						if ShowLastPos then
 							PositionHighlight.Transparency = 0.75
@@ -2472,7 +2472,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Dead = {}
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if KillAuraTarget ~= nil then
 						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
 							KillCount = KillCount + 1
@@ -2619,7 +2619,7 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				IsScaffold = true
-				Loop = Service.RunService.Heartbeat:Connect(function()
+				Loop = Service.RunService.RenderStepped:Connect(function()
 					if IsAlive(LocalPlayer.Character) then
 						for i = 1, Expand do
 							if Downwards then
