@@ -1950,7 +1950,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
 spawn(function()
 	local ClickGui = Tabs.Visual:CreateToggle({
 		Name = "Click GUI",
@@ -1959,18 +1959,8 @@ spawn(function()
 		Callback = function(callback)
 		end
 	})
-	local ClickGUIQueue = ClickGui:CreateMiniToggle({
-		Name = "Auto Execute",
-		Callback = function(callback)
-			if callback then
-				queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua'))()")
-			else
-				queue_on_teleport(nil)
-			end
-		end
-	})
 end)
-
+--]]
 spawn(function()
 	local Loop, RenderSelf = nil, false
 	local function AddBox(v)
