@@ -160,7 +160,7 @@ function Library:CreateMain()
 
 	spawn(function()
 		while true do
-			task.wait()
+			task.wait(1)
 			if HudFrame ~= nil then
 				if Library.Visual.Hud then
 					HudFrame.Visible = true
@@ -205,7 +205,7 @@ function Library:CreateMain()
 
 	spawn(function()
 		while true do
-			task.wait()
+			task.wait(1)
 			if HudFrame ~= nil then
 				if Library.Visual.Watermark then
 					LibraryTitle.Visible = true
@@ -233,7 +233,7 @@ function Library:CreateMain()
 
 	spawn(function()
 		while true do
-			task.wait()
+			task.wait(1)
 			if HudFrame ~= nil then
 				if Library.Visual.Arraylist then
 					ArrayFrame.Visible = true
@@ -630,7 +630,7 @@ function Library:CreateMain()
 
 							spawn(function()
 								while true do
-									task.wait()
+									task.wait(1)
 									if ToggleButton.Enabled then
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
 									else
@@ -725,7 +725,7 @@ function Library:CreateMain()
 						end
 						spawn(function()
 							while true do
-								task.wait()
+								task.wait(1)
 								if ToggleButton.Keybind ~= "Home" then
 									if Keybinds then
 										Keybinds.PlaceholderText = ""
@@ -805,7 +805,7 @@ function Library:CreateMain()
 
 			spawn(function()
 				while true do
-					task.wait()
+					task.wait(1)
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
