@@ -2395,7 +2395,7 @@ spawn(function()
 								PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
 							end
 							if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
-								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -152 then
+								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -150 then
 									if Mode == "TP" then
 										LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
 									elseif Mode == "Tween" then
