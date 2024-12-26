@@ -157,10 +157,11 @@ function Library:CreateMain()
 	HudFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	HudFrame.BorderSizePixel = 0
 	HudFrame.Size = UDim2.new(1, 0, 1, 0)
+	Library.HudMainFrame = HudFrame
 
 	spawn(function()
 		while true do
-			task.wait(1)
+			task.wait()
 			if HudFrame ~= nil then
 				if Library.Visual.Hud then
 					HudFrame.Visible = true
@@ -181,31 +182,20 @@ function Library:CreateMain()
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
 	LibraryTitle.Text = "Lime"
 	LibraryTitle.Font = Enum.Font.SourceSans
-	LibraryTitle.TextColor3 = Color3.fromRGB(128, 204, 255)
+	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
 	LibraryTitle.TextScaled = true
 	LibraryTitle.TextSize = 14.000
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
-
-	local XMASSPECIAL = Instance.new("ImageLabel")
-	XMASSPECIAL.Parent = LibraryTitle
-	XMASSPECIAL.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	XMASSPECIAL.BackgroundTransparency = 1.000
-	XMASSPECIAL.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	XMASSPECIAL.BorderSizePixel = 0
-	XMASSPECIAL.Position = UDim2.new(0.0956521705, 0, -0.100000001, 0)
-	XMASSPECIAL.Rotation = 18.000
-	XMASSPECIAL.Size = UDim2.new(0, 35, 0, 35)
-	XMASSPECIAL.Image = "rbxassetid://11752433429"
-
+	
 	local TitleGradient = Instance.new("UIGradient")
-	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
+	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 	TitleGradient.Parent = LibraryTitle
 
 	spawn(function()
 		while true do
-			task.wait(1)
+			task.wait()
 			if HudFrame ~= nil then
 				if Library.Visual.Watermark then
 					LibraryTitle.Visible = true
@@ -233,7 +223,7 @@ function Library:CreateMain()
 
 	spawn(function()
 		while true do
-			task.wait(1)
+			task.wait()
 			if HudFrame ~= nil then
 				if Library.Visual.Arraylist then
 					ArrayFrame.Visible = true
@@ -254,7 +244,7 @@ function Library:CreateMain()
 		TextLabel.BorderSizePixel = 0
 		TextLabel.Font = Enum.Font.SourceSans
 		TextLabel.Text = name
-		TextLabel.TextColor3 = Color3.fromRGB(128, 204, 255)
+		TextLabel.TextColor3 = Color3.fromRGB(255, 0, 127)
 		TextLabel.TextScaled = true
 		TextLabel.TextSize = 18.000
 		TextLabel.TextWrapped = true
@@ -263,7 +253,7 @@ function Library:CreateMain()
 		TweenService:Create(TextLabel, TweenInfo.new(1.8), {TextTransparency = 0, BackgroundTransparency = 0.750}):Play()
 
 		local TextGradient = Instance.new("UIGradient")
-		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
+		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 		TextGradient.Parent = TextLabel
 
 		local NewWidth = game.TextService:GetTextSize(name, 18, Enum.Font.SourceSans, Vector2.new(0, 0)).X
@@ -287,7 +277,6 @@ function Library:CreateMain()
 		for i,v in ipairs(ArrayTable) do
 			c += 1
 			if (v.Text == name) then
-				TweenService:Create(v, TweenInfo.new(0.2), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
 				v:Destroy()
 				table.remove(ArrayTable,c)
 			else
@@ -374,14 +363,14 @@ function Library:CreateMain()
 	local Frame_3 = Instance.new("Frame")
 	Frame_3.Parent = Frame_2
 	Frame_3.AnchorPoint = Vector2.new(0, 0.5)
-	Frame_3.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
+	Frame_3.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
 	Frame_3.Position = UDim2.new(0, 0, 0.5, 0)
 	Frame_3.Size = UDim2.new(0, 50, 0, 8)
 	Frame_3.BorderSizePixel = 0
 
 	local Frame3Gradient = Instance.new("UIGradient")
 	Frame3Gradient.Parent = Frame_3
-	Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
+	Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 
 	function Main:CreateTargetHUD(name, thumbnail, humanoid, ishere)
 		local TargetHUD = {}
@@ -426,8 +415,8 @@ function Library:CreateMain()
 		Line.Parent = HudFrame
 		Line.Position = UDim2.new(0, Position.X, 0, Position.Y)
 		Line.Size = UDim2.new(0, (Origin - Destination).Magnitude, 0, 0.02)
-		Line.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
-		Line.BorderColor3 = Color3.fromRGB(128, 204, 255)
+		Line.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
+		Line.BorderColor3 = Color3.fromRGB(255, 0, 127)
 		Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
 
 		return Line
@@ -559,7 +548,7 @@ function Library:CreateMain()
 			OpenMenu.TextWrapped = true
 
 			local UIGradient = Instance.new("UIGradient")
-			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
+			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 			UIGradient.Parent = ToggleButtonHolder
 			UIGradient.Enabled = false
 
@@ -630,7 +619,7 @@ function Library:CreateMain()
 
 							spawn(function()
 								while true do
-									task.wait(1)
+									task.wait()
 									if ToggleButton.Enabled then
 										MobileKeybinds.BackgroundColor3 = Color3.fromRGB(0, 175, 0)
 									else
@@ -662,7 +651,7 @@ function Library:CreateMain()
 
 							local function MobileButtonsOnClicked()
 								if ToggleButton.Enabled then
-									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(128, 204, 255)}):Play()
+									TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
 									TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 									if not ToggleButton.Hide then
 										AddArray(ToggleButton.Name)
@@ -725,7 +714,7 @@ function Library:CreateMain()
 						end
 						spawn(function()
 							while true do
-								task.wait(1)
+								task.wait()
 								if ToggleButton.Keybind ~= "Home" then
 									if Keybinds then
 										Keybinds.PlaceholderText = ""
@@ -754,11 +743,11 @@ function Library:CreateMain()
 			local function ToggleButtonClicked()
 				if ToggleButton.Enabled then
 					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(128, 204, 255)}):Play()
+					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
 					--[[
-					ToggleButtonHolder.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
+					ToggleButtonHolder.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
 					ToggleButtonHolder.Transparency = 0
 					UIGradient.Enabled = true
 					--]]
@@ -805,7 +794,7 @@ function Library:CreateMain()
 
 			spawn(function()
 				while true do
-					task.wait(1)
+					task.wait()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -1078,13 +1067,13 @@ function Library:CreateMain()
 
 				local SliderHolderFront = Instance.new("Frame")
 				SliderHolderFront.Parent = SliderHolderBack
-				SliderHolderFront.BackgroundColor3 = Color3.fromRGB(128, 204, 255)
+				SliderHolderFront.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
 				SliderHolderFront.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderHolderFront.BorderSizePixel = 0
 				SliderHolderFront.Size = UDim2.new(0, 50, 1, 0)
 
 				local SliderHolderGradient = Instance.new("UIGradient")
-				SliderHolderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.36, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(88, 143, 195))}
+				SliderHolderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 				SliderHolderGradient.Parent = SliderHolderFront
 
 				local SliderHolderMain = Instance.new("TextButton")
