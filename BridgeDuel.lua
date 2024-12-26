@@ -1844,7 +1844,7 @@ end)
 spawn(function()
 	local Loop, SelectedMode = nil, nil
 	local Animation = Tabs.Visual:CreateToggle({
-		Name = "Animation",
+		Name = "Animations",
 		Callback = function(callback)
 			if callback then
 				if not Loop then
@@ -1891,41 +1891,6 @@ spawn(function()
 end)
 
 spawn(function()
-	local OldTime, NewTime = Service.Lighting.ClockTime, nil
-	local Loop = nil
-
-	local Ambience = Tabs.Visual:CreateToggle({
-		Name = "Ambience",
-		Callback = function(callback)
-			if callback then
-				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
-						Service.Lighting.ClockTime = NewTime
-					end)
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-				Service.Lighting.ClockTime = OldTime
-			end
-		end
-	})
-	local TimeChangerClock = Ambience:CreateSlider({
-		Name = "Time",
-		Min = 0,
-		Max = 24,
-		Default = 3,
-		Callback = function(callback)
-			if callback then
-				NewTime = callback
-			end
-		end
-	})
-end)
-
-spawn(function()
 	local Loop, RenderSelf = nil, false
 	local function Highlight(v)
 		if not v:FindFirstChildWhichIsA("Highlight") then
@@ -1933,7 +1898,7 @@ spawn(function()
 			highlight.Parent = v
 			highlight.FillTransparency = 1
 			highlight.OutlineTransparency = 0.45
-			highlight.OutlineColor = Color3.new(0.470588, 0.886275, 1)
+			highlight.OutlineColor = Color3.new(1, 1, 1)
 		end
 	end
 	local function RemoveHighlight(v)
@@ -2031,7 +1996,7 @@ spawn(function()
 						if not Frame:FindFirstChildWhichIsA("UIStroke") then
 							UIStoke = Instance.new("UIStroke")
 							UIStoke.Parent = Frame
-							UIStoke.Color = Color3.fromRGB(128, 204, 255)
+							UIStoke.Color = Color3.fromRGB(255, 255, 255)
 							UIStoke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 							UIStoke.LineJoinMode = Enum.LineJoinMode.Miter
 							UIStoke.Thickness = 2
@@ -2408,7 +2373,7 @@ spawn(function()
 	PositionHighlight.CanQuery = false
 	PositionHighlight.Material = Enum.Material.Neon
 	PositionHighlight.CastShadow = false
-	PositionHighlight.Color = Color3.new(0.470588, 0.886275, 1)
+	PositionHighlight.Color = Color3.new(0.815686, 0.0745098, 1)
 	PositionHighlight.Transparency = 1
 	PositionHighlight.Parent = game.Workspace
 
@@ -2742,6 +2707,41 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				Expand = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local OldTime, NewTime = Service.Lighting.ClockTime, nil
+	local Loop = nil
+
+	local TimeChanger = Tabs.World:CreateToggle({
+		Name = "Time Changer",
+		Callback = function(callback)
+			if callback then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						Service.Lighting.ClockTime = NewTime
+					end)
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
+				Service.Lighting.ClockTime = OldTime
+			end
+		end
+	})
+	local TimeChangerClock = TimeChanger:CreateSlider({
+		Name = "Time",
+		Min = 0,
+		Max = 24,
+		Default = 3,
+		Callback = function(callback)
+			if callback then
+				NewTime = callback
 			end
 		end
 	})
