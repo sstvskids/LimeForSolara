@@ -415,8 +415,8 @@ function Library:CreateMain()
 		Line.Parent = HudFrame
 		Line.Position = UDim2.new(0, Position.X, 0, Position.Y)
 		Line.Size = UDim2.new(0, (Origin - Destination).Magnitude, 0, 0.02)
-		Line.BackgroundColor3 = Color3.fromRGB(255, 0, 127)
-		Line.BorderColor3 = Color3.fromRGB(255, 0, 127)
+		Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Line.BorderColor3 = Color3.fromRGB(255, 255, 255)
 		Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
 
 		return Line
