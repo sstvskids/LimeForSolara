@@ -2,6 +2,7 @@ repeat wait() until game:IsLoaded()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
+	TextChatService = game:GetService("TextChatService"),
 	TweenService = game:GetService("TweenService"),
 	SoundService = game:GetService("SoundService"),
 	RunService = game:GetService("RunService"),
@@ -28,15 +29,27 @@ local function IsAlive(v)
 end
 
 local function GetWall()
-	local Result, Raycast = nil, nil
-	Raycast = RaycastParams.new()
-	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
+	local Result = nil
+	local Raycast = RaycastParams.new()
 	Raycast.FilterType = Enum.RaycastFilterType.Exclude
 	Raycast.IgnoreWater = true
+	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
+	for i, v in pairs(Service.Players:GetPlayers()) do
+		if IsAlive(v) then
+			table.insert(Raycast.FilterDescendantsInstances, v.Character)
+		end
+	end
 
-	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.3
-	Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
-
+	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.5
+	for i, z in pairs(game.Workspace:WaitForChild("Map"):FindFirstChild("PvpArena"):GetChildren()) do
+		if z:IsA("Model") then
+			for i, a in pairs(z:GetChildren()) do
+				if a:IsA("Part") then
+					Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+				end
+			end
+		end
+	end
 	return Result and Result.Instance
 end
 
@@ -67,7 +80,9 @@ local function GetNearestEntity(MaxDist, EntityCheck, EntitySort, EntityTeam, En
 			if IsAlive(entities) then
 				if not EntityCheck then
 					if not EntityWall or CheckWall(entities) then
-						Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+						if entities:FindFirstChild("HumanoidRootPart") then
+							Distances = (entities:FindFirstChild("HumanoidRootPart").Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+						end
 					end
 				else
 					for _, player in pairs(Service.Players:GetPlayers()) do
@@ -1267,10 +1282,10 @@ spawn(function()
 	})
 end)
 --]]
-
+local IsFlight = false
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
-	local Loop, FlightSpeed, SelectedMode, YPos, IsEnabled = nil, nil, nil, 0, false
+	local Loop, FlightSpeed, SelectedMode, YPos = nil, nil, nil, 0
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
 	--local FireCount, Start2 = 1, nil
@@ -1294,7 +1309,7 @@ spawn(function()
 		Name = "Flight",
 		Callback = function(callback)
 			if callback then
-				IsEnabled = true
+				IsFlight = true
 				YPos = 0
 				HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 				if Boost ~= false then
@@ -1346,7 +1361,7 @@ spawn(function()
 								while SelectedMode == "Jump" do
 									task.wait()
 									if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y <= (HumanoidRootPartY - LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight) + YPos then
-										if IsEnabled then
+										if IsFlight then
 											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 										end
 									end
@@ -1356,7 +1371,7 @@ spawn(function()
 					end)
 				end
 			else
-				IsEnabled = false
+				IsFlight = false
 				if Loop then
 					Loop:Disconnect()
 					Loop = nil
@@ -1443,6 +1458,9 @@ end)
 
 spawn(function()
 	local OldGravity, IsEnabled, WaitToLand = game.Workspace.Gravity, false, false
+	local AutoJump = false
+	local Selected = nil
+	local Start = nil
 	local LongJump = Tabs.Move:CreateToggle({
 		Name = "Long Jump",
 		AutoDisable = true,
@@ -1450,23 +1468,41 @@ spawn(function()
 			if callback then
 				IsEnabled = true
 				if IsEnabled then
-					game.Workspace.Gravity = 15
-					game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-					wait(0.28)
-					local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
-					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+					if Selected == "Gravity" then
+						game.Workspace.Gravity = 15
+						if AutoJump then
+							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+						end
+						wait(0.28)
+						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
+						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+					elseif Selected == "Teleport" then
+						game.Workspace.Gravity = 15
+						Start = tick()
+						if AutoJump then
+							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+						end
+						while Start and (tick() - Start) < 5 do
+							if Start and (tick() - Start) < 1.25 then
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
+							end
+							task.wait(0.24)
+						end
+					end
 				end
 			else
 				if WaitToLand then
 					while task.wait(0.45) do
 						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air then
 							game.Workspace.Gravity = OldGravity
+							Start = nil
 							IsEnabled = false
 						end
 					end
 				else
 					task.wait(1)
 					game.Workspace.Gravity = OldGravity
+					Start = nil
 					IsEnabled = false
 				end
 			end
@@ -1474,9 +1510,20 @@ spawn(function()
 	})
 	local LongJumpMode = LongJump:CreateDropdown({
 		Name = "Long Jump Mode",
-		List = {"Gravity"},
-		Default = "Gravity",
+		List = {"Gravity", "Teleport"},
+		Default = "Teleport",
 		Callback = function(callback)
+			Selected = callback
+		end
+	})
+	local LongJumpAutoJump = LongJump:CreateMiniToggle({
+		Name = "Jump",
+		Callback = function(callback)
+			if callback then
+				AutoJump = true
+			else
+				AutoJump = false
+			end
 		end
 	})
 	local LongJumpWaitLanding = LongJump:CreateMiniToggle({
@@ -1587,23 +1634,25 @@ spawn(function()
 				IsSpeedEnabled = true
 				if not Loop then
 					Loop = Service.RunService.RenderStepped:Connect(function()
-						if IsAlive(LocalPlayer.Character) then
-							Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
-							if SelectedMode == "Static" then
-								JumpCount = 0
-								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-							elseif SelectedMode == "Hop" then
-								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+						if not IsFlight then
+							if IsAlive(LocalPlayer.Character) then
 								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
-								if JumpCount == 0 and IsSpeedEnabled then
-									LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-									JumpCount = 1
-								end
-								while SelectedMode == "Hop" do
-									task.wait()
-									if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed then
-										if IsSpeedEnabled then
-											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+								if SelectedMode == "Static" then
+									JumpCount = 0
+									LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+								elseif SelectedMode == "Hop" then
+									LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
+									Velocity = LocalPlayer.Character.Humanoid.MoveDirection * VelocitySpeed
+									if JumpCount == 0 and IsSpeedEnabled then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+										JumpCount = 1
+									end
+									while SelectedMode == "Hop" do
+										task.wait()
+										if LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetState() == Enum.HumanoidStateType.Landed then
+											if IsSpeedEnabled then
+												LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+											end
 										end
 									end
 								end
@@ -1644,7 +1693,7 @@ spawn(function()
 		end
 	})
 end)
---[[
+
 spawn(function()
 	local Loop = nil
 	local Step = Tabs.Move:CreateToggle({
@@ -1668,7 +1717,7 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
 spawn(function()
 	local Loop, Radius, Rage = nil, nil, false
 	local Angle, Speed = 0, 4
@@ -1959,17 +2008,7 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local ClickGui = Tabs.Visual:CreateToggle({
-		Name = "Click GUI",
-		AutoEnable = true,
-		Hide = true,
-		Callback = function(callback)
-		end
-	})
-end)
---]]
+
 spawn(function()
 	local Loop, RenderSelf = nil, false
 	local function AddBox(v)
@@ -2156,52 +2195,7 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local Loop, Dead, KillCount = nil, {}, 0
-	local OldKillCount = KillCount
-	local KillEffect = Tabs.Visual:CreateToggle({
-		Name = "Kill Effects",
-		Callback = function(callback)
-			if callback then
-				Dead = {}
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if KillAuraTarget then
-						if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-							KillCount = KillCount + 1
-							if KillCount ~= OldKillCount then
-								Dead[KillAuraTarget] = true
-								local Explosion = Instance.new("Explosion")
-								Explosion.Parent = game.Workspace
-								Explosion.Position = KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
-								Explosion.BlastRadius = 0
-								Explosion.BlastPressure = 0
-								Explosion.DestroyJointRadiusPercent = 0
-								Explosion.ExplosionType = Enum.ExplosionType.NoCraters
-								task.wait(0.25)
-								OldKillCount = KillCount
-								Explosion:Destroy()
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local KillEffectMode = KillEffect:CreateDropdown({
-		Name = "Kill Effects Type",
-		List = {"Explosion"},
-		Default = "Explosion",
-		Callback = function(callback)
-		end
-	})
-end)
---]]
+
 spawn(function()
 	local Loop, UserID, UseDisplay = nil, nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
@@ -2395,7 +2389,7 @@ spawn(function()
 								PositionHighlight.Position = LastPosition - Vector3.new(0, 2.8, 0)
 							end
 							if game.Workspace:FindFirstChild("Map"):FindFirstChild("PvpArena") then
-								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -150 then
+								if LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y < -152 then
 									if Mode == "TP" then
 										LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LastPosition + Vector3.new(0, 15, 0))
 									elseif Mode == "Tween" then
@@ -2478,14 +2472,15 @@ spawn(function()
 								KillCount = KillCount + 1
 								if KillCount ~= OldKillCount then
 									Dead[KillAuraTarget] = true
+									Service.TextChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(Kill(KillAuraTarget))
+									--[[
 									game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
-								--[[
-								local args = {
-									[1] = Kill(KillAuraTarget),
-									[2] = "All"
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
-								--]]
+									local args = {
+										[1] = Kill(KillAuraTarget),
+										[2] = "All"
+									}
+									game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
+									--]]
 									wait()
 									OldKillCount = KillCount
 								end
@@ -2504,58 +2499,6 @@ spawn(function()
 		end
 	})
 end)
-
---[[
-OLD AUTO TOXIC:
-spawn(function()
-	local Event = nil
-	local function Kill(plr)
-		local messages = {
-			"Lime Yummy🤤",
-			"Lime might not be the best, but it can still beat you " .. plr.Name,
-			"Eternal rebrand is the best (Lime)"
-		}
-		return messages[math.random(1, #messages)]
-	end
-	local function Dead(plr)
-		local messages = {
-			"Wow what a pro, is that right? " .. plr.Name,
-			"Someone that can defeat me probably uses cheats too!"
-		}
-		return messages[math.random(1, #messages)]
-	end
-
-	local AutoToxic = Tabs.Player:CreateToggle({
-		Name = "Auto Toxic",
-		Callback = function(callback)
-			if enabled then
-				Event = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.OnKill
-				if Event then
-					Event.OnClientEvent:Connect(function(alive, dead, ...)
-						if alive.Name == LocalPlayer.Name and dead.Name ~= LocalPlayer.Name then
-							local KillMessage = Kill(dead)
-							local args = {
-								[1] = KillMessage,
-								[2] = "All"
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						elseif alive.Name ~= LocalPlayer.Name and dead.Name == LocalPlayer.Name then
-							local DeadMessage = Dead(alive)
-							local args = {
-								[1] = DeadMessage,
-								[2] = "All"
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						end
-					end)
-				end
-			else
-				Event = nil
-			end
-		end
-	})
-end)
---]]
 
 spawn(function()
 	local SelectedMode = nil
