@@ -296,7 +296,8 @@ function Library:CreateMain()
 			MainOpen.BackgroundTransparency = 0.550
 			MainOpen.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			MainOpen.BorderSizePixel = 0
-			MainOpen.Position = UDim2.new(0.02, 0, 0.95, 0)
+			--MainOpen.Position = UDim2.new(0.02, 0, 0.95, 0)
+			MainOpen.Position = UDim2.new(0.5, 0, 0.0380000018, 0)
 			MainOpen.Size = UDim2.new(0, 25, 0, 25)
 			MainOpen.ZIndex = 5
 			MainOpen.Font = Enum.Font.SourceSans
