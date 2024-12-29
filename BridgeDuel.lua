@@ -11,6 +11,7 @@ local Service = {
 }
 
 local LocalPlayer = Service.Players.LocalPlayer
+LocalPlayer:SetAttribute("ClientSneaking", false)
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
