@@ -1288,12 +1288,18 @@ spawn(function()
 	local Loop, FlightSpeed, SelectedMode, YPos = nil, nil, nil, 0
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
-	local SneakLoop = nil
+	local IsSneaking = false
 	--local FireCount, Start2 = 1, nil
 
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
+		end)
+		LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+			IsSneaking = not IsSneaking
+			if IsSneaking then
+				YPos = YPos - 3
+			end
 		end)
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
@@ -2545,8 +2551,7 @@ end)
 spawn(function()	
 	local Loop, Expand, Downwards, Rotations = nil, nil, false, nil
 	local PlacePos, PickMode = nil,nil
-	local IsSneaking, SneakLoop1 = false, nil
-
+	local IsSneaking = false
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -2557,6 +2562,15 @@ spawn(function()
 		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
+				Downwards = false
+			end
+		end)
+	elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
+		LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+			IsSneaking = not IsSneaking
+			if IsSneaking then
+				Downwards = true
+			else
 				Downwards = false
 			end
 		end)
