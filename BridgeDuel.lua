@@ -1510,8 +1510,8 @@ spawn(function()
 	})
 	local LongJumpMode = LongJump:CreateDropdown({
 		Name = "Long Jump Mode",
-		List = {"Gravity", "Teleport"},
-		Default = "Teleport",
+		List = {"Teleport", "Gravity"},
+		Default = "Gravity",
 		Callback = function(callback)
 			Selected = callback
 		end
@@ -1700,14 +1700,16 @@ spawn(function()
 		Name = "Step",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsAlive(LocalPlayer.Character) then
-						local Wall = GetWall()
-						if Wall then
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							local Wall = GetWall()
+							if Wall then
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+							end
 						end
-					end
-				end)
+					end)
+				end
 			else
 				if Loop then
 					Loop:Disconnect()
