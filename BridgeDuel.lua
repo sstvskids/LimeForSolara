@@ -1295,22 +1295,6 @@ spawn(function()
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
 		end)
-		for i, v in pairs(LocalPlayer:GetAttributes()) do
-			if v == "ClientSneaking" then
-				if IsFlight then
-					if not SneakLoop then
-						SneakLoop = LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
-							YPos = YPos - 3
-						end)
-					end
-				else
-					if SneakLoop then
-						SneakLoop:Disconnect()
-						SneakLoop = nil
-					end
-				end
-			end
-		end
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -2576,28 +2560,6 @@ spawn(function()
 				Downwards = false
 			end
 		end)
-	elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-		for i, v in pairs(LocalPlayer:GetAttributes()) do
-			if v == "ClientSneaking" then
-				if IsScaffold then
-					if not SneakLoop1 then
-						SneakLoop1 = LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
-							IsSneaking = not IsSneaking
-							if IsSneaking then
-								Downwards = true
-							else
-								Downwards = false
-							end
-						end)
-					end
-				else
-					if SneakLoop1 then
-						SneakLoop1:Disconnect()
-						SneakLoop1 = nil
-					end
-				end
-			end
-		end
 	end
 
 	local Scaffold = Tabs.World:CreateToggle({
