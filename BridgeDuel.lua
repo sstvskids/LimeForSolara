@@ -1294,6 +1294,15 @@ spawn(function()
 		Service.UserInputService.JumpRequest:Connect(function()
 			YPos = YPos + 3
 		end)
+		for i, v in pairs(LocalPlayer:GetAttributes()) do
+			if v == "ClientSneaking" then
+				LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+					if LocalPlayer:GetAttribute("ClientSneaking") then
+						YPos = YPos - 3
+					end
+				end)
+			end
+		end
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -1510,8 +1519,8 @@ spawn(function()
 	})
 	local LongJumpMode = LongJump:CreateDropdown({
 		Name = "Long Jump Mode",
-		List = {"Teleport", "Gravity"},
-		Default = "Gravity",
+		List = {"Gravity", "Teleport"},
+		Default = "Teleport",
 		Callback = function(callback)
 			Selected = callback
 		end
@@ -2544,6 +2553,7 @@ end)
 spawn(function()	
 	local Loop, Expand, Downwards, Rotations = nil, nil, false, nil
 	local PlacePos, PickMode = nil,nil
+	local IsSneaking = false
 
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
@@ -2552,13 +2562,24 @@ spawn(function()
 				Downwards = true
 			end
 		end)
-
 		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
 			if IsTyping then return end
 			if Input.KeyCode == Enum.KeyCode.Q or Input.KeyCode == Enum.KeyCode.LeftShift then
 				Downwards = false
 			end
 		end)
+	elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
+		for i, v in pairs(LocalPlayer:GetAttributes()) do
+			if v == "ClientSneaking" then
+				LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+					if LocalPlayer:GetAttribute("ClientSneaking") then
+						Downwards = true
+					else
+						Downwards = false
+					end
+				end)
+			end
+		end
 	end
 
 	local Scaffold = Tabs.World:CreateToggle({
