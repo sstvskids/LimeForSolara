@@ -1288,6 +1288,7 @@ spawn(function()
 	local Loop, FlightSpeed, SelectedMode, YPos = nil, nil, nil, 0
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
+	local SneakLoop = nil
 	--local FireCount, Start2 = 1, nil
 
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
@@ -1296,11 +1297,18 @@ spawn(function()
 		end)
 		for i, v in pairs(LocalPlayer:GetAttributes()) do
 			if v == "ClientSneaking" then
-				LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
-					if LocalPlayer:GetAttribute("ClientSneaking") then
-						YPos = YPos - 3
+				if IsFlight then
+					if not SneakLoop then
+						SneakLoop = LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+							YPos = YPos - 3
+						end)
 					end
-				end)
+				else
+					if SneakLoop then
+						SneakLoop:Disconnect()
+						SneakLoop = nil
+					end
+				end
 			end
 		end
 	elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
@@ -2553,7 +2561,7 @@ end)
 spawn(function()	
 	local Loop, Expand, Downwards, Rotations = nil, nil, false, nil
 	local PlacePos, PickMode = nil,nil
-	local IsSneaking = false
+	local IsSneaking, SneakLoop1 = false, nil
 
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
@@ -2571,13 +2579,23 @@ spawn(function()
 	elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		for i, v in pairs(LocalPlayer:GetAttributes()) do
 			if v == "ClientSneaking" then
-				LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
-					if LocalPlayer:GetAttribute("ClientSneaking") then
-						Downwards = true
-					else
-						Downwards = false
+				if IsScaffold then
+					if not SneakLoop1 then
+						SneakLoop1 = LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
+							IsSneaking = not IsSneaking
+							if IsSneaking then
+								Downwards = true
+							else
+								Downwards = false
+							end
+						end)
 					end
-				end)
+				else
+					if SneakLoop1 then
+						SneakLoop1:Disconnect()
+						SneakLoop1 = nil
+					end
+				end
 			end
 		end
 	end
