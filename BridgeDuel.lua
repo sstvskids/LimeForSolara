@@ -15,6 +15,7 @@ LocalPlayer:SetAttribute("ClientSneaking", false)
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
+
 local Main = Library:CreateMain()
 local Tabs = {
 	Combat = Main:CreateTab("Combat", 138185990548352, Color3.fromRGB(255, 85, 127)),
@@ -23,6 +24,11 @@ local Tabs = {
 	Player = Main:CreateTab("Player", 103157697311305, Color3.fromRGB(255, 255, 127)),
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
+}
+
+local BridgeDuel = {
+	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
+	Interface = require(game:GetService("ReplicatedStorage").Modules.Entity.Interface)
 }
 
 local function IsAlive(v)
@@ -216,6 +222,21 @@ local function CloneMe(v)
 	end
 end
 
+local function GetBed(MaxDist)
+	local MinDist = math.huge
+	local Bed
+	for i, v in pairs(game.Workspace:FindFirstChild("Map"):GetChildren()) do
+		if v:IsA("Model") and v.Name == "Bed" then
+			local Distance = (v.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+			if Distance < MinDist and Distance <= MaxDist then
+				Bed = v
+				MinDist = Distance
+			end
+		end
+	end
+	return Bed
+end
+
 local AntiBotGlobal = false
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
@@ -270,6 +291,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -373,15 +397,29 @@ spawn(function()
 	})
 end)
 --]]
-local HitCritical = false
+local HitCritical = nil
 spawn(function()
+	local OldCrit
 	local Criticals = Tabs.Combat:CreateToggle({
 		Name = "Criticals",
 		Callback = function(callback)
 			if callback then
 				HitCritical = true
+				if not OldCrit then
+					OldCrit = hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, function(...)
+						local Args = {...}
+						if type(Args[1]) == 'table' and HitCritical == true then
+							rawset(Args[1], 'is_crit', 1)
+						end
+						return OldCrit(...)
+					end)
+				end
 			else
 				HitCritical = false
+				if OldCrit then
+					hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, OldCrit)
+					OldCrit = nil
+				end
 			end
 		end
 	})
@@ -475,6 +513,24 @@ spawn(function()
 											[3] = Sword.Name
 										}
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+										--[[
+										if BridgeDuel.Prototype then
+											local RealEntity = Service.Players:GetPlayerFromCharacter(Entity)
+											if RealEntity then
+												BridgeDuel.Prototype.AttackMelee(LocalPlayer, RealEntity)
+											end
+										end
+										if BridgeDuel.Blink and BridgeDuel.Interface then
+											local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
+											if EntityInterface then
+												BridgeDuel.Blink.item_action.attack_entity.fire({
+													target_entity_id = EntityInterface.Id,
+													is_crit = HitCritical,
+													weapon_name = Sword.Name
+												})
+											end
+										end
+										--]]
 									else
 										KillAuraTarget = nil
 										if SwordModel and OldC0 then
@@ -510,6 +566,9 @@ spawn(function()
 								end
 							end
 						end)
+					else
+						Loop:Disconnect()
+						Loop = nil
 					end
 				end)
 			else
@@ -632,12 +691,27 @@ spawn(function()
 												[3] = Sword.Name
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
+											--[[
+											if BridgeDuel.Blink and BridgeDuel.Interface then
+												local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
+												if EntityInterface then
+													BridgeDuel.Blink.item_action.attack_entity.fire({
+														target_entity_id = EntityInterface.Id,
+														is_crit = HitCritical,
+														weapon_name = Sword.Name
+													})
+												end
+											end
+											--]]
 										end
 									end
 								end
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				IsTPAura = true
@@ -897,6 +971,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -949,6 +1026,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -992,6 +1072,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -1377,6 +1460,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				IsFlight = false
@@ -1667,6 +1753,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				IsSpeedEnabled = false
@@ -1717,6 +1806,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -1920,6 +2012,9 @@ spawn(function()
 							}
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 				else
 				if Loop then
@@ -1993,6 +2088,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2089,6 +2187,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2128,6 +2229,9 @@ spawn(function()
 						Service.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
 						Service.Lighting.Brightness = 10
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2164,6 +2268,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2207,7 +2314,7 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, UserID, UseDisplay = nil, nil, false
+	local Loop, UseDisplay = nil, false
 	local PName, PHumanoid, PIMG = nil, nil, nil
 	local TargetHUD = Tabs.Visual:CreateToggle({
 		Name = "Target HUD",
@@ -2219,13 +2326,9 @@ spawn(function()
 							if KillAuraTarget ~= nil then
 								PName = KillAuraTarget.Name
 								PHumanoid = KillAuraTarget:FindFirstChildOfClass("Humanoid")
-								for i, v in pairs(Service.Players:GetPlayers()) do
-									if v and v ~= LocalPlayer and v.Name:match(KillAuraTarget.Name) then
-										UserID = v.UserId
-									end						
-								end
-								if UserID ~= nil then
-									PIMG = Service.Players:GetUserThumbnailAsync(UserID, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
+								local TargetPlayer = Service.Players:GetPlayerFromCharacter(KillAuraTarget)
+								if TargetPlayer then
+									PIMG = Service.Players:GetUserThumbnailAsync(TargetPlayer.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size48x48)
 								else
 									PIMG = "rbxassetid://14025674892"
 								end
@@ -2239,6 +2342,9 @@ spawn(function()
 							Main:CreateTargetHUD(LocalPlayer.Name, Service.Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48), LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), true)
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2319,6 +2425,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2425,6 +2534,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				PositionHighlight.Transparency = 1
@@ -2490,14 +2602,15 @@ spawn(function()
 										[2] = "All"
 									}
 									game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
-									--]]
 									wait()
 									OldKillCount = KillCount
 								end
 							end
 						end
 					end)
-
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2509,7 +2622,51 @@ spawn(function()
 		end
 	})
 end)
-
+--[[
+spawn(function()
+	local Event = nil
+	local function Kill(plr)
+		local messages = {
+			"Lime Yummy🤤",
+			"Lime might not be the best, but it can still beat you " .. plr.Name,
+			"Eternal rebrand is the best (Lime)"
+		}
+		return messages[math.random(1, #messages)]
+	end
+	local function Dead(plr)
+		local messages = {
+			"Wow what a pro, is that right? " .. plr.Name,
+			"Someone that can defeat me probably uses cheats too!"
+		}
+		return messages[math.random(1, #messages)]
+	end
+	local AutoToxic = Tabs.Player:CreateToggle({
+		Name = "Auto Toxic",
+		Callback = function(callback)
+			if callback then
+				Event = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.OnKill
+				if Event then
+					Event.OnClientEvent:Connect(function(alive, dead, ...)
+						if alive.Name == LocalPlayer.Name and dead.Name ~= LocalPlayer.Name then
+							local KillMessage = Kill(dead)
+							game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), KillMessage)
+						elseif alive.Name ~= LocalPlayer.Name and dead.Name == LocalPlayer.Name then
+							local DeadMessage = Dead(alive)
+							local args = {
+								[1] = DeadMessage,
+								[2] = "All"
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+						end
+					end)
+				end
+			else
+				Event = nil
+			end
+		end
+	})
+end)
+--]]
 spawn(function()
 	local SelectedMode = nil
 	local ClipDist = nil
@@ -2544,6 +2701,29 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				ClipDist = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
+	local OldFall = nil
+	local NoFall = Tabs.Player:CreateToggle({
+		Name = "No Fall",
+		Callback = function(callback)
+			if callback then
+				if BridgeDuel.Blink then
+					if not OldFall then
+						OldFall = hookfunction(BridgeDuel.Blink.player_state.take_fall_damage.fire, function(...)
+						end)
+					end
+				end
+			else
+				if OldFall then
+					hookfunction(BridgeDuel.Blink.player_state.take_fall_damage.fire, OldFall)
+					task.wait(0.1)
+					OldFall = nil
+				end
 			end
 		end
 	})
@@ -2612,6 +2792,11 @@ spawn(function()
 										}
 
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
+										--[[
+										if BridgeDuel.Blink then
+											BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
+										end
+										--]]
 									else
 										local BlockTool = GetTool("Block")
 										if BlockTool then
@@ -2622,6 +2807,9 @@ spawn(function()
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				IsScaffold = false
@@ -2685,6 +2873,9 @@ spawn(function()
 					Loop = Service.RunService.RenderStepped:Connect(function()
 						Service.Lighting.ClockTime = NewTime
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
@@ -2707,3 +2898,49 @@ spawn(function()
 		end
 	})
 end)
+--[[
+spawn(function()
+	local Loop, Distance = nil, nil
+	local Pickaxe
+	local Breaker = Tabs.World:CreateToggle({
+		Name = "Bed Breaker",
+		Callback = function(callback)
+			if callback then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						local Bed = GetBed(Distance)
+						if Bed and Bed.PrimaryPart then
+							Pickaxe = CheckTool("Pickaxe")
+							if Pickaxe then
+								if BridgeDuel.Blink then
+									BridgeDuel.Blink.item_action.start_break_block.fire({
+										position = Bed.PrimaryPart.Position,
+										pickaxe_name = Pickaxe.Name
+									})
+								end
+							end
+						end
+					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+				end
+			end
+		end
+	})
+	local BreakerDistance = Breaker:CreateSlider({
+		Name = "Distance",
+		Min = 0,
+		Max = 15,
+		Callback = function(callback)
+			if callback then
+				Distance = callback * 3
+			end
+		end
+	}) 
+end)
+--]]
