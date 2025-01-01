@@ -12,6 +12,7 @@ local Service = {
 
 local LocalPlayer = Service.Players.LocalPlayer
 LocalPlayer:SetAttribute("ClientSneaking", false)
+local Map = game.Workspace:FindFirstChild("Map")
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
@@ -397,26 +398,82 @@ spawn(function()
 	})
 end)
 --]]
-local HitCritical = nil
+
+spawn(function()
+	local MinHealth = nil
+	local IsEated, EatCount = false, 0
+	local Loop = nil
+	local AutoGapple = Tabs.Combat:CreateToggle({
+		Name = "Auto Gapple",
+		Callback = function(callback)
+			if callback then
+				if IsAlive(LocalPlayer.Character) then
+					if not Loop then
+						Loop = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
+							if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
+								local Gapple = CheckTool("GoldApple")
+								if Gapple then
+									if not IsEated and EatCount == 0 then
+										Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
+										IsEated = true
+										EatCount = 1
+									end
+								else
+									local Gapple2 = GetTool("GoldApple")
+									if Gapple2 then
+										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple2)
+									end
+								end
+							else
+								if IsEated and EatCount == 1 then
+									IsEated = false
+									EatCount = 0
+								end
+							end
+						end)
+					else
+						Loop:Disconnect()
+						Loop = nil
+					end
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
+			end
+		end
+	})
+	local AutoGappleHealth = AutoGapple:CreateSlider({
+		Name = "Health",
+		Min = 0,
+		Max = 100,
+		Default = 50,
+		Callback = function(callback)
+			if callback then
+				MinHealth = callback
+			end
+		end
+	})
+end)
+
 spawn(function()
 	local OldCrit
 	local Criticals = Tabs.Combat:CreateToggle({
 		Name = "Criticals",
 		Callback = function(callback)
 			if callback then
-				HitCritical = true
 				if not OldCrit then
 					OldCrit = hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, function(...)
 						local Args = ...
-						if type(Args) == 'table' and HitCritical then
+						if type(Args) == 'table' then
 							rawset(Args, 'is_crit', 1)
 						end
 						return OldCrit(...)
 					end)
 				end
 			else
-				HitCritical = false
-				if OldCrit and not HitCritical then
+				if OldCrit then
 					hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, OldCrit)
 					OldCrit = nil
 				end
@@ -424,7 +481,7 @@ spawn(function()
 		end
 	})
 	local CriticalsMode = Criticals:CreateDropdown({
-		Name = "Crit Type",
+		Name = "Critical Type",
 		List = {"Packet"},
 		Default = "Packet",
 		Callback = function(callback)
@@ -507,30 +564,30 @@ spawn(function()
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 										end
+										--[[
 										local args = {
 											[1] = Entity,
 											[2] = HitCritical,
 											[3] = Sword.Name
 										}
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-										--[[
 										if BridgeDuel.Prototype then
 											local RealEntity = Service.Players:GetPlayerFromCharacter(Entity)
 											if RealEntity then
 												BridgeDuel.Prototype.AttackMelee(LocalPlayer, RealEntity)
 											end
 										end
+										--]]
 										if BridgeDuel.Blink and BridgeDuel.Interface then
 											local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
 											if EntityInterface then
 												BridgeDuel.Blink.item_action.attack_entity.fire({
 													target_entity_id = EntityInterface.Id,
-													is_crit = HitCritical,
+													is_crit = LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y < 0,
 													weapon_name = Sword.Name
 												})
 											end
 										end
-										--]]
 									else
 										KillAuraTarget = nil
 										if SwordModel and OldC0 then
@@ -607,7 +664,7 @@ spawn(function()
 	})
 	local KillAuraRotation = KillAura:CreateDropdown({
 		Name = "KillAura Rotations",
-		List = {"Normal", "None"},
+		List = {"Basic", "None"},
 		Default = "None",
 		Callback = function(callback)
 			RotationMode = callback
@@ -685,24 +742,24 @@ spawn(function()
 										Sword = CheckTool("Sword")
 										if Sword then
 											Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, Entity:FindFirstChild("HumanoidRootPart").Position.Y + 6.5, Entity:FindFirstChild("HumanoidRootPart").Position.Z)}):Play()
+											--[[
 											local args = {
 												[1] = Entity,
 												[2] = HitCritical,
 												[3] = Sword.Name
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-											--[[
+											--]]
 											if BridgeDuel.Blink and BridgeDuel.Interface then
 												local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
 												if EntityInterface then
 													BridgeDuel.Blink.item_action.attack_entity.fire({
 														target_entity_id = EntityInterface.Id,
-														is_crit = HitCritical,
+														is_crit = LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y < 0,
 														weapon_name = Sword.Name
 													})
 												end
 											end
-											--]]
 										end
 									end
 								end
@@ -835,115 +892,7 @@ spawn(function()
 	})
 end)
 --[[
-Up Coming Auto Report:
-spawn(function()
-	local Loop, Loop2 = nil, nil
-	local Notify, InGameReport = false, false
-	local Reported = {}
-	local Blacklisted = {
-		"trash",
-		"l",
-		"noob",
-		"kid",
-		"ked",
-		"fat",
-		"shut",
-		"dumb",
-		"stupid",
-		"gay",
-		"gei",
-		"dead",
-		"die",
-		"died",
-		"death",
-		"mother",
-		"dad",
-		"mom",
-		"orphan",
-		"sad",
-		"no life",
-		"get a life",
-		"hate",
-		"old",
-		"ugly",
-		"bald",
-		"ez",
-		"cry",
-		"bozo",
-		"clown",
-		"🤓",
-		"💀",
-		"shi"
-	}
-	local AutoReport = Tabs.Exploit:CreateToggle({
-		Name = "Auto Report",
-		Callback = function(callback)
-			if callback then
-				Loop2 = Service.RunService.RenderStepped:Connect(function()
-					if InGameReport then
-						for i, v in pairs(Service.Players:GetPlayers()) do
-							if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
-								table.insert(Reported, v.Name)
-								local args = {
-									[1] = v.Name
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
-							end
-						end
-					end
-				end)
-				Loop = game:GetService("TextChatService").MessageReceived:Connect(function(word)
-					for i,v in pairs(Blacklisted) do
-						if v then
-							if string.lower(word.Text):match(string.lower(v)) or string.upper(word.Text):match(string.upper(v)) then
-								local Noob = Service.Players:GetPlayerByUserId(word.TextSource.UserId)
-								Service.Players:ReportAbuse(Noob.Name, "Swearing", "He said " .. word.Text .. " to me")
-								if Notify then
-									game:GetService("StarterGui"):SetCore("SendNotification", { 
-										Title = "Lime | Auto Report",
-										Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
-										Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-										Duration = 5,
-									})
-								end
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-				if Loop2 ~= nil then
-					Loop2:Disconnect()
-				end
-			end
-		end
-	})
-	local AutoReportInGame = AutoReport:CreateMiniToggle({
-		Name = "In Game Report",
-		Callback = function(callback)
-			if callback then
-				InGameReport = true
-			else
-				InGameReport = false
-			end
-		end
-	})
-	local AutoReportNotify = AutoReport:CreateMiniToggle({
-		Name = "Notify",
-		Callback = function(callback)
-			if callback then
-				Notify = true
-			else
-				Notify = false
-			end
-		end
-	})
-end)
---]]
-
+OldAutoRepot:
 spawn(function()
 	local Loop, Reported, Notify = nil, {}, false
 
@@ -994,10 +943,101 @@ spawn(function()
 		end
 	})
 end)
+--]]
+
+spawn(function()
+	local Loop = nil
+	local Notify = false
+	local Blacklisted = {
+		"trash",
+		"cheat",
+		"wiz",
+		"hack",
+		"hax",
+		"l",
+		"noob",
+		"kid",
+		"ked",
+		"fat",
+		"shut",
+		"dumb",
+		"stupid",
+		"gay",
+		"gei",
+		"dead",
+		"die",
+		"died",
+		"death",
+		"mother",
+		"dad",
+		"mom",
+		"orphan",
+		"sad",
+		"no life",
+		"get a life",
+		"hate",
+		"old",
+		"ugly",
+		"bald",
+		"ez",
+		"cry",
+		"bozo",
+		"clown",
+		"🤓",
+		"💀",
+		"shi"
+	}
+	local AutoReport = Tabs.Exploit:CreateToggle({
+		Name = "Auto Report",
+		Callback = function(callback)
+			if callback then
+				if not Loop then
+					Loop = game:GetService("TextChatService").MessageReceived:Connect(function(word)
+						for _, v in pairs(Blacklisted) do
+							if string.lower(word.Text):match(string.lower(v)) then
+								local Noob = Service.Players:GetPlayerByUserId(word.TextSource.UserId)
+								if Noob then
+									if Noob ~= LocalPlayer then
+										Service.Players:ReportAbuse(Noob.Name, "Bullying", "He said " .. word.Text .. " to me")
+										if Notify then
+											game:GetService("StarterGui"):SetCore("SendNotification", {
+												Title = "Lime | Auto Report",
+												Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
+												Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+												Duration = 5,
+											})
+										end
+									end
+								end
+							end
+						end
+					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
+			end
+		end
+	})
+	local AutoReportNotify = AutoReport:CreateMiniToggle({
+		Name = "Notify",
+		Callback = function(callback)
+			if callback then
+				Notify = true
+			else
+				Notify = false
+			end
+		end
+	})
+end)
 
 spawn(function()
 	local Loop, AutoLeave, IsStaff = nil, false, false
-
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Anti Staff",
 		Callback = function(callback)
@@ -1005,24 +1045,33 @@ spawn(function()
 				if not Loop then
 					Loop = Service.RunService.RenderStepped:Connect(function()
 						local Staff = GetStaff()
-						if Staff and not IsStaff then
-							IsStaff = true
-							PlaySound(4809574295)
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime | Staff",
-								Text = Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId,
-								Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-								Duration = 15,
-							})
-
-							if AutoLeave then
+						if not IsStaff then
+							if Staff then
+								IsStaff = true
+								PlaySound(4809574295)
 								game:GetService("StarterGui"):SetCore("SendNotification", { 
 									Title = "Lime | Staff",
-									Text = "Leaving the game..",
-									Duration = 5,
+									Text = Staff.Name .. " " .. Staff.DisplayName .. " " .. Staff.UserId,
+									Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+									Duration = 15,
 								})
-								wait(2)
-								LocalPlayer:Kick("Leaved the game..")
+								if AutoLeave then
+									game:GetService("StarterGui"):SetCore("SendNotification", { 
+										Title = "Lime | Staff",
+										Text = "Closing the game...",
+										Duration = 2,
+									})
+									wait(2)
+									game:Shutdown()
+								end
+							else
+								IsStaff = false
+								game:GetService("StarterGui"):SetCore("SendNotification", { 
+									Title = "Lime | Staff",
+									Text = "Staff has left the game",
+									Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+									Duration = 15,
+								})
 							end
 						end
 					end)
@@ -1366,6 +1415,7 @@ spawn(function()
 	})
 end)
 --]]
+
 local IsFlight = false
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
@@ -1373,7 +1423,6 @@ spawn(function()
 	local Boost, Start, OldBoost = false, nil, nil
 	local OldGravity, Velocity = game.Workspace.Gravity, nil
 	local IsSneaking = false
-	--local FireCount, Start2 = 1, nil
 
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		Service.UserInputService.JumpRequest:Connect(function()
@@ -1423,24 +1472,6 @@ spawn(function()
 							else
 								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
 							end
-						--[[
-						if Start2 == nil and FireCount == 1 then
-							Start2 = tick()
-						end
-						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial == Enum.Material.Air then
-							if (tick() - Start2) > 4.5 then
-								warn("Flight is no longer safe, and could lead to a ban")
-								task.wait()
-								Start2 = nil
-							end
-						else
-							Start2 = nil
-							repeat
-								task.wait()
-							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air
-							Start2 = tick()
-						end
-						--]]
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 							if SelectedMode == "Float" then
 								game.Workspace.Gravity = 0
@@ -1473,7 +1504,6 @@ spawn(function()
 				if OldBoost then
 					Boost = true
 				end
-				--FireCount, Start2 = 1, nil
 				Velocity, Start = nil, nil
 				game.Workspace.Gravity = OldGravity
 				HumanoidRootPartY =  LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
@@ -1710,8 +1740,8 @@ spawn(function()
 	})
 	local NoSlowMode = NoSlowDown:CreateDropdown({
 		Name = "No Slowdown Method",
-		List = {"Spoof"},
-		Default = "Spoof",
+		List = {"Vanilla"},
+		Default = "Vanilla",
 		Callback = function(callback)
 		end
 	})
@@ -2572,10 +2602,9 @@ end)
 spawn(function()
 	local function Kill(plr)
 		local msg = {
-			plr.Name .. " Lime or Die?😈",
-			plr.Name .. " That was easy😎",
-			"Me when " .. plr.Name .. " eat lime😏",
-			plr.Name .. " Im lagging, not haxing!🤯"
+			plr.Name .. " Haha",
+			"Me when " .. plr.Name .. " tries lime",
+			plr.Name .. " Im just lagging"
 		}
 		return msg[math.random(1, #msg)]
 	end
@@ -2583,7 +2612,7 @@ spawn(function()
 	local OldKillCount = KillCount
 	local Dead = {}
 	local AutoToxic = Tabs.Player:CreateToggle({
-		Name = "Auto Toxic",
+		Name = "Killsults",
 		Callback = function(callback)
 			if callback then
 				Dead = {}
@@ -2595,16 +2624,8 @@ spawn(function()
 								if KillCount ~= OldKillCount then
 									Dead[KillAuraTarget] = true
 									Service.TextChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(Kill(KillAuraTarget))
-									--[[
-									game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), Kill(KillAuraTarget))
-									local args = {
-										[1] = Kill(KillAuraTarget),
-										[2] = "All"
-									}
-									game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
-									wait()
+									task.wait()
 									OldKillCount = KillCount
-									--]]
 								end
 							end
 						end
@@ -2722,7 +2743,6 @@ spawn(function()
 			else
 				if OldFall then
 					hookfunction(BridgeDuel.Blink.player_state.take_fall_damage.fire, OldFall)
-					task.wait(0.1)
 					OldFall = nil
 				end
 			end
@@ -2788,16 +2808,16 @@ spawn(function()
 								elseif PickMode == "Switch" then
 									local Block = CheckTool("Block")
 									if Block then
+										--[[
 										local args = {
 											[1] = PlacePos
 										}
 
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-										--[[
+										--]]
 										if BridgeDuel.Blink then
 											BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
 										end
-										--]]
 									else
 										local BlockTool = GetTool("Block")
 										if BlockTool then
