@@ -91,7 +91,7 @@ function Library:CreateMain()
 	ScreenGui.Name = Spoof(math.random(8, 12))
 	if RunService:IsStudio() then
 		ScreenGui.Parent = PlayerGui
-	elseif game.PlaceId == 11630038968 then
+	elseif game.PlaceId == 11630038968 or game.PlaceId == 10810646982 then
 		ScreenGui.Parent = PlayerGui:FindFirstChild("MainGui")
 	else
 		ScreenGui.Parent = CoreGui
