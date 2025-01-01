@@ -407,16 +407,16 @@ spawn(function()
 				HitCritical = true
 				if not OldCrit then
 					OldCrit = hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, function(...)
-						local Args = {...}
-						if type(Args[1]) == 'table' and HitCritical == true then
-							rawset(Args[1], 'is_crit', 1)
+						local Args = ...
+						if type(Args) == 'table' and HitCritical then
+							rawset(Args, 'is_crit', 1)
 						end
 						return OldCrit(...)
 					end)
 				end
 			else
 				HitCritical = false
-				if OldCrit then
+				if OldCrit and not HitCritical then
 					hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, OldCrit)
 					OldCrit = nil
 				end
@@ -2604,6 +2604,7 @@ spawn(function()
 									game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(unpack(args))
 									wait()
 									OldKillCount = KillCount
+									--]]
 								end
 							end
 						end
