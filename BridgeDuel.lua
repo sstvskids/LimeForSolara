@@ -12,7 +12,6 @@ local Service = {
 
 local LocalPlayer = Service.Players.LocalPlayer
 LocalPlayer:SetAttribute("ClientSneaking", false)
-local Map = game.Workspace:FindFirstChild("Map")
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
@@ -26,12 +25,12 @@ local Tabs = {
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
 }
---[[
+
 local BridgeDuel = {
 	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
 	Interface = require(game:GetService("ReplicatedStorage").Modules.Entity.Interface)
 }
---]]
+
 local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
 end
@@ -456,14 +455,13 @@ spawn(function()
 		end
 	})
 end)
-local HitCritical = nil
+
 spawn(function()
 	local OldCrit
 	local Criticals = Tabs.Combat:CreateToggle({
 		Name = "Criticals",
 		Callback = function(callback)
 			if callback then
-				HitCritical = true
 				if not OldCrit then
 					OldCrit = hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, function(...)
 						local Args = ...
@@ -474,7 +472,6 @@ spawn(function()
 					end)
 				end
 			else
-				HitCritical = false
 				if OldCrit then
 					hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, OldCrit)
 					OldCrit = nil
@@ -566,19 +563,20 @@ spawn(function()
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 										end
+										--[[
 										local args = {
 											[1] = Entity,
 											[2] = HitCritical,
 											[3] = Sword.Name
 										}
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-										--[[
 										if BridgeDuel.Prototype then
 											local RealEntity = Service.Players:GetPlayerFromCharacter(Entity)
 											if RealEntity then
 												BridgeDuel.Prototype.AttackMelee(LocalPlayer, RealEntity)
 											end
 										end
+										--]]
 										if BridgeDuel.Blink and BridgeDuel.Interface then
 											local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
 											if EntityInterface then
@@ -589,7 +587,6 @@ spawn(function()
 												})
 											end
 										end
-										--]]
 									else
 										KillAuraTarget = nil
 										if SwordModel and OldC0 then
@@ -744,13 +741,14 @@ spawn(function()
 										Sword = CheckTool("Sword")
 										if Sword then
 											Service.TweenService:Create(LocalPlayer.Character:WaitForChild("HumanoidRootPart"), TweenInfo.new(0.1), {CFrame = CFrame.new(Entity:FindFirstChild("HumanoidRootPart").Position.X, Entity:FindFirstChild("HumanoidRootPart").Position.Y + 6.5, Entity:FindFirstChild("HumanoidRootPart").Position.Z)}):Play()
+											--[[
 											local args = {
 												[1] = Entity,
 												[2] = HitCritical,
 												[3] = Sword.Name
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-											--[[
+											--]]
 											if BridgeDuel.Blink and BridgeDuel.Interface then
 												local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
 												if EntityInterface then
@@ -761,7 +759,6 @@ spawn(function()
 													})
 												end
 											end
-											--]]
 										end
 									end
 								end
@@ -2048,7 +2045,7 @@ spawn(function()
 					Loop:Disconnect()
 					Loop = nil
 				end
-				else
+			else
 				if Loop then
 					Loop:Disconnect()
 					Loop = nil
@@ -2810,16 +2807,16 @@ spawn(function()
 								elseif PickMode == "Switch" then
 									local Block = CheckTool("Block")
 									if Block then
+										--[[
 										local args = {
 											[1] = PlacePos
 										}
 
 										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-										--[[
+										--]]
 										if BridgeDuel.Blink then
 											BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
 										end
-										--]]
 									else
 										local BlockTool = GetTool("Block")
 										if BlockTool then
