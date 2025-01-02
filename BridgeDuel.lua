@@ -2750,9 +2750,10 @@ spawn(function()
 end)
 
 spawn(function()	
-	local Loop, Expand, Downwards, Rotations = nil, nil, false, nil
+	local Loop, Expand, Downwards, Rotations, Tower = nil, nil, false, nil, false
 	local PlacePos, PickMode = nil,nil
-	local IsSneaking = false
+	local IsSneaking, IsTowering = false, false
+	local JumpStuff = false
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -2766,6 +2767,18 @@ spawn(function()
 				Downwards = false
 			end
 		end)
+		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.Space then
+				IsTowering = true
+			end
+		end)
+		Service.UserInputService.InputEnded:Connect(function(Input, IsTyping)
+			if IsTyping then return end
+			if Input.KeyCode == Enum.KeyCode.Space then
+				IsTowering = false
+			end
+		end)
 	elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 		LocalPlayer:GetAttributeChangedSignal("ClientSneaking"):Connect(function()
 			IsSneaking = not IsSneaking
@@ -2775,8 +2788,15 @@ spawn(function()
 				Downwards = false
 			end
 		end)
+		Service.UserInputService.JumpRequest:Connect(function()
+			JumpStuff = not JumpStuff
+			if JumpStuff then
+				IsTowering = true
+			else
+				IsTowering = false
+			end
+		end)
 	end
-
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
 		Callback = function(callback)
@@ -2790,6 +2810,14 @@ spawn(function()
 									PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5 + 3))
 								else
 									PlacePos = GetPlace(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * (i * 3.5) - Vector3.yAxis * ((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Size.Y / 2) + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight + 1.5))
+								end
+								if Tower then
+									if IsTowering then
+										task.wait(0.28)
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 28, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+									else
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+									end
 								end
 								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
 									if Rotations == "Normal" then
@@ -2879,12 +2907,21 @@ spawn(function()
 			end
 		end
 	})
+	local ScaffoldTower = Scaffold:CreateMiniToggle({
+		Name = "Tower",
+		Callback = function(callback)
+			if callback then
+				Tower = true
+			else
+				Tower = false
+			end
+		end
+	})
 end)
 
 spawn(function()
 	local OldTime, NewTime = Service.Lighting.ClockTime, nil
 	local Loop = nil
-
 	local TimeChanger = Tabs.World:CreateToggle({
 		Name = "Time Changer",
 		Callback = function(callback)
