@@ -2814,7 +2814,7 @@ spawn(function()
 								if Tower then
 									if IsTowering then
 										task.wait(0.28)
-										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 28, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 18, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 									else
 										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 									end
