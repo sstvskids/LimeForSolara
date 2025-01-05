@@ -1061,14 +1061,6 @@ spawn(function()
 									wait(2)
 									game:Shutdown()
 								end
-							else
-								IsStaff = false
-								game:GetService("StarterGui"):SetCore("SendNotification", { 
-									Title = "Lime | Staff",
-									Text = "Staff has left the game",
-									Icon = "rbxassetid://15011943540",
-									Duration = 15,
-								})
 							end
 						end
 					end)
