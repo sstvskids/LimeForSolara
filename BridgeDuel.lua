@@ -43,19 +43,17 @@ local function GetWall()
 	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
 	for i, v in pairs(Service.Players:GetPlayers()) do
 		if IsAlive(v) then
-			table.insert(Raycast.FilterDescendantsInstances, v.Character)
-		end
-	end
-
-	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.5
-	for i, z in pairs(game.Workspace:WaitForChild("Map"):FindFirstChild("PvpArena"):GetChildren()) do
-		if z:IsA("Model") then
-			for i, a in pairs(z:GetChildren()) do
-				if a:IsA("Part") then
-					Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+			for i, z in pairs(v.Character:GetChildren()) do
+				if z.ClassName ~= "Script" and z.ClassName ~= "LocalScript" and z.ClassName ~= "ModuleScript" then
+					table.insert(Raycast.FilterDescendantsInstances, z)
 				end
 			end
 		end
+	end
+	
+	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.5
+	if Direction and Raycast then
+		Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
 	end
 	return Result and Result.Instance
 end
@@ -181,7 +179,7 @@ local function PlaySound(id)
 end
 
 local function GetStaff()
-	for _, v in pairs(Service.Players:GetPlayers()) do
+	for i, v in pairs(Service.Players:GetPlayers()) do
 		if v.UserId == 913502943 or v.UserId == 562994998 or v.UserId == 2856891486 then
 			return v
 		end
@@ -1058,7 +1056,7 @@ spawn(function()
 									game:GetService("StarterGui"):SetCore("SendNotification", { 
 										Title = "Lime | Staff",
 										Text = "Closing the game...",
-										Duration = 2,
+										Duration = 1.5,
 									})
 									wait(2)
 									game:Shutdown()
@@ -1068,7 +1066,7 @@ spawn(function()
 								game:GetService("StarterGui"):SetCore("SendNotification", { 
 									Title = "Lime | Staff",
 									Text = "Staff has left the game",
-									Icon = Service.Players:GetUserThumbnailAsync(Staff.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
+									Icon = "rbxassetid://15011943540",
 									Duration = 15,
 								})
 							end
@@ -1419,8 +1417,7 @@ local IsFlight = false
 spawn(function()
 	local HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 	local Loop, FlightSpeed, SelectedMode, YPos = nil, nil, nil, 0
-	local Boost, Start, OldBoost = false, nil, nil
-	local OldGravity, Velocity = game.Workspace.Gravity, nil
+	local OldGravity = game.Workspace.Gravity
 	local IsSneaking = false
 
 	if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
@@ -1451,26 +1448,10 @@ spawn(function()
 				IsFlight = true
 				YPos = 0
 				HumanoidRootPartY = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
-				if Boost ~= false then
-					OldBoost = Boost
-				end
 				if not Loop then
 					Loop = Service.RunService.RenderStepped:Connect(function()
 						if IsAlive(LocalPlayer.Character) then
-							if Boost then
-								if Start == nil then
-									Start = tick()
-								end
-								if (tick() - Start) < 2 then
-									Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed + 8)
-								else
-									Start = nil
-									Boost = false
-									Velocity = LocalPlayer.Character.Humanoid.MoveDirection * (FlightSpeed - 8)
-								end
-							else
-								Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
-							end
+							local Velocity = LocalPlayer.Character.Humanoid.MoveDirection * FlightSpeed
 							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 							if SelectedMode == "Float" then
 								game.Workspace.Gravity = 0
@@ -1500,10 +1481,6 @@ spawn(function()
 					Loop:Disconnect()
 					Loop = nil
 				end
-				if OldBoost then
-					Boost = true
-				end
-				Velocity, Start = nil, nil
 				game.Workspace.Gravity = OldGravity
 				HumanoidRootPartY =  LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y
 				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
@@ -1518,16 +1495,6 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				SelectedMode = callback
-			end
-		end
-	})
-	local FlightBoost = Flight:CreateMiniToggle({
-		Name = "Boost",
-		Callback = function(callback)
-			if callback then
-				Boost = true
-			else
-				Boost = false
 			end
 		end
 	})
@@ -1597,7 +1564,7 @@ spawn(function()
 							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 						end
 						wait(0.28)
-						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
+						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 88
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 					elseif Selected == "Teleport" then
 						game.Workspace.Gravity = 15
@@ -1606,7 +1573,7 @@ spawn(function()
 							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 						end
 						while Start and (tick() - Start) < 5 do
-							if Start and (tick() - Start) < 1.25 then
+							if Start and (tick() - Start) < 0.75 then
 								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
 							end
 							task.wait(0.24)
@@ -2749,11 +2716,81 @@ spawn(function()
 	})
 end)
 
+spawn(function()
+	local Raycast = RaycastParams.new()
+	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
+	Raycast.FilterType = Enum.RaycastFilterType.Exclude
+	Raycast.IgnoreWater = true
+
+	local Loop, Range = nil, nil
+	local Blocks = {}
+	local LegitBreaker = Tabs.World:CreateToggle({
+		Name = "Legit Breaker",
+		Callback = function(callback)
+			if callback then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							local Bed = GetBed(Range)
+							if Bed and Bed.PrimaryPart then
+								local Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position									local Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+								if Result and Result.Instance then
+									if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
+										table.insert(Blocks, Result.Instance)
+										Result.Instance.CanCollide = false
+										Result.Instance.CanTouch = false
+										Result.Instance.CanQuery = false
+										Result.Instance.Transparency = 0.75
+									end
+								end
+							else
+								for i = #Blocks, 1, -1 do
+									local v = Blocks[i]
+									if v and v.Parent and (v.Position - Bed.PrimaryPart.Position).Magnitude > Range then
+										v.CanCollide = true
+										v.CanTouch = true
+										v.CanQuery = true
+										v.Transparency = 0
+										table.remove(Blocks, i)
+									end
+								end
+							end
+						end
+					end)
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
+				for i, v in ipairs(Blocks) do
+					if v and v.Parent then
+						v.CanCollide = true
+						v.CanTouch = true
+						v.CanQuery = true
+						v.Transparency = 0
+					end
+				end
+				Blocks = {}
+			end
+		end
+	})
+	local LegitBreakerRange = LegitBreaker:CreateSlider({
+		Name = "Distances",
+		Min = 0,
+		Max = 28,
+		Default = 28,
+		Callback = function(callback)
+			Range = callback
+		end
+	})
+end)
+
 spawn(function()	
 	local Loop, Expand, Downwards, Rotations, Tower = nil, nil, false, nil, false
-	local PlacePos, PickMode = nil,nil
 	local IsSneaking, IsTowering = false, false
 	local JumpStuff = false
+	local PlacePos = nil
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -2826,32 +2863,11 @@ spawn(function()
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
 								end
-								if PickMode == "None" then
-									local args = {
-										[1] = PlacePos
-									}
+								local args = {
+									[1] = PlacePos
+								}
 
-									game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-								elseif PickMode == "Switch" then
-									local Block = CheckTool("Block")
-									if Block then
-										--[[
-										local args = {
-											[1] = PlacePos
-										}
-
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
-										--]]
-										if BridgeDuel.Blink then
-											BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
-										end
-									else
-										local BlockTool = GetTool("Block")
-										if BlockTool then
-											LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(BlockTool)
-										end
-									end
-								end
+								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
 							end
 						end
 					end)
@@ -2867,22 +2883,6 @@ spawn(function()
 				end
 				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 				PlacePos = nil
-				if PickMode == "Switch" then
-					local Block = CheckTool("Block")
-					if Block then
-						LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):UnequipTools(Block)
-					end
-				end
-			end
-		end
-	})
-	local ScaffoldPickMode = Scaffold:CreateDropdown({
-		Name = "Scaffold Block Picking",
-		List = {"Switch", "None"},
-		Default = "None",
-		Callback = function(callback)
-			if callback then
-				PickMode = callback
 			end
 		end
 	})
@@ -2955,49 +2955,3 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local Loop, Distance = nil, nil
-	local Pickaxe
-	local Breaker = Tabs.World:CreateToggle({
-		Name = "Bed Breaker",
-		Callback = function(callback)
-			if callback then
-				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
-						local Bed = GetBed(Distance)
-						if Bed and Bed.PrimaryPart then
-							Pickaxe = CheckTool("Pickaxe")
-							if Pickaxe then
-								if BridgeDuel.Blink then
-									BridgeDuel.Blink.item_action.start_break_block.fire({
-										position = Bed.PrimaryPart.Position,
-										pickaxe_name = Pickaxe.Name
-									})
-								end
-							end
-						end
-					end)
-				else
-					Loop:Disconnect()
-					Loop = nil
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-				end
-			end
-		end
-	})
-	local BreakerDistance = Breaker:CreateSlider({
-		Name = "Distance",
-		Min = 0,
-		Max = 15,
-		Callback = function(callback)
-			if callback then
-				Distance = callback * 3
-			end
-		end
-	}) 
-end)
---]]
