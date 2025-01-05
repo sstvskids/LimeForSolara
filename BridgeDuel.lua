@@ -336,43 +336,23 @@ spawn(function()
 	})
 end)
 
---[[
-AUTOGAPPLE IN DEV:
 spawn(function()
 	local MinHealth = nil
-	local IsEated, EatCount = 0, 0
 	local Loop = nil
 	local AutoGapple = Tabs.Combat:CreateToggle({
 		Name = "Auto Gapple",
 		Callback = function(callback)
 			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
+					LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
 					if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
 						local Gapple = CheckTool("GoldApple")
 						if Gapple then
-							if IsEated == 0 and EatCount == 0 then
-								--Gapple:Activate()
-								Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-								IsEated = 1
-								EatCount = 1
-							else
-								repeat
-									wait()
-								until IsEated == 0 and EatCount == 0
-							end
+							Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
 						else
 							local Gapple2 = GetTool("GoldApple")
 							if Gapple2 then
 								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple2)
 							end
-						end
-					else
-						if IsEated == 1 and EatCount == 1 then
-							repeat
-								wait()
-							until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health > MinHealth
-							IsEated = 0
-							EatCount = 0
 						end
 					end
 				end)
@@ -394,8 +374,7 @@ spawn(function()
 		end
 	})
 end)
---]]
-
+--[[
 spawn(function()
 	local MinHealth = nil
 	local IsEated, EatCount = false, 0
@@ -453,7 +432,7 @@ spawn(function()
 		end
 	})
 end)
-
+--]]
 spawn(function()
 	local OldCrit
 	local Criticals = Tabs.Combat:CreateToggle({
@@ -561,20 +540,6 @@ spawn(function()
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 										end
-										--[[
-										local args = {
-											[1] = Entity,
-											[2] = HitCritical,
-											[3] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("AttackPlayerWithSword"):InvokeServer(unpack(args))
-										if BridgeDuel.Prototype then
-											local RealEntity = Service.Players:GetPlayerFromCharacter(Entity)
-											if RealEntity then
-												BridgeDuel.Prototype.AttackMelee(LocalPlayer, RealEntity)
-											end
-										end
-										--]]
 										if BridgeDuel.Blink and BridgeDuel.Interface then
 											local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
 											if EntityInterface then
@@ -631,17 +596,17 @@ spawn(function()
 					Loop:Disconnect()
 					Loop = nil
 				end
-				if SwordModel and OldC0 then
-					if SwordModel.C0 ~= OldC0 then
-						SwordModel.C0 = OldC0
-					end
-				end
 				if KillAuraBlock == "Packet" then
 					local args = {
 						[1] = false,
 						[2] = Sword.Name
 					}
 					game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+				end
+				if SwordModel and OldC0 then
+					if SwordModel.C0 ~= OldC0 then
+						SwordModel.C0 = OldC0
+					end
 				end
 				if not IsScaffold then
 					LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
@@ -888,8 +853,7 @@ spawn(function()
 		end
 	})
 end)
---[[
-OldAutoRepot:
+
 spawn(function()
 	local Loop, Reported, Notify = nil, {}, false
 
@@ -905,6 +869,7 @@ spawn(function()
 								local args = {
 									[1] = v.Name
 								}
+								
 								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
 								if Notify then
 									game:GetService("StarterGui"):SetCore("SendNotification", { 
@@ -913,98 +878,6 @@ spawn(function()
 										Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
 										Duration = 5,
 									})
-								end
-							end
-						end
-					end)
-				else
-					Loop:Disconnect()
-					Loop = nil
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local AutoReportNotify = AutoReport:CreateMiniToggle({
-		Name = "Notify",
-		Callback = function(callback)
-			if callback then
-				Notify = true
-			else
-				Notify = false
-			end
-		end
-	})
-end)
---]]
-
-spawn(function()
-	local Loop = nil
-	local Notify = false
-	local Blacklisted = {
-		"trash",
-		"cheat",
-		"wiz",
-		"hack",
-		"hax",
-		"l",
-		"noob",
-		"kid",
-		"ked",
-		"fat",
-		"shut",
-		"dumb",
-		"stupid",
-		"gay",
-		"gei",
-		"dead",
-		"die",
-		"died",
-		"death",
-		"mother",
-		"dad",
-		"mom",
-		"orphan",
-		"sad",
-		"no life",
-		"get a life",
-		"hate",
-		"old",
-		"ugly",
-		"bald",
-		"ez",
-		"cry",
-		"bozo",
-		"clown",
-		"🤓",
-		"💀",
-		"shi"
-	}
-	local AutoReport = Tabs.Exploit:CreateToggle({
-		Name = "Auto Report",
-		Callback = function(callback)
-			if callback then
-				if not Loop then
-					Loop = game:GetService("TextChatService").MessageReceived:Connect(function(word)
-						for _, v in pairs(Blacklisted) do
-							if string.lower(word.Text):match(string.lower(v)) then
-								local Noob = Service.Players:GetPlayerByUserId(word.TextSource.UserId)
-								if Noob then
-									if Noob ~= LocalPlayer then
-										Service.Players:ReportAbuse(Noob.Name, "Bullying", "He said " .. word.Text .. " to me")
-										if Notify then
-											game:GetService("StarterGui"):SetCore("SendNotification", {
-												Title = "Lime | Auto Report",
-												Text = "Reported " .. Noob.Name .. " for saying " .. word.Text,
-												Icon = Service.Players:GetUserThumbnailAsync(Noob.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-												Duration = 5,
-											})
-										end
-									end
 								end
 							end
 						end
@@ -1620,59 +1493,6 @@ spawn(function()
 	})
 end)
 
---[[ 
-OLD LONGJUMP:
-spawn(function()
-	local OldGravity, StartJump = game.Workspace.Gravity, nil
-	local SelectedMode = nil
-
-	local LongJump = Tabs.Move:CreateToggle({
-		Name = "Long Jump",
-		AutoDisable = true,
-		Callback = function(callback)
-			if callback then
-				game.Workspace.Gravity = 15
-				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 15, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-				repeat
-					wait(0.15)
-					if SelectedMode == "TP" then
-						if StartJump ==  nil then
-							StartJump = tick()
-						end
-						if (tick() - StartJump) < 1.25 then
-							LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-						end
-					elseif SelectedMode == "Gravity" then
-						game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 92
-						wait(0.28)
-						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-						if StartJump ==  nil then
-							StartJump = tick()
-						end
-						if (tick() - StartJump) < 1.25 then
-						end
-					end
-				until (tick() - StartJump) > 1.25
-				StartJump = nil
-				game.Workspace.Gravity = OldGravity
-				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
-				LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
-			end
-		end
-	})
-	local LongJumpMode = LongJump:CreateDropdown({
-		Name = "Long Jump Mode",
-		List = {"TP", "Gravity"},
-		Default = "TP",
-		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
-			end
-		end
-	})
-end)
---]]
 spawn(function()
 	local Loop = nil
 
@@ -1790,7 +1610,7 @@ spawn(function()
 						if IsAlive(LocalPlayer.Character) then
 							local Wall = GetWall()
 							if Wall then
-								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 35, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 28, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 							end
 						end
 					end)
@@ -1807,178 +1627,6 @@ spawn(function()
 		end
 	})
 end)
---[[
-spawn(function()
-	local Loop, Radius, Rage = nil, nil, false
-	local Angle, Speed = 0, 4
-	local TargetStrafe = Tabs.Move:CreateToggle({
-		Name = "Target Strafe",
-		Callback = function(callback)
-			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function(ticks)
-					if IsKillAuraEnabled then
-						if not IsScaffold then
-							if not IsFakeLag then
-								if not IsTPAura then
-									if KillAuraTarget ~= nil then
-										Angle = Angle + (Speed * ticks)
-										local XOffset = math.cos(Angle) * Radius
-										local ZOffset = math.sin(Angle) * Radius
-										if IsAlive(LocalPlayer.Character) then
-											if IsAlive(KillAuraTarget) then
-												local Distance = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Magnitude
-												if Distance < Radius then
-													LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget:FindFirstChild("HumanoidRootPart").Position + (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit * Radius, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
-													local Offset = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position
-													local Offset2 = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit
-													local Perpendicular = Vector3.new(-Offset.Z, 0, Offset.X).Unit
-													local NewPosition = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z) + Perpendicular * 0.25
-													if not Rage then
-														local NewPosition = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08
-														if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Magnitude > 0 then
-															LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new((LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position + LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection.Unit * 0.08), KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
-														end
-													end
-												end
-											end
-										end
-										if IsAlive(LocalPlayer.Character) then
-											if IsAlive(KillAuraTarget) then
-												if Rage then
-													LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(XOffset, 0, ZOffset))
-												end
-											end	
-										end
-									end
-								end
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local TargetStrafeRadius = TargetStrafe:CreateSlider({
-		Name = "Radius",
-		Min = 0,
-		Max = 9,
-		Default = 5,
-		Callback = function(callback)
-			Radius = callback
-		end
-	})
-	local TargetStrafeControllable = TargetStrafe:CreateMiniToggle({
-		Name = "Rage",
-		Callback = function(callback)
-			if callback then
-				Rage = true
-			else
-				Rage = false
-			end
-		end
-	})
-end)
-
---[[
-HUMANOID:MOVE TARGETSTRAFE:
-spawn(function()
-	local Loop, Radius = nil, nil
-
-	local TargeStrafe = Tabs.Move:CreateToggle({
-		Name = "Target Strafe",
-		Callback = function(callback)
-			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function()
-					if IsKillAuraEnabled then
-						if KillAuraTarget ~= nil then
-							if IsAlive(LocalPlayer.Character) then
-								local Distance = (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Magnitude
-								if Distance < Radius then
-									LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(KillAuraTarget:FindFirstChild("HumanoidRootPart").Position + (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - KillAuraTarget:FindFirstChild("HumanoidRootPart").Position).Unit * Radius, KillAuraTarget:FindFirstChild("HumanoidRootPart").Position)
-								end
-								if Distance < 15 then
-									
-								end
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local TargetStrafeRadius = TargeStrafe:CreateSlider({
-		Name = "Radius",
-		Min = 0,
-		Max = 9,
-		Default = 5,
-		Callback = function(callback)
-			Radius = callback
-		end
-	})
-end)
-
-OLD TARGETSTARFE:
-spawn(function()
-	local Loop, Radius, Speed = nil, nil, 1.85
-	local Angle = 0
-	local TargeStrafe = Tabs.Move:CreateToggle({
-		Name = "Target Strafe",
-		Callback = function(callback)
-			if callback then
-				Loop = Service.RunService.RenderStepped:Connect(function(ticks)
-					if IsAlive(LocalPlayer.Character) then
-						if KillAuraSortMode == "Health" then 
-							if KillAuraTarget and IsAlive(KillAuraTarget) then
-								Angle = Angle + (Speed * ticks)
-								local xOffset = math.cos(Angle) * Radius
-								local zOffset = math.sin(Angle) * Radius
-								Service.TweenService:Create(LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(0.4), {CFrame = CFrame.new(KillAuraTarget.HumanoidRootPart.Position + Vector3.new(xOffset, 0, zOffset)) * CFrame.Angles(0, Angle, 0)}):Play()
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local TargetStrafeSpeed = TargeStrafe:CreateSlider({
-		Name = "Speedd",
-		Min = 0.35,
-		Max = 3,
-		Default = 1.35,
-		Callback = function(callback)
-			if callback then
-				Speed = callback
-			end
-		end
-	})
-	local TargetStrafeRadius = TargeStrafe:CreateSlider({
-		Name = "Radius",
-		Min = 0,
-		Max = 9,
-		Default = 4,
-		Callback = function(callback)
-			if callback then
-				Radius = callback
-			end
-		end
-	})
-end)
---]]
 
 spawn(function()
 	local Loop, SelectedMode = nil, nil
@@ -1993,7 +1641,7 @@ spawn(function()
 								{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(-35), math.rad(50), math.rad(110)), Time = 0.15},
 								{CFrame = CFrame.new(0, 0.8, 1.0) * CFrame.Angles(math.rad(-65), math.rad(50), math.rad(110)), Time = 0.15}
 							}
-						elseif SelectedMode == "Eternal" then
+						elseif SelectedMode == "Stab" then
 							C0Animation = {
 								{CFrame = CFrame.new(-2.5, 0, 3.5) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1},
 								{CFrame = CFrame.new(-0.5, 0, 1.3) * CFrame.Angles(math.rad(0), math.rad(25), math.rad(60)), Time = 0.1}
@@ -2022,8 +1670,8 @@ spawn(function()
 	})
 	local AnimationSword = Animation:CreateDropdown({
 		Name = "Sword Hit Animation",
-		List = {"Eternal", "Lime"},
-		Default = "Lime",
+		List = {"Stab", "Lime"},
+		Default = "Stab",
 		Callback = function(callback)
 			if callback then
 				SelectedMode = callback
@@ -2558,6 +2206,45 @@ spawn(function()
 end)
 
 spawn(function()
+	local SelectedMode = nil
+	local ClipDist = nil
+	local Clip = Tabs.Player:CreateToggle({
+		Name = "Clip",
+		AutoDisable = true,
+		Callback = function(callback)
+			if callback then
+				if SelectedMode == "VClip" then
+					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, ClipDist, 0))
+				elseif SelectedMode == "HClip" then
+					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + Vector3.new(0, ClipDist, 0))
+				end
+			end
+		end
+	})
+	local ClipMode = Clip:CreateDropdown({
+		Name = "Clip Modes",
+		List = {"HClip", "VClip"},
+		Default = "VClip",
+		Callback = function(callback)
+			if callback then
+				SelectedMode = callback
+			end
+		end
+	})
+	local ClipDistance = Clip:CreateSlider({
+		Name = "Distance",
+		Min = 0,
+		Max = 12,
+		Default = 6,
+		Callback = function(callback)
+			if callback then
+				ClipDist = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local function Kill(plr)
 		local msg = {
 			plr.Name .. " Haha",
@@ -2598,89 +2285,6 @@ spawn(function()
 					Loop = nil
 				end
 				Dead = {}
-			end
-		end
-	})
-end)
---[[
-spawn(function()
-	local Event = nil
-	local function Kill(plr)
-		local messages = {
-			"Lime Yummy🤤",
-			"Lime might not be the best, but it can still beat you " .. plr.Name,
-			"Eternal rebrand is the best (Lime)"
-		}
-		return messages[math.random(1, #messages)]
-	end
-	local function Dead(plr)
-		local messages = {
-			"Wow what a pro, is that right? " .. plr.Name,
-			"Someone that can defeat me probably uses cheats too!"
-		}
-		return messages[math.random(1, #messages)]
-	end
-	local AutoToxic = Tabs.Player:CreateToggle({
-		Name = "Auto Toxic",
-		Callback = function(callback)
-			if callback then
-				Event = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.OnKill
-				if Event then
-					Event.OnClientEvent:Connect(function(alive, dead, ...)
-						if alive.Name == LocalPlayer.Name and dead.Name ~= LocalPlayer.Name then
-							local KillMessage = Kill(dead)
-							game:GetService("Chat"):Chat(LocalPlayer.Character:FindFirstChild("Head"), KillMessage)
-						elseif alive.Name ~= LocalPlayer.Name and dead.Name == LocalPlayer.Name then
-							local DeadMessage = Dead(alive)
-							local args = {
-								[1] = DeadMessage,
-								[2] = "All"
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						end
-					end)
-				end
-			else
-				Event = nil
-			end
-		end
-	})
-end)
---]]
-spawn(function()
-	local SelectedMode = nil
-	local ClipDist = nil
-	local Clip = Tabs.Player:CreateToggle({
-		Name = "Clip",
-		AutoDisable = true,
-		Callback = function(callback)
-			if callback then
-				if SelectedMode == "VClip" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position - Vector3.new(0, ClipDist, 0))
-				elseif SelectedMode == "HClip" then
-					LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position + Vector3.new(0, ClipDist, 0))
-				end
-			end
-		end
-	})
-	local ClipMode = Clip:CreateDropdown({
-		Name = "Clip Modes",
-		List = {"HClip", "VClip"},
-		Default = "VClip",
-		Callback = function(callback)
-			if callback then
-				SelectedMode = callback
-			end
-		end
-	})
-	local ClipDistance = Clip:CreateSlider({
-		Name = "Distance",
-		Min = 0,
-		Max = 12,
-		Default = 6,
-		Callback = function(callback)
-			if callback then
-				ClipDist = callback
 			end
 		end
 	})
@@ -2854,6 +2458,9 @@ spawn(function()
 									elseif Rotations == "None" then
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
+								end
+								if BridgeDuel.Blink then
+									BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
 								end
 								local args = {
 									[1] = PlacePos
