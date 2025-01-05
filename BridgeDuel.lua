@@ -2462,11 +2462,6 @@ spawn(function()
 								if BridgeDuel.Blink then
 									BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
 								end
-								local args = {
-									[1] = PlacePos
-								}
-
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("PlaceBlock"):InvokeServer(unpack(args))
 							end
 						end
 					end)
