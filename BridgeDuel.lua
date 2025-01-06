@@ -510,7 +510,7 @@ spawn(function()
 									local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
 									if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
 										if not IsFakeLag then
-											if RotationMode == "Basic" then
+											if RotationMode == "Normal" then
 												if not IsScaffold then
 													LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
 												end
@@ -626,7 +626,7 @@ spawn(function()
 	})
 	local KillAuraRotation = KillAura:CreateDropdown({
 		Name = "KillAura Rotations",
-		List = {"Basic", "None"},
+		List = {"Normal", "None"},
 		Default = "None",
 		Callback = function(callback)
 			RotationMode = callback
