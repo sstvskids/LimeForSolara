@@ -510,7 +510,7 @@ spawn(function()
 									local LookCFrame = (CFrame.new(Vector3.zero, (LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame):VectorToObjectSpace(Direction)))
 									if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
 										if not IsFakeLag then
-											if RotationMode == "Normal" then
+											if RotationMode == "Basic" then
 												if not IsScaffold then
 													LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = LookCFrame + OldTorsoC0
 												end
@@ -2342,12 +2342,15 @@ spawn(function()
 							else
 								for i = #Blocks, 1, -1 do
 									local v = Blocks[i]
-									if v and v.Parent and (v.Position - Bed.PrimaryPart.Position).Magnitude > Range then
-										v.CanCollide = true
-										v.CanTouch = true
-										v.CanQuery = true
-										v.Transparency = 0
-										table.remove(Blocks, i)
+									if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
+										local Distance = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+										if Distance > Range then
+											v.CanCollide = true
+											v.CanTouch = true
+											v.CanQuery = true
+											v.Transparency = 0
+											table.remove(Blocks, i)
+										end
 									end
 								end
 							end
