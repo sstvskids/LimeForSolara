@@ -28,7 +28,8 @@ local Tabs = {
 
 local BridgeDuel = {
 	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
-	Interface = require(game:GetService("ReplicatedStorage").Modules.Entity.Interface)
+	Entity = require(game:GetService("ReplicatedStorage").Modules.Entity),
+	BlockController = require(LocalPlayer.PlayerScripts.Controllers.All.BlockPlacementController)
 }
 
 local function IsAlive(v)
@@ -50,7 +51,7 @@ local function GetWall()
 			end
 		end
 	end
-	
+
 	local Direction = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MoveDirection * 1.5
 	if Direction and Raycast then
 		Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
@@ -224,7 +225,7 @@ local function GetBed(MaxDist)
 	local MinDist = math.huge
 	local Bed
 	for i, v in pairs(game.Workspace:FindFirstChild("Map"):GetChildren()) do
-		if v:IsA("Model") and v.Name == "Bed" then
+		if v:IsA("Model") and v.Name == "Bed" and v:GetAttribute("Team") ~= LocalPlayer.Team then
 			local Distance = (v.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
 			if Distance < MinDist and Distance <= MaxDist then
 				Bed = v
@@ -343,7 +344,7 @@ spawn(function()
 		Name = "Auto Gapple",
 		Callback = function(callback)
 			if callback then
-					LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
+				LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
 					if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
 						local Gapple = CheckTool("GoldApple")
 						if Gapple then
@@ -540,11 +541,11 @@ spawn(function()
 											}
 											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
 										end
-										if BridgeDuel.Blink and BridgeDuel.Interface then
-											local EntityInterface = BridgeDuel.Interface.FindByCharacter(Entity)
-											if EntityInterface then
+										if BridgeDuel.Blink and BridgeDuel.Entity then
+											local EntityID = BridgeDuel.Entity.FindByCharacter(Entity)
+											if EntityID then
 												BridgeDuel.Blink.item_action.attack_entity.fire({
-													target_entity_id = EntityInterface.Id,
+													target_entity_id = EntityID.Id,
 													is_crit = LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y < 0,
 													weapon_name = Sword.Name
 												})
@@ -869,7 +870,7 @@ spawn(function()
 								local args = {
 									[1] = v.Name
 								}
-								
+
 								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
 								if Notify then
 									game:GetService("StarterGui"):SetCore("SendNotification", { 
@@ -1414,35 +1415,21 @@ end)
 spawn(function()
 	local OldGravity, IsEnabled, WaitToLand = game.Workspace.Gravity, false, false
 	local AutoJump = false
-	local Selected = nil
-	local Start = nil
 	local LongJump = Tabs.Move:CreateToggle({
 		Name = "Long Jump",
 		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
-				IsEnabled = true
-				if IsEnabled then
-					if Selected == "Gravity" then
+				if not IsFlight then
+					IsEnabled = true
+					if IsEnabled then
 						game.Workspace.Gravity = 15
 						if AutoJump then
 							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 						end
-						wait(0.28)
-						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 88
+						wait(0.24)
+						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 85
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
-					elseif Selected == "Teleport" then
-						game.Workspace.Gravity = 15
-						Start = tick()
-						if AutoJump then
-							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-						end
-						while Start and (tick() - Start) < 5 do
-							if Start and (tick() - Start) < 0.75 then
-								LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 3
-							end
-							task.wait(0.24)
-						end
 					end
 				end
 			else
@@ -1450,25 +1437,15 @@ spawn(function()
 					while task.wait(0.45) do
 						if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").FloorMaterial ~= Enum.Material.Air then
 							game.Workspace.Gravity = OldGravity
-							Start = nil
 							IsEnabled = false
 						end
 					end
 				else
 					task.wait(1)
 					game.Workspace.Gravity = OldGravity
-					Start = nil
 					IsEnabled = false
 				end
 			end
-		end
-	})
-	local LongJumpMode = LongJump:CreateDropdown({
-		Name = "Long Jump Mode",
-		List = {"Gravity", "Teleport"},
-		Default = "Teleport",
-		Callback = function(callback)
-			Selected = callback
 		end
 	})
 	local LongJumpAutoJump = LongJump:CreateMiniToggle({
@@ -2385,11 +2362,21 @@ spawn(function()
 	})
 end)
 
-spawn(function()	
+spawn(function()
+	local BlockNames = {"Blocks", "WoodPlanksBlock", "StoneBlock", "IronBlock", "BricksBlock", "DiamondBlock"}
+	local BlocksList = {
+		Blocks = "Clay",
+		WoodPlanksBlock = "WoodPlanks",
+		StoneBlock = "Stone",
+		IronBlock = "Iron",
+		BricksBlock = "Bricks",
+		DiamondBlock = "Diamond"
+	}
 	local Loop, Expand, Downwards, Rotations, Tower = nil, nil, false, nil, false
 	local IsSneaking, IsTowering = false, false
 	local JumpStuff = false
 	local PlacePos = nil
+	local BlockType = nil
 	if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 		Service.UserInputService.InputBegan:Connect(function(Input, IsTyping)
 			if IsTyping then return end
@@ -2462,8 +2449,18 @@ spawn(function()
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
 								end
-								if BridgeDuel.Blink then
-									BridgeDuel.Blink.item_action.place_block.invoke(PlacePos)
+								if BridgeDuel.BlockController then
+									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+										if table.find(BlockNames, v.Name) then
+											local GetBlockType = BlocksList[v.Name]
+											if GetBlockType then
+												BlockType = GetBlockType
+											end
+										end
+									end
+									if BlockType then
+										BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
+									end
 								end
 							end
 						end
@@ -2479,6 +2476,7 @@ spawn(function()
 					Loop = nil
 				end
 				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
+				BlockType = nil
 				PlacePos = nil
 			end
 		end
