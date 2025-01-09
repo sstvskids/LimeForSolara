@@ -2450,13 +2450,21 @@ spawn(function()
 									end
 								end
 								if BridgeDuel.BlockController then
-									local Block1 = GetTool(BlockType)
-									local Block2 = CheckTool(BlockType)
-
-									if Block1 then
-										BlockType = BlocksList[Block1.Name]
-									elseif Block2 then
-										BlockType = BlocksList[Block2.Name]
+									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+										if table.find(BlockNames, v.Name) then
+											local GetBlockType = BlocksList[v.Name]
+											if GetBlockType then
+												BlockType = GetBlockType
+											end
+										end
+		  							end
+	                                                                for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+										if table.find(BlockNames, b.Name) then
+											local GetBlockType = BlocksList[b.Name]
+											if GetBlockType then
+												BlockType = GetBlockType
+											end
+										end
 									end
 									if BlockType then
 										BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
