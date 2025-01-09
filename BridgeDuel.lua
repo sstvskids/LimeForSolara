@@ -1428,7 +1428,7 @@ spawn(function()
 							game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 						end
 						wait(0.24)
-						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 85
+						local Velocity = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 76
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, Velocity.Z)
 					end
 				end
@@ -2450,21 +2450,13 @@ spawn(function()
 									end
 								end
 								if BridgeDuel.BlockController then
-									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-										if table.find(BlockNames, v.Name) then
-											local GetBlockType = BlocksList[v.Name]
-											if GetBlockType then
-												BlockType = GetBlockType
-											end
-										end
-									end
-									for i, v in pairs(LocalPlayer.Character:GetChildren()) do
-										if table.find(BlockNames, v.Name) then
-											local GetBlockType = BlocksList[v.Name]
-											if GetBlockType then
-												BlockType = GetBlockType
-											end
-										end
+									local Block1 = GetTool(BlockType)
+									local Block2 = CheckTool(BlockType)
+
+									if Block1 then
+										BlockType = BlocksList[Block1.Name]
+									elseif Block2 then
+										BlockType = BlocksList[Block2.Name]
 									end
 									if BlockType then
 										BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
