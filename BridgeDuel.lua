@@ -1648,7 +1648,7 @@ spawn(function()
 	local AnimationSword = Animation:CreateDropdown({
 		Name = "Sword Hit Animation",
 		List = {"Stab", "Lime"},
-		Default = "Stab",
+		Default = "Lime",
 		Callback = function(callback)
 			if callback then
 				SelectedMode = callback
@@ -2451,6 +2451,14 @@ spawn(function()
 								end
 								if BridgeDuel.BlockController then
 									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+										if table.find(BlockNames, v.Name) then
+											local GetBlockType = BlocksList[v.Name]
+											if GetBlockType then
+												BlockType = GetBlockType
+											end
+										end
+									end
+									for i, v in pairs(LocalPlayer.Character:GetChildren()) do
 										if table.find(BlockNames, v.Name) then
 											local GetBlockType = BlocksList[v.Name]
 											if GetBlockType then
