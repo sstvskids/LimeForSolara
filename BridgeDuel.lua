@@ -2449,25 +2449,53 @@ spawn(function()
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
 								end
-								if BridgeDuel.BlockController then
-									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-										if table.find(BlockNames, v.Name) then
-											local GetBlockType = BlocksList[v.Name]
-											if GetBlockType then
-												BlockType = GetBlockType
+								if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
+									if BridgeDuel.BlockController then
+										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+											if table.find(BlockNames, v.Name) then
+												local GetBlockType = BlocksList[v.Name]
+												if GetBlockType then
+													BlockType = GetBlockType
+												end
 											end
 										end
-		  							end
-	                                                                for i, b in pairs(LocalPlayer.Character:GetChildren()) do
-										if table.find(BlockNames, b.Name) then
-											local GetBlockType = BlocksList[b.Name]
-											if GetBlockType then
-												BlockType = GetBlockType
+										for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+											if table.find(BlockNames, b.Name) then
+												local GetBlockType = BlocksList[b.Name]
+												if GetBlockType then
+													BlockType = GetBlockType
+												end
 											end
+										end
+										if BlockType then
+											BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
 										end
 									end
-									if BlockType then
-										BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
+								elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
+									if BridgeDuel.Blink then
+										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+											if table.find(BlockNames, v.Name) then
+												local GetBlockType = BlocksList[v.Name]
+												if GetBlockType then
+													BlockType = GetBlockType
+												end
+											end
+										end
+										for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+											if table.find(BlockNames, b.Name) then
+												local GetBlockType = BlocksList[b.Name]
+												if GetBlockType then
+													BlockType = GetBlockType
+												end
+											end
+										end
+										if BlockType then
+											BridgeDuel.Blink.item_action.place_block.invoke({
+												position = PlacePos,
+												block_type = BlockType,
+												rizz = nil
+											})
+										end
 									end
 								end
 							end
