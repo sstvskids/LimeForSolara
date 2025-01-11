@@ -89,8 +89,15 @@ end
 
 spawn(function()
 	game:GetService("TextChatService").MessageReceived:Connect(function(msg)
-		if msg.Text:lower() == "nothm" then
-			shared.Lime.Uninjected = true
+		if msg and msg.Text then
+			if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
+				shared.Lime.Uninjected = true
+				game:GetService("StarterGui"):SetCore("SendNotification", { 
+					Title = "Lime | Anti Hack",
+					Text = "Uninjecting..",
+					Duration = 2,
+				})
+			end
 		end
 	end)
 end)
