@@ -878,7 +878,7 @@ function Library:CreateMain()
 							end
 						end
 					end
-					if shared.Lime.Uninject then
+					if shared.Lime.Uninjected then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							ToggleButtonClicked()
