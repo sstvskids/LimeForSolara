@@ -88,18 +88,34 @@ function Spoof(length)
 end
 
 spawn(function()
-	game:GetService("TextChatService").MessageReceived:Connect(function(msg)
-		if msg and msg.Text then
-			if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
-				shared.Lime.Uninjected = true
-				game:GetService("StarterGui"):SetCore("SendNotification", { 
-					Title = "Lime | Anti Hack",
-					Text = "Uninjecting..",
-					Duration = 2,
-				})
+	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
+	if DefaultChat then
+		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
+			if msg and msg.Message then
+				if string.match(msg.Message:lower(), "nothm") or string.match(msg.Message:upper(), "NOTHM") then
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Lime | Anti Hack",
+						Text = "Uninjecting..",
+						Duration = 2,
+					})
+				end
 			end
-		end
-	end)
+		end)
+	else
+		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
+			if msg and msg.Text then
+				if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Lime | Anti Hack",
+						Text = "Uninjecting..",
+						Duration = 2,
+					})
+				end
+			end
+		end)
+	end
 end)
 
 function Library:CreateMain()
