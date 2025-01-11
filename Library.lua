@@ -90,9 +90,7 @@ end
 spawn(function()
 	game:GetService("TextChatService").MessageReceived:Connect(function(msg)
 		if msg.Text:lower() == "nothm" then
-			if not shared.Lime.Uninjected then
-				shared.Lime.Uninjected = true
-			end
+			shared.Lime.Uninjected = true
 		end
 	end)
 end)
