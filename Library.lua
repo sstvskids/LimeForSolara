@@ -9,14 +9,18 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
-local AutoSave, MainFile = true, nil
-local Library = {
-	Visual = {
-		Hud = true,
-		Arraylist = true,
-		Watermark = true
+local MainFile = nil
+local Library = {}
+if not shared.Lime then
+	shared.Lime = {
+		Uninjected = false,
+		Visual = {
+			Hud = true,
+			Arraylist = true,
+			Watermark = true
+		}
 	}
-}
+end
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
@@ -30,12 +34,12 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 		end
 	end
 
-	AutoSave = true
 	spawn(function()
-		while AutoSave do
-			task.wait(5)
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
-		end
+		RunService.RenderStepped:Connect(function()
+			if not shared.Lime.Uninjected then
+				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+			end
+		end)
 	end)
 end
 
@@ -83,6 +87,16 @@ function Spoof(length)
 	return table.concat(Letter)
 end
 
+spawn(function()
+	game:GetService("TextChatService").MessageReceived:Connect(function(msg)
+		if msg.Text:lower() == "nothm" then
+			if not shared.Lime.Uninjected then
+				shared.Lime.Uninjected = true
+			end
+		end
+	end)
+end)
+
 function Library:CreateMain()
 	local Main = {}
 
@@ -96,6 +110,18 @@ function Library:CreateMain()
 	else
 		ScreenGui.Parent = CoreGui
 	end
+
+	spawn(function()
+		RunService.RenderStepped:Connect(function()
+			if ScreenGui then
+				if shared.Lime.Uninjected then
+					task.wait(1.2)
+					ScreenGui:Destroy()
+					shared.Lime.Uninjected = false
+				end
+			end
+		end)
+	end)
 
 	local MainFrame = nil
 	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
@@ -160,16 +186,15 @@ function Library:CreateMain()
 	Library.HudMainFrame = HudFrame
 
 	spawn(function()
-		while true do
-			task.wait()
-			if HudFrame ~= nil then
-				if Library.Visual.Hud then
+		RunService.RenderStepped:Connect(function()	
+			if HudFrame then
+				if shared.Lime.Visual.Hud then
 					HudFrame.Visible = true
 				else
 					HudFrame.Visible = false
 				end
 			end
-		end
+		end)
 	end)
 
 	local LibraryTitle = Instance.new("TextLabel")
@@ -188,22 +213,21 @@ function Library:CreateMain()
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
-	
+
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 	TitleGradient.Parent = LibraryTitle
-
+	
 	spawn(function()
-		while true do
-			task.wait()
-			if HudFrame ~= nil then
-				if Library.Visual.Watermark then
+		RunService.RenderStepped:Connect(function()	
+			if HudFrame and LibraryTitle then
+				if shared.Lime.Visual.Watermark then
 					LibraryTitle.Visible = true
 				else
 					LibraryTitle.Visible = false
 				end
 			end
-		end
+		end)
 	end)
 
 	local ArrayTable = {}
@@ -220,20 +244,19 @@ function Library:CreateMain()
 	UIListLayout_4.Parent = ArrayFrame
 	UIListLayout_4.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout_4.HorizontalAlignment = Enum.HorizontalAlignment.Right
-
+	
 	spawn(function()
-		while true do
-			task.wait()
-			if HudFrame ~= nil then
-				if Library.Visual.Arraylist then
+		RunService.RenderStepped:Connect(function()	
+			if HudFrame and ArrayFrame then
+				if shared.Lime.Visual.Arraylist then
 					ArrayFrame.Visible = true
 				else
 					ArrayFrame.Visible = false
 				end
 			end
-		end
+		end)
 	end)
-
+	
 	local function AddArray(name)
 		local TextLabel = Instance.new("TextLabel")
 		TextLabel.Parent = ArrayFrame
@@ -672,6 +695,20 @@ function Library:CreateMain()
 									ToggleButton.Callback(ToggleButton.Enabled)
 								end
 							end)
+								spawn(function()
+									RunService.RenderStepped:Connect(function()
+										if KeybindFrame then
+											if shared.Lime.Uninjected then
+												for i, v in pairs(KeybindFrame:GetChildren()) do
+													if v:IsA("TextButton") and v.Name == ToggleButton.Name then
+														v:Destroy()
+													end
+												end
+												Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+											end
+										end
+									end)
+								end)
 						else
 							for i,v in pairs(KeybindFrame:GetChildren()) do
 								if v:IsA("TextButton") and v.Name == ToggleButton.Name then
@@ -714,15 +751,20 @@ function Library:CreateMain()
 							end       
 						end
 						spawn(function()
-							while true do
-								task.wait()
+							RunService.RenderStepped:Connect(function()
 								if ToggleButton.Keybind ~= "Home" then
 									if Keybinds then
 										Keybinds.PlaceholderText = ""
 										Keybinds.Text = ToggleButton.Keybind
 									end
 								end
-							end
+								if shared.Lime.Uninjected then
+									if Keybinds then
+										Keybinds.Text = ""
+										Keybinds.PlaceholderText = "None"
+									end
+								end
+							end)
 						end)
 					end)
 				end
@@ -794,8 +836,7 @@ function Library:CreateMain()
 			--]]
 
 			spawn(function()
-				while true do
-					task.wait()
+				RunService.RenderStepped:Connect(function()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
@@ -810,13 +851,23 @@ function Library:CreateMain()
 						if not ToggleButton.Enabled then
 							ToggleButton.Enabled = true
 							ToggleButtonClicked()
+								
+							if ToggleButton.Callback then
+								ToggleButton.Callback(ToggleButton.Enabled)
+							end
+						end
+					end
+					if shared.Lime.Uninject then
+						if ToggleButton.Enabled then
+							ToggleButton.Enabled = false
+							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
 							end
 						end
 					end
-				end
+				end)
 			end)
 
 			if ToggleButton.Enabled then
@@ -955,7 +1006,7 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
-				
+
 				--[[
 				spawn(function()
 					while true do
