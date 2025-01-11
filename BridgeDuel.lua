@@ -1867,17 +1867,17 @@ spawn(function()
 			if callback then
 				if not Loop then
 					Loop = Service.RunService.RenderStepped:Connect(function()
-						if Library.Visual then
-							Library.Visual.Hud = true
+						if shared.Lime.Visual then
+							shared.Lime.Visual.Hud = true
 							if Arraylist then
-								Library.Visual.Arraylist = true
+								shared.Lime.Visual.Arraylist = true
 							else
-								Library.Visual.Arraylist = false
+								shared.Lime.Visual.Arraylist = false
 							end
 							if Watermark then
-								Library.Visual.Watermark = true
+								shared.Lime.Visual.Watermark = true
 							else
-								Library.Visual.Watermark = false
+								shared.Lime.Visual.Watermark = false
 							end
 						end
 					end)
@@ -1890,13 +1890,13 @@ spawn(function()
 					Loop:Disconnect()
 					Loop = nil
 				end
-				if Library.Visual then
-					Library.Visual.Hud = false
+				if shared.Lime.Visual then
+					shared.Lime.Visual.Hud = false
 					if Arraylist then
-						Library.Visual.Arraylist = false
+						shared.Lime.Visual.Arraylist = false
 					end
 					if Watermark then
-						Library.Visual.Watermark = false
+						shared.Lime.Visual.Watermark = false
 					end
 				end
 			end
