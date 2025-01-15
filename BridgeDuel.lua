@@ -29,7 +29,8 @@ local Tabs = {
 local BridgeDuel = {
 	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
 	Entity = require(game:GetService("ReplicatedStorage").Modules.Entity),
-	BlockController = require(LocalPlayer.PlayerScripts.Controllers.All.BlockPlacementController)
+	BlockPlacementController = require(LocalPlayer.PlayerScripts.Controllers.All.BlockPlacementController),
+	EffectsController = require(game:GetService("Players").LocalPlayer.PlayerScripts.Controllers.All.EffectsController),
 }
 
 local function IsAlive(v)
@@ -223,9 +224,9 @@ end
 
 local function GetBed(MaxDist)
 	local MinDist = math.huge
-	local Bed
+	local Bed = nil
 	for i, v in pairs(game.Workspace:FindFirstChild("Map"):GetChildren()) do
-		if v:IsA("Model") and v.Name == "Bed" and v:GetAttribute("Team") ~= LocalPlayer.Team then
+		if v:IsA("Model") and v.Name == "Bed" and v:GetAttribute("Team") ~= LocalPlayer.TeamColor then
 			local Distance = (v.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
 			if Distance < MinDist and Distance <= MaxDist then
 				Bed = v
@@ -337,103 +338,6 @@ spawn(function()
 	})
 end)
 
-spawn(function()
-	local MinHealth = nil
-	local Loop = nil
-	local AutoGapple = Tabs.Combat:CreateToggle({
-		Name = "Auto Gapple",
-		Callback = function(callback)
-			if callback then
-				LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
-					if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
-						local Gapple = CheckTool("GoldApple")
-						if Gapple then
-							Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-						else
-							local Gapple2 = GetTool("GoldApple")
-							if Gapple2 then
-								LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple2)
-							end
-						end
-					end
-				end)
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local AutoGappleHealth = AutoGapple:CreateSlider({
-		Name = "Health",
-		Min = 0,
-		Max = 100,
-		Default = 50,
-		Callback = function(callback)
-			MinHealth = callback
-		end
-	})
-end)
---[[
-spawn(function()
-	local MinHealth = nil
-	local IsEated, EatCount = false, 0
-	local Loop = nil
-	local AutoGapple = Tabs.Combat:CreateToggle({
-		Name = "Auto Gapple",
-		Callback = function(callback)
-			if callback then
-				if IsAlive(LocalPlayer.Character) then
-					if not Loop then
-						Loop = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
-							if LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health < MinHealth then
-								local Gapple = CheckTool("GoldApple")
-								if Gapple then
-									if not IsEated and EatCount == 0 then
-										Gapple:WaitForChild("__comm__"):WaitForChild("RF"):FindFirstChild("Eat"):InvokeServer()
-										IsEated = true
-										EatCount = 1
-									end
-								else
-									local Gapple2 = GetTool("GoldApple")
-									if Gapple2 then
-										LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(Gapple2)
-									end
-								end
-							else
-								if IsEated and EatCount == 1 then
-									IsEated = false
-									EatCount = 0
-								end
-							end
-						end)
-					else
-						Loop:Disconnect()
-						Loop = nil
-					end
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local AutoGappleHealth = AutoGapple:CreateSlider({
-		Name = "Health",
-		Min = 0,
-		Max = 100,
-		Default = 50,
-		Callback = function(callback)
-			if callback then
-				MinHealth = callback
-			end
-		end
-	})
-end)
---]]
 spawn(function()
 	local OldCrit
 	local Criticals = Tabs.Combat:CreateToggle({
@@ -2225,31 +2129,67 @@ spawn(function()
 	local function Kill(plr)
 		local msg = {
 			plr.Name .. " Haha",
+			plr.Name .. " Im just lagging",
 			"Me when " .. plr.Name .. " tries lime",
-			plr.Name .. " Im just lagging"
 		}
 		return msg[math.random(1, #msg)]
 	end
-	local Loop, KillCount = nil, 0
-	local OldKillCount = KillCount
-	local Dead = {}
+	local function Dead(plr)
+		local msg = {
+			plr.Name .. " My lime expires",
+			plr.Name .. " See, i told yall that im legit too!"
+		}
+		return msg[math.random(1, #msg)]
+	end
+	local Loop = nil
+	local Dead, Alive = nil, nil
 	local AutoToxic = Tabs.Player:CreateToggle({
 		Name = "Killsults",
 		Callback = function(callback)
 			if callback then
-				Dead = {}
 				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
-						if KillAuraTarget ~= nil then
-							if not IsAlive(KillAuraTarget) and not Dead[KillAuraTarget] then
-								KillCount = KillCount + 1
-								if KillCount ~= OldKillCount then
-									Dead[KillAuraTarget] = true
-									Service.TextChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(Kill(KillAuraTarget))
-									task.wait()
-									OldKillCount = KillCount
+					Loop = game:GetService("ReplicatedStorage").Modules.Knit.Services.CombatService.RE.OnKill.OnClientEvent:Connect(function(...)
+						local Args = {...}
+						if BridgeDuel.Entity then
+							if type(Args[1]) == "table" then
+								if Args[1].Id then
+									for i, b in pairs(game:GetService("Players"):GetPlayers()) do
+										if b.Character then
+											local Entity1 = BridgeDuel.Entity.FindByCharacter(b.Character)
+											if Entity1 and Entity1.Id == Args[1].Id then
+												Alive = b
+											end
+										end
+									end
 								end
 							end
+							if type(Args[2]) == "table" then
+								if Args[2].Id then
+									for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+										if v.Character then
+											local Entity2 = BridgeDuel.Entity.FindByCharacter(v.Character)
+											if Entity2 and Entity2.Id == Args[2].Id then
+												Dead = v
+											end
+										end
+									end
+								end
+							end
+						end
+						if Alive.Name == LocalPlayer.Name and Dead.Name ~= LocalPlayer.Name then
+							local KillMessage = Kill(Dead)
+							local args = {
+								[1] = KillMessage,
+								[2] = "All"
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+						elseif Alive.Name ~= LocalPlayer.Name and Dead.Name == LocalPlayer.Name then
+							local DeadMessage = Dead(Alive)
+							local args = {
+								[1] = DeadMessage,
+								[2] = "All"
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
 						end
 					end)
 				else
@@ -2261,7 +2201,6 @@ spawn(function()
 					Loop:Disconnect()
 					Loop = nil
 				end
-				Dead = {}
 			end
 		end
 	})
@@ -2294,70 +2233,174 @@ spawn(function()
 	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
 	Raycast.FilterType = Enum.RaycastFilterType.Exclude
 	Raycast.IgnoreWater = true
-
-	local Loop, Range = nil, nil
+	
+	local Distance, Selected = nil, nil
+	local IsBreaking = false
+	local Loop = nil
 	local Blocks = {}
-	local LegitBreaker = Tabs.World:CreateToggle({
-		Name = "Legit Breaker",
+	local Bed = nil
+	local Breaker = Tabs.World:CreateToggle({
+		Name = "Breaker",
 		Callback = function(callback)
 			if callback then
+				IsBreaking = false
 				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
+					Loop = Service.RunService.Stepped:Connect(function()
 						if IsAlive(LocalPlayer.Character) then
-							local Bed = GetBed(Range)
-							if Bed and Bed.PrimaryPart then
-								local Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position									local Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
-								if Result and Result.Instance then
-									if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
-										table.insert(Blocks, Result.Instance)
-										Result.Instance.CanCollide = false
-										Result.Instance.CanTouch = false
-										Result.Instance.CanQuery = false
-										Result.Instance.Transparency = 0.75
-									end
-								end
-							else
-								for i = #Blocks, 1, -1 do
-									local v = Blocks[i]
-									if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
-										local Distance = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
-										if Distance > Range then
-											v.CanCollide = true
-											v.CanTouch = true
-											v.CanQuery = true
-											v.Transparency = 0
-											table.remove(Blocks, i)
+							if BridgeDuel.Blink then
+								Bed = GetBed(Distance)
+								if Bed then
+									local Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position
+									local Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+									if Selected == "Blatant" then
+										local Pickaxe = CheckTool("Pickaxe")
+										if Pickaxe then
+											if not Bed:FindFirstChildWhichIsA("Highlight") then
+												local highlight = Instance.new("Highlight")
+												highlight.Parent = Bed
+												highlight.FillTransparency = 1
+												highlight.OutlineTransparency = 0.45
+												highlight.OutlineColor = Color3.new(1, 1, 1)
+											end
+											if not IsBreaking then
+												BridgeDuel.Blink.item_action.start_break_block.fire({
+													position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
+													pickaxe_name = Pickaxe.Name,
+												})
+												task.wait(3)
+												IsBreaking = true
+											end
 										end
+									elseif Selected == "SemiLegit" then
+										local Pickaxe = CheckTool("Pickaxe")
+										if Pickaxe then
+											if Result and Result.Instance then
+												if not Result.Instance:FindFirstChildWhichIsA("Highlight") then
+													local highlight = Instance.new("Highlight")
+													highlight.Parent = Result.Instance
+													highlight.FillTransparency = 1
+													highlight.OutlineTransparency = 0.45
+													highlight.OutlineColor = Color3.new(1, 1, 1)
+												end
+												if not IsBreaking then
+													if Result.Instance.ClassName == "Part" then
+														BridgeDuel.Blink.item_action.start_break_block.fire({
+															position = Vector3.new(Result.Instance.Position.X, Result.Instance.Position.Y, Result.Instance.Position.Z),
+															pickaxe_name = Pickaxe.Name,
+														})
+													elseif Result.Instance.ClassName == "Model" and Result.Instance.PrimaryPart then
+														BridgeDuel.Blink.item_action.start_break_block.fire({
+															position = Vector3.new(Result.Instance.PrimaryPart.Position.X, Result.Instance.PrimaryPart.Position.Y, Result.Instance.PrimaryPart.Position.Z),
+															pickaxe_name = Pickaxe.Name,
+														})
+													end
+													task.wait(3)
+													IsBreaking = true
+												end
+											end
+										end
+									elseif Selected == "Legit" then
+										if Result and Result.Instance then
+											if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
+												table.insert(Blocks, Result.Instance)
+												Result.Instance.CanCollide = false
+												Result.Instance.CanTouch = false
+												Result.Instance.CanQuery = false
+												Result.Instance.Transparency = 0.75
+											end
+										end
+									end
+								else
+									if Selected == "Legit" then
+										for i = #Blocks, 1, -1 do
+											local v = Blocks[i]
+											if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
+												local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+												if Distances > Distance then
+													v.CanCollide = true
+													v.CanTouch = true
+													v.CanQuery = true
+													v.Transparency = 0
+													table.remove(Blocks, i)
+												end
+											end
+										end
+									elseif Selected == "SemiLegit" then
+										for i = #Blocks, 1, -1 do
+											local v = Blocks[i]
+											if v and v.Parent and v:FindFirstChildWhichIsA("Highlight") then
+												local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+												if Distances > Distance then
+													v:FindFirstChildWhichIsA("Highlight"):Destroy()
+													table.remove(Blocks, i)
+												end
+											end
+										end
+									end
+									if IsBreaking then
+										BridgeDuel.Blink.item_action.stop_break_block.fire()
+										print("Unbreaking")
+										IsBreaking = false
 									end
 								end
 							end
 						end
 					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
 				end
 			else
 				if Loop then
 					Loop:Disconnect()
 					Loop = nil
 				end
-				for i, v in ipairs(Blocks) do
-					if v and v.Parent then
-						v.CanCollide = true
-						v.CanTouch = true
-						v.CanQuery = true
-						v.Transparency = 0
+				if Bed then
+					if Bed:FindFirstChildWhichIsA("Highlight") then
+						Bed:FindFirstChildWhichIsA("Highlight"):Destroy()
+					else
+						Bed = nil
 					end
 				end
-				Blocks = {}
+				IsBreaking = false
+				if Selected == "Legit" then
+					for i, v in ipairs(Blocks) do
+						if v and v.Parent then
+							v.CanCollide = true
+							v.CanTouch = true
+							v.CanQuery = true
+							v.Transparency = 0
+						end
+					end
+					Blocks = {}
+				elseif Selected == "SemiLegit" then
+					for i, v in ipairs(Blocks) do
+						if v and v.Parent and v:FindFirstChildWhichIsA("Highlight") then
+							v:FindFirstChildWhichIsA("Highlight"):Destroy()
+						end
+					end
+					Blocks = {}
+				end
 			end
 		end
 	})
-	local LegitBreakerRange = LegitBreaker:CreateSlider({
+	local BreakerMode = Breaker:CreateDropdown({
+		Name = "Breaker Modes",
+		List = {"Legit", "SemiLegit", "Blatant"},
+		Default = "Blatant",
+		Callback = function(callback)
+			if callback then
+				Selected = callback
+			end
+		end
+	})
+	local BreakerDistance = Breaker:CreateSlider({
 		Name = "Distances",
 		Min = 0,
 		Max = 28,
 		Default = 28,
 		Callback = function(callback)
-			Range = callback
+			Distance = callback
 		end
 	})
 end)
@@ -2420,6 +2463,7 @@ spawn(function()
 			end
 		end)
 	end
+	local Block = nil
 	local Scaffold = Tabs.World:CreateToggle({
 		Name = "Scaffold",
 		Callback = function(callback)
@@ -2450,12 +2494,13 @@ spawn(function()
 									end
 								end
 								if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
-									if BridgeDuel.BlockController then
+									if BridgeDuel.BlockPlacementController then
 										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
 											if table.find(BlockNames, v.Name) then
 												local GetBlockType = BlocksList[v.Name]
 												if GetBlockType then
 													BlockType = GetBlockType
+													Block = v
 												end
 											end
 										end
@@ -2464,20 +2509,22 @@ spawn(function()
 												local GetBlockType = BlocksList[b.Name]
 												if GetBlockType then
 													BlockType = GetBlockType
+													Block = b
 												end
 											end
 										end
-										if BlockType then
-											BridgeDuel.BlockController.PlaceBlock(nil, PlacePos, BlockType)
+										if BlockType and Block
+											BridgeDuel.BlockPlacementController.PlaceBlock(nil, PlacePos, BlockType)
 										end
 									end
 								elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-									if BridgeDuel.Blink then
+									if BridgeDuel.Blink and BridgeDuel.EffectsController and BridgeDuel.Entity then
 										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
 											if table.find(BlockNames, v.Name) then
 												local GetBlockType = BlocksList[v.Name]
 												if GetBlockType then
 													BlockType = GetBlockType
+													Block = v
 												end
 											end
 										end
@@ -2486,14 +2533,16 @@ spawn(function()
 												local GetBlockType = BlocksList[b.Name]
 												if GetBlockType then
 													BlockType = GetBlockType
+													Block = b
 												end
 											end
 										end
-										if BlockType then
+										if BlockType and Block
+											BridgeDuel.EffectsController:PlaySound(PlacePos)
+											BridgeDuel.Entity.LocalEntity:RemoveTool(Block, 1)
 											BridgeDuel.Blink.item_action.place_block.invoke({
 												position = PlacePos,
-												block_type = BlockType,
-												rizz = nil
+												block_type = BlockType
 											})
 										end
 									end
@@ -2512,7 +2561,7 @@ spawn(function()
 					Loop = nil
 				end
 				LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
-				BlockType = nil
+				BlockType, Block = nil, nil
 				PlacePos = nil
 			end
 		end
