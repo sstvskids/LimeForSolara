@@ -2271,34 +2271,6 @@ spawn(function()
 												IsBreaking = true
 											end
 										end
-									elseif Selected == "SemiLegit" then
-										local Pickaxe = CheckTool("Pickaxe")
-										if Pickaxe then
-											if Result and Result.Instance then
-												if not Result.Instance:FindFirstChildWhichIsA("Highlight") then
-													local highlight = Instance.new("Highlight")
-													highlight.Parent = Result.Instance
-													highlight.FillTransparency = 1
-													highlight.OutlineTransparency = 0.45
-													highlight.OutlineColor = Color3.new(1, 1, 1)
-												end
-												if not IsBreaking then
-													if Result.Instance.ClassName == "Part" then
-														BridgeDuel.Blink.item_action.start_break_block.fire({
-															position = Vector3.new(Result.Instance.Position.X, Result.Instance.Position.Y, Result.Instance.Position.Z),
-															pickaxe_name = Pickaxe.Name,
-														})
-													elseif Result.Instance.ClassName == "Model" and Result.Instance.PrimaryPart then
-														BridgeDuel.Blink.item_action.start_break_block.fire({
-															position = Vector3.new(Result.Instance.PrimaryPart.Position.X, Result.Instance.PrimaryPart.Position.Y, Result.Instance.PrimaryPart.Position.Z),
-															pickaxe_name = Pickaxe.Name,
-														})
-													end
-													task.wait(3)
-													IsBreaking = true
-												end
-											end
-										end
 									elseif Selected == "Legit" then
 										if Result and Result.Instance then
 											if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
@@ -2321,17 +2293,6 @@ spawn(function()
 													v.CanTouch = true
 													v.CanQuery = true
 													v.Transparency = 0
-													table.remove(Blocks, i)
-												end
-											end
-										end
-									elseif Selected == "SemiLegit" then
-										for i = #Blocks, 1, -1 do
-											local v = Blocks[i]
-											if v and v.Parent and v:FindFirstChildWhichIsA("Highlight") then
-												local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
-												if Distances > Distance then
-													v:FindFirstChildWhichIsA("Highlight"):Destroy()
 													table.remove(Blocks, i)
 												end
 											end
@@ -2373,20 +2334,13 @@ spawn(function()
 						end
 					end
 					Blocks = {}
-				elseif Selected == "SemiLegit" then
-					for i, v in ipairs(Blocks) do
-						if v and v.Parent and v:FindFirstChildWhichIsA("Highlight") then
-							v:FindFirstChildWhichIsA("Highlight"):Destroy()
-						end
-					end
-					Blocks = {}
 				end
 			end
 		end
 	})
 	local BreakerMode = Breaker:CreateDropdown({
 		Name = "Breaker Modes",
-		List = {"Legit", "SemiLegit", "Blatant"},
+		List = {"Legit", "Blatant"},
 		Default = "Blatant",
 		Callback = function(callback)
 			if callback then
@@ -2480,8 +2434,7 @@ spawn(function()
 								end
 								if Tower then
 									if IsTowering then
-										task.wait(0.28)
-										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 18, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
+										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, 14, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 									else
 										LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.X, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Y, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Velocity.Z)
 									end
@@ -2518,7 +2471,7 @@ spawn(function()
 										end
 									end
 								elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-									if BridgeDuel.Blink and BridgeDuel.EffectsController and BridgeDuel.Entity then
+									if BridgeDuel.Blink then
 										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
 											if table.find(BlockNames, v.Name) then
 												local GetBlockType = BlocksList[v.Name]
@@ -2538,8 +2491,6 @@ spawn(function()
 											end
 										end
 										if BlockType and Block then
-											BridgeDuel.EffectsController:PlaySound(PlacePos)
-											BridgeDuel.Entity.LocalEntity:RemoveTool(Block, 1)
 											BridgeDuel.Blink.item_action.place_block.invoke({
 												position = PlacePos,
 												block_type = BlockType
