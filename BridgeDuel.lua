@@ -2513,7 +2513,7 @@ spawn(function()
 												end
 											end
 										end
-										if BlockType and Block
+										if BlockType and Block then
 											BridgeDuel.BlockPlacementController.PlaceBlock(nil, PlacePos, BlockType)
 										end
 									end
@@ -2537,7 +2537,7 @@ spawn(function()
 												end
 											end
 										end
-										if BlockType and Block
+										if BlockType and Block then
 											BridgeDuel.EffectsController:PlaySound(PlacePos)
 											BridgeDuel.Entity.LocalEntity:RemoveTool(Block, 1)
 											BridgeDuel.Blink.item_action.place_block.invoke({
