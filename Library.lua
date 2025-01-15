@@ -34,9 +34,13 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 		end
 	end
 
+	local AutoSave = true
 	spawn(function()
 		RunService.RenderStepped:Connect(function()
-			if not shared.Lime.Uninjected then
+			if AutoSave then
+				if shared.Lime.Uninjected then
+					AutoSave = false
+				end
 				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
 		end)
