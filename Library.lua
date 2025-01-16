@@ -563,11 +563,11 @@ function Library:CreateMain()
 	TextBox_2.TextSize = 16.000
 	TextBox_2.TextWrapped = true
 	TextBox_2.TextXAlignment = Enum.TextXAlignment.Left
-	if TextBox_2:IsFocused() then
-		if TextBox_2.Text ~= nil then
+	TextBox_2.Changed:Connect(function(obj)
+		if obj == "Text" then
 			ConfigName = TextBox_2.Text
 		end
-	end
+	end)
 	
 	local DeleteConfig = Instance.new("ImageButton")
 	DeleteConfig.Parent = ManagerControl
