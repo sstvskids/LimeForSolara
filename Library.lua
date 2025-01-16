@@ -630,11 +630,10 @@ function Library:CreateMain()
 				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 				print("Loaded: " .. GetConfig)
 				AutoSave = false
-				writefile(PlaceIdAutoSave, readfile(GetConfig))
-				task.wait()
-				shared.Lime.Uninjected = true
-				if shared.Lime.Uninjected then
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
+				if not AutoSave then
+					writefile(PlaceIdAutoSave, readfile(GetConfig))
+					task.wait(0.25)
+					AutoSave = true
 				end
 			end
 		end
