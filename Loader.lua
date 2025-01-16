@@ -1,6 +1,4 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
 local MainFolder, ConfigFolder = "Lime", "Lime/configs"
 
 if not isfolder(MainFolder) then makefolder(MainFolder) end
