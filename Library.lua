@@ -192,24 +192,15 @@ function Library:CreateMain()
 
 	spawn(function()
 		local OldX = 0
-		local ManagerFrame = nil
-		if MainFrame and MainFrame.Parent then
+		if MainFrame ~= nil and MainFrame.Parent then
 			for _, child in ipairs(MainFrame:GetChildren()) do
 				if child:IsA("GuiObject") then
-					if child.Name == "Manager" then
-						ManagerFrame = child
-					else
-						child.Position = UDim2.new(0, OldX, 0, 0)
-						OldX = OldX + child.Size.X.Offset + 18
-					end
+					child.Position = UDim2.new(0, OldX, 0, 0)
+					OldX = OldX + child.Size.X.Offset + 18
 				end
-			end
-			if ManagerFrame then
-				ManagerFrame.Position = UDim2.new(0, OldX, 0, 0)
 			end
 		end
 	end)
-
 
 	local KeybindFrame = Instance.new("Frame")
 	KeybindFrame.Parent = ScreenGui
@@ -446,7 +437,6 @@ function Library:CreateMain()
 	
 	local Manager = Instance.new("Frame")
 	Manager.Parent = MainFrame
-	Manager.Name = "Manager"
 	Manager.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	Manager.BackgroundTransparency = 0.030
 	Manager.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -509,31 +499,32 @@ function Library:CreateMain()
 	spawn(function()
 		RunService.RenderStepped:Connect(function()
 			if ManagerMenu then
-				local GetConfigs = listfiles(PlaceIdFolder)
-				for i, v in pairs(GetConfigs) do
-					local ConfigsName = v:match("([^/]+)%.lua$")
-					if ConfigsName then
-						local ConfigButton = ManagerMenu:FindFirstChild(ConfigsName)
-						if not ConfigButton then
-							local TextLabel_2 = Instance.new("TextButton")
-							TextLabel_2.Parent = ManagerMenu
-							TextLabel_2.Name = ConfigsName
-							TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-							TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-							TextLabel_2.BorderSizePixel = 0
-							TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
-							TextLabel_2.AutoButtonColor = false
-							TextLabel_2.Font = Enum.Font.SourceSans
-							TextLabel_2.Text = ConfigsName
-							TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-							TextLabel_2.TextSize = 14.000
+				for i, v in ipairs(listfiles(PlaceIdFolder)) do
+					local SavedConfigName = v:match("([^/\\]+)$")
+					local Existed = false
+					for i, b in ipairs(ManagerMenu:GetChildren()) do
+						if b:IsA("TextLabel") and b.Text == SavedConfigName then
+							Existed = true
+							break
 						end
+					end
+					if not Existed then
+						local TextLabel_2 = Instance.new("TextButton")
+						TextLabel_2.Parent = ManagerMenu
+						TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+						TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+						TextLabel_2.BorderSizePixel = 0
+						TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
+						TextLabel_2.AutoButtonColor = false
+						TextLabel_2.Font = Enum.Font.SourceSans
+						TextLabel_2.Text = SavedConfigName
+						TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+						TextLabel_2.TextSize = 14.000
 					end
 				end
 			end
 		end)
 	end)
-
 	local UIListLayout_5 = Instance.new("UIListLayout")
 	UIListLayout_5.Parent = ManagerMenu
 	UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
