@@ -7,57 +7,47 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
+local MainFolder, ConfigFolder = "Lime", "Lime/configs"
+local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
+local MainFile = nil
 local Library = {}
-
-local LimeFolder = "Lime"
-local AssetsFolder = "Lime/assets"
-local ConfigsFolder = "Lime/configs"
-local PlaceIdFolder = nil
-local PlaceIdAutoSave = nil
-local ConfigName = nil
-local ConfigTable = {ToggleButton = {Position = {}, MiniToggle = {},  Sliders = {},  Dropdown = {}}}
 if not shared.Lime then
 	shared.Lime = {
+		Uninjected = false,
 		Visual = {
 			Hud = true,
 			Arraylist = true,
 			Watermark = true
-		},
-		Uninjected = false
+		}
 	}
 end
 
-local AutoSave = true
-if isfolder(LimeFolder) and isfolder(AssetsFolder) and isfolder(ConfigsFolder) then
-	PlaceIdAutoSave = LimeFolder .. "/" .. game.PlaceId .. ".lua"
-	if not isfolder(ConfigsFolder .. "/" .. game.PlaceId) then
-		PlaceIdFolder = ConfigsFolder .. "/" .. game.PlaceId
-		makefolder(PlaceIdFolder)
-	end
-	if isfile(PlaceIdAutoSave) then
-		local GetMain = readfile(PlaceIdAutoSave)
+if isfolder(MainFolder) and isfolder(ConfigFolder) then
+	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+	if isfile(MainFile) then
+		local GetMain = readfile(MainFile)
 		if GetMain then
 			local OldSettings = HttpService:JSONDecode(GetMain)
 			if OldSettings then
-				ConfigTable = OldSettings
+				ConfigSetting = OldSettings
 			end
 		end
 	end
+	
+	local AutoSave = true
 	spawn(function()
 		RunService.RenderStepped:Connect(function()
 			if AutoSave then
 				if shared.Lime.Uninjected then
 					AutoSave = false
 				end
-				if not shared.Lime.Uninjected then
-					writefile(PlaceIdAutoSave, HttpService:JSONEncode(ConfigTable))
-				end
+				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
 		end)
 	end)
 end
 
-local function MakeDraggable(object)
+function MakeDraggable(object)
 	local dragging, dragInput, dragStart, startPos
 
 	local function update(input)
@@ -92,7 +82,7 @@ local function MakeDraggable(object)
 	end)
 end
 
-local function Spoof(length)
+function Spoof(length)
 	local Letter = {}
 	for i = 1, length do
 		local RandomLetter = string.char(math.random(97, 122))
@@ -107,14 +97,12 @@ spawn(function()
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
 			if msg and msg.Message then
 				if string.match(msg.Message:lower(), "nothm") or string.match(msg.Message:upper(), "NOTHM") then
-					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
-						shared.Lime.Uninjected = true
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Anti Hack",
-							Text = "Uninjecting..",
-							Duration = 2,
-						})
-					end
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Lime | Anti Hack",
+						Text = "Uninjecting..",
+						Duration = 2,
+					})
 				end
 			end
 		end)
@@ -122,14 +110,12 @@ spawn(function()
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
 			if msg and msg.Text then
 				if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
-					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
-						shared.Lime.Uninjected = true
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Anti Hack",
-							Text = "Uninjecting..",
-							Duration = 2,
-						})
-					end
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Lime | Anti Hack",
+						Text = "Uninjecting..",
+						Duration = 2,
+					})
 				end
 			end
 		end)
@@ -174,7 +160,7 @@ function Library:CreateMain()
 			MainFrame.BorderSizePixel = 0
 			MainFrame.Size = UDim2.new(1, 0, 1, 0)
 			MainFrame.CanvasPosition = Vector2.new(240, 0)
-			MainFrame.CanvasSize = UDim2.new(1.9, 0, 0, 0)
+			MainFrame.CanvasSize = UDim2.new(1.60000002, 0, 0, 0)
 			MainFrame.ScrollBarThickness = 8
 			MainFrame.Visible = false
 		end
@@ -434,237 +420,6 @@ function Library:CreateMain()
 	local Frame3Gradient = Instance.new("UIGradient")
 	Frame3Gradient.Parent = Frame_3
 	Frame3Gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
-	
-	local Manager = Instance.new("Frame")
-	Manager.Parent = MainFrame
-	Manager.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	Manager.BackgroundTransparency = 0.030
-	Manager.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	Manager.BorderSizePixel = 0
-	Manager.Position = UDim2.new(0, 222, 0, 0)
-	Manager.Size = UDim2.new(0, 185, 0, 25)
-	if not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
-		MakeDraggable(Manager)
-	end
-	
-	local ManagerName = Instance.new("TextLabel")
-	ManagerName.Parent = Manager
-	ManagerName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	ManagerName.BackgroundTransparency = 1.000
-	ManagerName.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	ManagerName.BorderSizePixel = 0
-	ManagerName.Position = UDim2.new(0, 5, 0, 0)
-	ManagerName.Size = UDim2.new(0, 145, 1, 0)
-	ManagerName.Font = Enum.Font.Nunito
-	ManagerName.Text = "Manager"
-	ManagerName.TextColor3 = Color3.fromRGB(255, 255, 255)
-	ManagerName.TextSize = 18.000
-	ManagerName.TextWrapped = true
-	ManagerName.TextXAlignment = Enum.TextXAlignment.Left
-	
-	local ManagerIcon = Instance.new("ImageLabel")
-	ManagerIcon.Parent = Manager
-	ManagerIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-	ManagerIcon.BackgroundColor3 = Color3.fromRGB(145, 145, 145)
-	ManagerIcon.BackgroundTransparency = 1.000
-	ManagerIcon.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	ManagerIcon.BorderSizePixel = 0
-	ManagerIcon.Position = UDim2.new(0.930000007, 0, 0.5, 0)
-	ManagerIcon.Size = UDim2.new(0, 18, 0, 18)
-	ManagerIcon.Image = "rbxassetid://12403099678"
-	
-	local ManagerList = Instance.new("Frame")
-	ManagerList.Name = "ManagerList"
-	ManagerList.Parent = Manager
-	ManagerList.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	ManagerList.BackgroundTransparency = 1.000
-	ManagerList.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	ManagerList.BorderSizePixel = 0
-	ManagerList.Position = UDim2.new(0, 0, 1, 0)
-	ManagerList.Size = UDim2.new(1, 0, 0, 0)
-	
-	local UIListLayout_3 = Instance.new("UIListLayout")
-	UIListLayout_3.Parent = ManagerList
-	UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
-	
-	local ManagerMenu = Instance.new("Frame")
-	ManagerMenu.Parent = ManagerList
-	ManagerMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	ManagerMenu.BackgroundTransparency = 0.150
-	ManagerMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	ManagerMenu.BorderSizePixel = 0
-	ManagerMenu.Position = UDim2.new(0, 0, 25, 0)
-	ManagerMenu.Size = UDim2.new(1, 0, 0, 125)
-	
-	local UIListLayout_5 = Instance.new("UIListLayout")
-	UIListLayout_5.Parent = ManagerMenu
-	UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
-
-		spawn(function()
-		RunService.RenderStepped:Connect(function()
-			if ManagerMenu and isfolder(PlaceIdFolder) then
-				local CurrentFiles = listfiles(PlaceIdFolder)
-				for i, l in ipairs(ManagerMenu:GetChildren()) do
-					if l:IsA("TextButton") then
-						local MatchesFile = false
-						for i, v in ipairs(CurrentFiles) do
-							local SavedName = v:match("([^/\\]+)$")
-							if l.Text == SavedName then
-								MatchesFile = true
-								break
-							end
-						end
-						if not MatchesFile then
-							l:Destroy()
-						end
-					end
-				end
-				for i, v in ipairs(CurrentFiles) do
-					local SavedName = v:match("([^/\\]+)$")
-					local Exists = false
-					for i, l in ipairs(ManagerMenu:GetChildren()) do
-						if l:IsA("TextButton") and l.Text == SavedName then
-							Exists = true
-							break
-						end
-					end
-					if not Exists then
-						local TextLabel_2 = Instance.new("TextButton")
-						TextLabel_2.Parent = ManagerMenu
-						TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-						TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-						TextLabel_2.BorderSizePixel = 0
-						TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
-						TextLabel_2.AutoButtonColor = false
-						TextLabel_2.Font = Enum.Font.SourceSans
-						TextLabel_2.Text = SavedName
-						TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-						TextLabel_2.TextSize = 14.000
-					end
-				end
-			end
-		end)
-	end)
-	
-	local TextLabel_3 = Instance.new("TextLabel")
-	TextLabel_3.Parent = ManagerMenu
-	TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	TextLabel_3.BackgroundTransparency = 1.000
-	TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	TextLabel_3.BorderSizePixel = 0
-	TextLabel_3.LayoutOrder = -1
-	TextLabel_3.Size = UDim2.new(1, 0, 0, 25)
-	TextLabel_3.Font = Enum.Font.SourceSans
-	TextLabel_3.Text = "Available Config:"
-	TextLabel_3.TextColor3 = Color3.fromRGB(255, 255, 255)
-	TextLabel_3.TextSize = 14.000
-	TextLabel_3.TextTransparency = 0.350
-	
-	local ManagerControl = Instance.new("Frame")
-	ManagerControl.Parent = ManagerList
-	ManagerControl.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	ManagerControl.BackgroundTransparency = 0.230
-	ManagerControl.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	ManagerControl.BorderSizePixel = 0
-	ManagerControl.Size = UDim2.new(1, 0, 0, 25)
-	
-	local TextBox_2 = Instance.new("TextBox")
-	TextBox_2.Parent = ManagerControl
-	TextBox_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	TextBox_2.BackgroundTransparency = 1.000
-	TextBox_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	TextBox_2.BorderSizePixel = 0
-	TextBox_2.Position = UDim2.new(0, 5, 0, 0)
-	TextBox_2.Size = UDim2.new(0, 125, 1, 0)
-	TextBox_2.Font = Enum.Font.SourceSans
-	TextBox_2.PlaceholderText = "Config Name"
-	TextBox_2.Text = ""
-	TextBox_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-	TextBox_2.TextSize = 16.000
-	TextBox_2.TextWrapped = true
-	TextBox_2.TextXAlignment = Enum.TextXAlignment.Left
-	TextBox_2.Changed:Connect(function(obj)
-		if obj == "Text" then
-			ConfigName = TextBox_2.Text
-		end
-	end)
-	
-	local DeleteConfig = Instance.new("ImageButton")
-	DeleteConfig.Parent = ManagerControl
-	DeleteConfig.AnchorPoint = Vector2.new(0.5, 0.5)
-	DeleteConfig.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	DeleteConfig.BackgroundTransparency = 1.000
-	DeleteConfig.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	DeleteConfig.BorderSizePixel = 0
-	DeleteConfig.Position = UDim2.new(0.930000007, 0, 0.5, 0)
-	DeleteConfig.Size = UDim2.new(0, 20, 0, 20)
-	DeleteConfig.AutoButtonColor = true
-	DeleteConfig.Image = "rbxassetid://15921650550"
-	DeleteConfig.MouseButton1Click:Connect(function()
-		if PlaceIdAutoSave then
-			if ConfigName then
-				local OldConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				if isfile(OldConfig) then
-					print("Deleted: " .. OldConfig)
-					delfile(OldConfig)
-				else
-					warn("Config not found: " .. OldConfig)
-				end
-			end
-		end
-	end)
-	
-	local CreateConfig = Instance.new("ImageButton")
-	CreateConfig.Parent = ManagerControl
-	CreateConfig.AnchorPoint = Vector2.new(0.5, 0.5)
-	CreateConfig.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	CreateConfig.BackgroundTransparency = 1.000
-	CreateConfig.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	CreateConfig.BorderSizePixel = 0
-	CreateConfig.Position = UDim2.new(0.730000019, 0, 0.5, 0)
-	CreateConfig.Size = UDim2.new(0, 20, 0, 20)
-	CreateConfig.AutoButtonColor = true
-	CreateConfig.Image = "rbxassetid://9063830322"
-	CreateConfig.MouseButton1Click:Connect(function()
-		if PlaceIdAutoSave then
-			if ConfigName then
-				local NewConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				if not isfile(NewConfig) then
-					print("Created: " .. NewConfig)
-					writefile(NewConfig, readfile(PlaceIdAutoSave))
-				else
-					warn("Config already exist: " .. GetConfig)
-				end
-			end
-		end
-	end)
-	
-	local LoadConfig = Instance.new("ImageButton")
-	LoadConfig.Parent = ManagerControl
-	LoadConfig.AnchorPoint = Vector2.new(0.5, 0.5)
-	LoadConfig.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	LoadConfig.BackgroundTransparency = 1.000
-	LoadConfig.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	LoadConfig.BorderSizePixel = 0
-	LoadConfig.Position = UDim2.new(0.829999983, 0, 0.5, 0)
-	LoadConfig.Size = UDim2.new(0, 18, 0, 18)
-	LoadConfig.AutoButtonColor = true
-	LoadConfig.Image = "rbxassetid://15911231575"
-	LoadConfig.MouseButton1Click:Connect(function()
-		if PlaceIdAutoSave and ConfigName then
-			local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-			if isfile(GetConfig) then
-				if isfile(PlaceIdAutoSave) then
-					delfile(PlaceIdAutoSave)
-				end
-				writefile(PlaceIdAutoSave, readfile(GetConfig))
-				AutoSave = true
-				print("Successfully saved as: " .. PlaceIdAutoSave)
-			else
-				warn("Config not found: " .. GetConfig)
-			end
-		end
-	end)
 
 	function Main:CreateTargetHUD(name, thumbnail, humanoid, ishere)
 		local TargetHUD = {}
@@ -784,14 +539,14 @@ function Library:CreateMain()
 				Hide = ToggleButton.Hide or false,
 				Callback = ToggleButton.Callback or function() end
 			}
-			if not ConfigTable.ToggleButton[ToggleButton.Name] then
-				ConfigTable.ToggleButton[ToggleButton.Name] = {
+			if not ConfigSetting.ToggleButton[ToggleButton.Name] then
+				ConfigSetting.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
 				}
 			else
-				ToggleButton.Enabled = ConfigTable.ToggleButton[ToggleButton.Name].Enabled
-				ToggleButton.Keybind = ConfigTable.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.Enabled = ConfigSetting.ToggleButton[ToggleButton.Name].Enabled
+				ToggleButton.Keybind = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
 			end
 
 			local ToggleButtonHolder = Instance.new("TextButton")
@@ -1012,12 +767,12 @@ function Library:CreateMain()
 								Keybinds.PlaceholderText = ""
 								Keybinds.Text = Input.KeyCode.Name
 								Keybinds:ReleaseFocus()
-								ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							elseif ToggleButton.Keybind == "Backspace" then
 								ToggleButton.Keybind = "Home"
 								Keybinds.Text = ""
 								Keybinds.PlaceholderText = "None"
-								ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+								ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 							end       
 						end
 						spawn(function()
@@ -1055,7 +810,7 @@ function Library:CreateMain()
 
 			local function ToggleButtonClicked()
 				if ToggleButton.Enabled then
-					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(255, 0, 127)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
@@ -1065,7 +820,7 @@ function Library:CreateMain()
 					UIGradient.Enabled = true
 					--]]
 				else
-					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 					TweenService:Create(ToggleButtonHolder, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 					RemoveArray(ToggleButton.Name)
@@ -1208,12 +963,12 @@ function Library:CreateMain()
 					--AutoDisable = MiniToggle.AutoDisable or false,
 					Callback = MiniToggle.Callback or function() end
 				}
-				if not ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name] then
-					ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name] = {
+				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
+					ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] = {
 						Enabled = MiniToggle.Enabled,
 					}
 				else
-					MiniToggle.Enabled = ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
+					MiniToggle.Enabled = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
 				end
 
 				local MiniToggleHolder = Instance.new("Frame")
@@ -1269,10 +1024,10 @@ function Library:CreateMain()
 
 				local function MiniToggleClick()
 					if MiniToggle.Enabled then
-						ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
 					else
-						ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						TweenService:Create(MiniToggleHolderTrigger, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 					end
 				end
@@ -1323,12 +1078,12 @@ function Library:CreateMain()
 					Default = Slider.Default,
 					Callback = Slider.Callback or function() end
 				}
-				if not ConfigTable.ToggleButton.Sliders[Slider.Name] then
-					ConfigTable.ToggleButton.Sliders[Slider.Name] = {
+				if not ConfigSetting.ToggleButton.Sliders[Slider.Name] then
+					ConfigSetting.ToggleButton.Sliders[Slider.Name] = {
 						Default = Slider.Default
 					}
 				else
-					Slider.Default = ConfigTable.ToggleButton.Sliders[Slider.Name].Default
+					Slider.Default = ConfigSetting.ToggleButton.Sliders[Slider.Name].Default
 				end
 
 				local Value
@@ -1418,7 +1173,7 @@ function Library:CreateMain()
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
 					SliderHolderValue.Text = SliderValue
 					Slider.Callback(SliderValue)
-					ConfigTable.ToggleButton.Sliders[Slider.Name].Default = SliderValue
+					ConfigSetting.ToggleButton.Sliders[Slider.Name].Default = SliderValue
 				end
 
 				SliderHolderMain.MouseButton1Down:Connect(function()
@@ -1453,12 +1208,12 @@ function Library:CreateMain()
 					Default = Dropdown.Default,
 					Callback = Dropdown.Callback or function() end
 				}
-				if not ConfigTable.ToggleButton.Dropdown[Dropdown.Name] then
-					ConfigTable.ToggleButton.Dropdown[Dropdown.Name] = {
+				if not ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] then
+					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] = {
 						Default = Dropdown.Default
 					}
 				else
-					Dropdown.Default = ConfigTable.ToggleButton.Dropdown[Dropdown.Name].Default
+					Dropdown.Default = ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default
 				end
 
 				local Selected
@@ -1520,7 +1275,7 @@ function Library:CreateMain()
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
-					ConfigTable.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
+					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				if Dropdown.Default then
