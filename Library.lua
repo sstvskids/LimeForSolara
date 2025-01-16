@@ -578,7 +578,7 @@ function Library:CreateMain()
 	DeleteConfig.BorderSizePixel = 0
 	DeleteConfig.Position = UDim2.new(0.930000007, 0, 0.5, 0)
 	DeleteConfig.Size = UDim2.new(0, 20, 0, 20)
-	DeleteConfig.AutoButtonColor = false
+	DeleteConfig.AutoButtonColor = true
 	DeleteConfig.Image = "rbxassetid://15921650550"
 	DeleteConfig.MouseButton1Click:Connect(function()
 		if PlaceIdAutoSave then
@@ -587,6 +587,8 @@ function Library:CreateMain()
 				if isfile(OldConfig) then
 					print("Deleted: " .. OldConfig)
 					delfile(OldConfig)
+				else
+					warn("Config not found: " .. OldConfig)
 				end
 			end
 		end
@@ -601,14 +603,18 @@ function Library:CreateMain()
 	CreateConfig.BorderSizePixel = 0
 	CreateConfig.Position = UDim2.new(0.730000019, 0, 0.5, 0)
 	CreateConfig.Size = UDim2.new(0, 20, 0, 20)
-	CreateConfig.AutoButtonColor = false
+	CreateConfig.AutoButtonColor = true
 	CreateConfig.Image = "rbxassetid://9063830322"
 	CreateConfig.MouseButton1Click:Connect(function()
 		if PlaceIdAutoSave then
 			if ConfigName then
 				local NewConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				print("Created: " .. NewConfig)
-				writefile(NewConfig, readfile(PlaceIdAutoSave))
+				if not isfile(NewConfig) then
+					print("Created: " .. NewConfig)
+					writefile(NewConfig, readfile(PlaceIdAutoSave))
+				else
+					warn("Config already exist: " .. GetConfig)
+				end
 			end
 		end
 	end)
@@ -628,12 +634,17 @@ function Library:CreateMain()
 		if PlaceIdAutoSave then
 			if ConfigName then
 				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				print("Loaded: " .. GetConfig)
-				AutoSave = false
-				if not AutoSave then
+				if isfile(GetConfig) then
+					print("Loaded: " .. GetConfig)
+					AutoSave = false
+					if isfile(PlaceIdAutoSave) then
+						delfile(PlaceIdAutoSave)
+					end
 					writefile(PlaceIdAutoSave, readfile(GetConfig))
-					task.wait(0.25)
+					print("Sucessfully: " .. PlaceIdAutoSave)
 					AutoSave = true
+				else
+					warn("Config not found: " .. GetConfig)
 				end
 			end
 		end
