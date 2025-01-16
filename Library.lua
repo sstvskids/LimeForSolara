@@ -622,20 +622,24 @@ function Library:CreateMain()
 	LoadConfig.BorderSizePixel = 0
 	LoadConfig.Position = UDim2.new(0.829999983, 0, 0.5, 0)
 	LoadConfig.Size = UDim2.new(0, 18, 0, 18)
-	LoadConfig.AutoButtonColor = false
+	LoadConfig.AutoButtonColor = true
 	LoadConfig.Image = "rbxassetid://15911231575"
 	LoadConfig.MouseButton1Click:Connect(function()
 		if PlaceIdAutoSave then
 			if ConfigName then
 				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 				print("Loaded: " .. GetConfig)
-				shared.Lime.Uninjected = true
+				AutoSave = false
 				writefile(PlaceIdAutoSave, readfile(GetConfig))
-				loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
+				task.wait()
+				shared.Lime.Uninjected = true
+				if shared.Lime.Uninjected then
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
+				end
 			end
 		end
 	end)
-
+	
 	function Main:CreateTargetHUD(name, thumbnail, humanoid, ishere)
 		local TargetHUD = {}
 
