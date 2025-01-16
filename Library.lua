@@ -49,7 +49,9 @@ if isfolder(LimeFolder) and isfolder(AssetsFolder) and isfolder(ConfigsFolder) t
 				if shared.Lime.Uninjected then
 					AutoSave = false
 				end
-				writefile(PlaceIdAutoSave, HttpService:JSONEncode(ConfigTable))
+				if not shared.Lime.Uninjected then
+					writefile(PlaceIdAutoSave, HttpService:JSONEncode(ConfigTable))
+				end
 			end
 		end)
 	end)
@@ -190,15 +192,24 @@ function Library:CreateMain()
 
 	spawn(function()
 		local OldX = 0
-		if MainFrame ~= nil and MainFrame.Parent then
+		local ManagerFrame = nil
+		if MainFrame and MainFrame.Parent then
 			for _, child in ipairs(MainFrame:GetChildren()) do
 				if child:IsA("GuiObject") then
-					child.Position = UDim2.new(0, OldX, 0, 0)
-					OldX = OldX + child.Size.X.Offset + 18
+					if child.Name == "Manager" then
+						ManagerFrame = child
+					else
+						child.Position = UDim2.new(0, OldX, 0, 0)
+						OldX = OldX + child.Size.X.Offset + 18
+					end
 				end
+			end
+			if ManagerFrame then
+				ManagerFrame.Position = UDim2.new(0, OldX, 0, 0)
 			end
 		end
 	end)
+
 
 	local KeybindFrame = Instance.new("Frame")
 	KeybindFrame.Parent = ScreenGui
@@ -497,7 +508,7 @@ function Library:CreateMain()
 	spawn(function()
 		RunService.RenderStepped:Connect(function()
 			if ManagerMenu then
-				local GetConfigs = listfiles(ConfigsFolder)
+				local GetConfigs = listfiles(PlaceIdFolder)
 				for i, v in pairs(GetConfigs) do
 					local ConfigsName = v:match("([^/]+)%.lua$")
 					if ConfigsName then
@@ -631,25 +642,23 @@ function Library:CreateMain()
 	LoadConfig.AutoButtonColor = true
 	LoadConfig.Image = "rbxassetid://15911231575"
 	LoadConfig.MouseButton1Click:Connect(function()
-		if PlaceIdAutoSave then
-			if ConfigName then
-				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				if isfile(GetConfig) then
-					print("Loaded: " .. GetConfig)
+		if PlaceIdAutoSave and ConfigName then
+			local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
+			if isfile(GetConfig) then
+				print("Found: " .. GetConfig)
+				if isfile(PlaceIdAutoSave) then
 					AutoSave = false
-					if isfile(PlaceIdAutoSave) then
-						delfile(PlaceIdAutoSave)
-					end
-					writefile(PlaceIdAutoSave, readfile(GetConfig))
-					print("Sucessfully: " .. PlaceIdAutoSave)
-					AutoSave = true
-				else
-					warn("Config not found: " .. GetConfig)
+					delfile(PlaceIdAutoSave)
 				end
+				writefile(PlaceIdAutoSave, readfile(GetConfig))
+				AutoSave = true
+				print("Successfully saved as: " .. PlaceIdAutoSave)
+			else
+				warn("Config not found: " .. GetConfig)
 			end
 		end
 	end)
-	
+
 	function Main:CreateTargetHUD(name, thumbnail, humanoid, ishere)
 		local TargetHUD = {}
 
