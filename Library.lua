@@ -446,6 +446,7 @@ function Library:CreateMain()
 	
 	local Manager = Instance.new("Frame")
 	Manager.Parent = MainFrame
+	Manager.Name = "Manager"
 	Manager.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	Manager.BackgroundTransparency = 0.030
 	Manager.BorderColor3 = Color3.fromRGB(0, 0, 0)
