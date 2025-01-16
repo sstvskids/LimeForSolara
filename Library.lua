@@ -496,20 +496,38 @@ function Library:CreateMain()
 	ManagerMenu.Position = UDim2.new(0, 0, 25, 0)
 	ManagerMenu.Size = UDim2.new(1, 0, 0, 125)
 	
-	spawn(function()
+	local UIListLayout_5 = Instance.new("UIListLayout")
+	UIListLayout_5.Parent = ManagerMenu
+	UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
+
+		spawn(function()
 		RunService.RenderStepped:Connect(function()
 			if ManagerMenu and isfolder(PlaceIdFolder) then
-				for i, v in ipairs(listfiles(PlaceIdFolder)) do
+				local CurrentFiles = listfiles(PlaceIdFolder)
+				for i, l in ipairs(ManagerMenu:GetChildren()) do
+					if l:IsA("TextButton") then
+						local MatchesFile = false
+						for i, v in ipairs(CurrentFiles) do
+							local SavedName = v:match("([^/\\]+)$")
+							if l.Text == SavedName then
+								MatchesFile = true
+								break
+							end
+						end
+						if not MatchesFile then
+							l:Destroy()
+						end
+					end
+				end
+				for i, v in ipairs(CurrentFiles) do
 					local SavedName = v:match("([^/\\]+)$")
 					local Exists = false
-
 					for i, l in ipairs(ManagerMenu:GetChildren()) do
 						if l:IsA("TextButton") and l.Text == SavedName then
 							Exists = true
 							break
 						end
 					end
-
 					if not Exists then
 						local TextLabel_2 = Instance.new("TextButton")
 						TextLabel_2.Parent = ManagerMenu
@@ -527,10 +545,6 @@ function Library:CreateMain()
 			end
 		end)
 	end)
-	
-	local UIListLayout_5 = Instance.new("UIListLayout")
-	UIListLayout_5.Parent = ManagerMenu
-	UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 	
 	local TextLabel_3 = Instance.new("TextLabel")
 	TextLabel_3.Parent = ManagerMenu
@@ -640,9 +654,7 @@ function Library:CreateMain()
 		if PlaceIdAutoSave and ConfigName then
 			local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 			if isfile(GetConfig) then
-				print("Found: " .. GetConfig)
 				if isfile(PlaceIdAutoSave) then
-					AutoSave = false
 					delfile(PlaceIdAutoSave)
 				end
 				writefile(PlaceIdAutoSave, readfile(GetConfig))
