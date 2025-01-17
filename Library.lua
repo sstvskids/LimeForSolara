@@ -518,28 +518,30 @@ function Library:CreateMain()
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 
 		spawn(function()
-			local Exists = false
 			RunService.RenderStepped:Connect(function()
 				if isfolder(PlaceIdFolder) and ManagerMenu then
-					for i, v in ipairs(listfiles(PlaceIdFolder)) do
-						local SavedName = v:match("([^/\\]+)$")
-						for i, l in ipairs(ManagerMenu:GetChildren()) do
-							if l:IsA("TextLabel") and l.Text == SavedName then
-								Exists = true
-								break
+					for _, v in ipairs(listfiles(PlaceIdFolder)) do
+						if v then
+							local SavedName = v:match("([^/\\]+)$")
+							local Exists = false
+							for _, l in ipairs(ManagerMenu:GetChildren()) do
+								if l:IsA("TextLabel") and l.Text == SavedName then
+									Exists = true
+									break
+								end
 							end
-						end
-						if not Exists then
-							local TextLabel_2 = Instance.new("TextLabel")
-							TextLabel_2.Parent = ManagerMenu
-							TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-							TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-							TextLabel_2.BorderSizePixel = 0
-							TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
-							TextLabel_2.Font = Enum.Font.SourceSans
-							TextLabel_2.Text = SavedName
-							TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-							TextLabel_2.TextSize = 14.000
+							if not Exists then
+								local TextLabel_2 = Instance.new("TextLabel")
+								TextLabel_2.Parent = ManagerMenu
+								TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+								TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+								TextLabel_2.BorderSizePixel = 0
+								TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
+								TextLabel_2.Font = Enum.Font.SourceSans
+								TextLabel_2.Text = SavedName
+								TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+								TextLabel_2.TextSize = 14
+							end
 						end
 					end
 				end
