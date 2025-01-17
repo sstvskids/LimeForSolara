@@ -521,33 +521,36 @@ function Library:CreateMain()
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 		
 		spawn(function()
-			local SavedTable = {}
 			RunService.RenderStepped:Connect(function()
-				if isfolder(PlaceIdFolder) then
-					for _, v in pairs(listfiles(PlaceIdFolder)) do
-						local SavedName = v:match("([^/\\]+)$")
-						for _, b in pairs(ManagerMenu:GetChildren()) do
-							if b:IsA("TextButton") then
-								if not table.find(SavedTable, SavedName) and b.Text ~= SavedName then
-									table.insert(SavedTable, SavedName)
-									local TextLabel_2 = Instance.new("TextLabel")
-									TextLabel_2.Parent = ManagerMenu
-									TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-									TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-									TextLabel_2.BorderSizePixel = 0
-									TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
-									TextLabel_2.Font = Enum.Font.SourceSans
-									TextLabel_2.Text = SavedName
-									TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-									TextLabel_2.TextSize = 14.000
+				if ManagerMenu and isfolder(PlaceIdFolder) then
+					for i, v in ipairs(listfiles(PlaceIdFolder)) do
+						if isfile(v) then
+							local SavedName = v:match("([^/\\]+)$")
+							for i , b in pairs(ManagerMenu:GetChildren()) do
+								local Existed = false
+								if b:IsA("TextLabel") and b.Text == SavedName then
+									Existed = true
+									break
 								end
+							end
+							if not Existed then
+								local TextLabel_2 = Instance.new("TextLabel")
+								TextLabel_2.Parent = ManagerMenu
+								TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+								TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+								TextLabel_2.BorderSizePixel = 0
+								TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
+								TextLabel_2.Font = Enum.Font.SourceSans
+								TextLabel_2.Text = SavedName
+								TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+								TextLabel_2.TextSize = 14.000
 							end
 						end
 					end
 				end
 			end)
 		end)
-
+		
 		local TextLabel_3 = Instance.new("TextLabel")
 		TextLabel_3.Parent = ManagerMenu
 		TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
