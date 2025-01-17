@@ -512,7 +512,6 @@ function Library:CreateMain()
 					for i, v in ipairs(listfiles(PlaceIdFolder)) do
 						local SavedName = v:match("([^/\\]+)$")
 						local Exists = false
-
 						for i, b in ipairs(ManagerMenu:GetChildren()) do
 							if b:IsA("TextLabel") and b.Text == SavedName then
 								Exists = true
@@ -596,10 +595,18 @@ function Library:CreateMain()
 				if ConfigName then
 					local OldConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 					if isfile(OldConfig) then
-						print("Deleted: " .. OldConfig)
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Manager",
+							Text = "Deleted " .. OldConfig,
+							Duration = 2,
+						})
 						delfile(OldConfig)
 					else
-						warn("Config not found: " .. OldConfig)
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Manager",
+							Text = "Unable to find config",
+							Duration = 2,
+						})
 					end
 				end
 			end
@@ -621,10 +628,18 @@ function Library:CreateMain()
 				if ConfigName then
 					local NewConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 					if not isfile(NewConfig) then
-						print("Created: " .. NewConfig)
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Manager",
+							Text = "Created " .. NewConfig,
+							Duration = 2,
+						})
 						writefile(NewConfig, readfile(PlaceIdAutoSave))
 					else
-						warn("Config already exist: " .. GetConfig)
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Manager",
+							Text = "Config already exist",
+							Duration = 2,
+						})
 					end
 				end
 			end
@@ -642,18 +657,36 @@ function Library:CreateMain()
 		LoadConfig.AutoButtonColor = true
 		LoadConfig.Image = "rbxassetid://15911231575"
 		LoadConfig.MouseButton1Click:Connect(function()
-			if PlaceIdAutoSave and ConfigName then
-				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
-				if isfile(GetConfig) then
-					if isfile(PlaceIdAutoSave) then
-						delfile(PlaceIdAutoSave)
+			local work, fail = pcall(function()
+				if PlaceIdAutoSave and ConfigName then
+					local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
+					if isfile(GetConfig) then
+						shared.Lime.Uninjected = true
+						task.wait(2)
+						local ImportFile = writefile(PlaceIdAutoSave, readfile(GetConfig))
+						if ImportFile then
+							game:GetService("StarterGui"):SetCore("SendNotification", { 
+								Title = "Lime | Manager",
+								Text = "Successfully Implemented " .. GetConfig,
+								Duration = 2,
+							})
+							loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
+						end
+					else
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Manager",
+							Text = "Unable to find config",
+							Duration = 2,
+						})
 					end
-					writefile(PlaceIdAutoSave, readfile(GetConfig))
-					AutoSave = true
-					print("Successfully saved as: " .. PlaceIdAutoSave)
-				else
-					warn("Config not found: " .. GetConfig)
 				end
+			end)
+			if not work then
+				game:GetService("StarterGui"):SetCore("SendNotification", { 
+					Title = "Lime | Manager",
+					Text = "Error: " .. tostring(fail),
+					Duration = 2,
+				})
 			end
 		end)
 		
