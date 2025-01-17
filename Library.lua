@@ -520,11 +520,11 @@ function Library:CreateMain()
 		spawn(function()
 			local SavedTable = {}
 			RunService.RenderStepped:Connect(function()
-				for i, v in ipairs(listfiles(PlaceIdFolder)) do
-					for i, b in pairs(ManagerMenu:GetChildren()) do
-						if b:IsA("TextLabel") then
-							if not table.find(SavedTable, v) and b.Text ~= v then
-								table.insert(SavedTable, v)
+				for _, configlua in ipairs(listfiles(PlaceIdFolder)) do
+					for _, label in pairs(ManagerMenu:GetChildren()) do 
+						if label:IsA("TextLabel") then
+							if not table.find(SavedTable, configlua) and label.Text ~= configlua then
+								table.insert(SavedTable, configlua)
 								local TextLabel_2 = Instance.new("TextLabel")
 								TextLabel_2.Parent = ManagerMenu
 								TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
@@ -532,12 +532,13 @@ function Library:CreateMain()
 								TextLabel_2.BorderSizePixel = 0
 								TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
 								TextLabel_2.Font = Enum.Font.SourceSans
-								TextLabel_2.Text = v
+								TextLabel_2.Text = configlua
 								TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
 								TextLabel_2.TextSize = 14.000
-							elseif table.find(SavedTable, v) and not v then
-								if b.Text == v then
-									b:Destroy()
+							elseif table.find(SavedTable, configlua) and not configlua then
+								if label.Text == configlua then
+									label:Destroy()
+									table.remove(SavedTable, configlua)
 								end
 							end
 						end
