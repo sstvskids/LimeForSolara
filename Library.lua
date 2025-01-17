@@ -107,19 +107,21 @@ spawn(function()
 			if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
 				if msg and msg.Message then
 					if msg.Message == "slime" then
-						local args = {
-							[1] = "I am using Lime, spare me please lime devs.",
-							[2] = "All"
-						}
+						if msg.Text == "slime" then
+							local args = {
+								[1] = "I love lime!",
+								[2] = "All"
+							}
 
-						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Message == "ulime" then
-						shared.Lime.Uninjected = true
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime Developer",
-							Text = "Uninjecting..",
-							Duration = 2.2,
-						})
+							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+						elseif msg.Message == "limereal" then
+							shared.Lime.Uninjected = true
+							game:GetService("StarterGui"):SetCore("SendNotification", { 
+								Title = "Lime Developer",
+								Text = "Uninjecting..",
+								Duration = 2.2,
+							})
+						end
 					end
 				end
 			end
@@ -130,12 +132,12 @@ spawn(function()
 				if msg and msg.Text then
 					if msg.Text == "slime" then
 						local args = {
-							[1] = "I am using Lime, spare me please lime devs.",
+							[1] = "I love lime!",
 							[2] = "All"
 						}
 
 						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Text == "ulime" then
+					elseif msg.Text == "limereal" then
 						shared.Lime.Uninjected = true
 						game:GetService("StarterGui"):SetCore("SendNotification", { 
 							Title = "Lime Developer",
@@ -148,7 +150,6 @@ spawn(function()
 		end)
 	end
 end)
-
 
 function Library:CreateMain()
 	local Main = {}
