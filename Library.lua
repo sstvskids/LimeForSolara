@@ -657,23 +657,21 @@ function Library:CreateMain()
 		LoadConfig.AutoButtonColor = true
 		LoadConfig.Image = "rbxassetid://15911231575"
 		LoadConfig.MouseButton1Click:Connect(function()
-			local work, fail = pcall(function()
+			local success, failed = pcall(function()
 				if PlaceIdAutoSave and ConfigName then
 					local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 					if isfile(GetConfig) then
 						shared.Lime.Uninjected = true
 						task.wait(2)
-						local ImportFile = writefile(PlaceIdAutoSave, readfile(GetConfig))
-						if ImportFile then
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime | Manager",
-								Text = "Successfully Implemented " .. GetConfig,
-								Duration = 2,
-							})
-							loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
-						end
+						writefile(PlaceIdAutoSave, readfile(GetConfig))
+						game:GetService("StarterGui"):SetCore("SendNotification", {
+							Title = "Lime | Manager",
+							Text = "Successfully Implemented " .. GetConfig,
+							Duration = 2,
+						})
+						loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
 					else
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
+						game:GetService("StarterGui"):SetCore("SendNotification", {
 							Title = "Lime | Manager",
 							Text = "Unable to find config",
 							Duration = 2,
@@ -681,10 +679,11 @@ function Library:CreateMain()
 					end
 				end
 			end)
-			if not work then
-				game:GetService("StarterGui"):SetCore("SendNotification", { 
+
+			if not success then
+				game:GetService("StarterGui"):SetCore("SendNotification", {
 					Title = "Lime | Manager",
-					Text = "Error: " .. tostring(fail),
+					Text = "Error: " .. tostring(failed),
 					Duration = 2,
 				})
 			end
