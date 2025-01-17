@@ -226,7 +226,7 @@ local function GetBed(MaxDist)
 	local MinDist = math.huge
 	local Bed = nil
 	for i, v in pairs(game.Workspace:FindFirstChild("Map"):GetChildren()) do
-		if v:IsA("Model") and v.Name == "Bed" and v:GetAttribute("Team") ~= LocalPlayer.TeamColor then
+		if v:IsA("Model") and v.Name == "Bed" and v:GetAttribute("Team") ~= LocalPlayer.Team.Name then
 			local Distance = (v.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
 			if Distance < MinDist and Distance <= MaxDist then
 				Bed = v
@@ -238,6 +238,96 @@ local function GetBed(MaxDist)
 end
 
 local AntiBotGlobal = false
+spawn(function()
+	local Selected, Distance, TeamCheck, IsHolding = nil, nil, false, false
+	local Loop = nil
+	local AimAssist = Tabs.Combat:CreateToggle({
+		Name = "Aim Assist",
+		Callback = function(callback)
+			if callback then
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if IsAlive(LocalPlayer.Character) then
+							local Entity = GetNearestEntity(Distance, AntiBotGlobal, "Distance", TeamCheck, true)
+							if Entity then
+								local NewCFrame = CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (Entity:FindFirstChild("HumanoidRootPart").Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
+								if Selected == "Lock" then
+									if IsHolding then
+										if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+											game.Workspace.CurrentCamera.CFrame = NewCFrame
+										end
+									else
+										game.Workspace.CurrentCamera.CFrame = NewCFrame
+									end
+								elseif Selected == "Smooth" then
+									if NewCFrame then
+										if IsHolding then
+											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+												Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4), {CFrame = NewCFrame}):Play()
+											end
+										else
+											Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4), {CFrame = NewCFrame}):Play()
+										end
+									end
+								end
+							end
+						end
+					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
+			end
+		end
+	})
+	local AimAssistMethods = AimAssist:CreateDropdown({
+		Name = "Aiming Methods",
+		List = {"Lock", "Smooth"},
+		Default = "Smooth",
+		Callback = function(callback)
+			if callback then
+				Selected = callback
+			end
+		end
+	})
+	local AutoClickerMin = AimAssist:CreateSlider({
+		Name = "Distance",
+		Min = 0,
+		Max = 20,
+		Default = 10,
+		Callback = function(callback)
+			if callback then
+				Distance = callback
+			end
+		end
+	})
+	local AimAssistHold = AimAssist:CreateMiniToggle({
+		Name = "Hold",
+		Callback = function(callback)
+			if callback then
+				IsHolding = true
+			else
+				IsHolding = false
+			end
+		end
+	})
+	local AimAssistTeam = AimAssist:CreateMiniToggle({
+		Name = "Team",
+		Callback = function(callback)
+			if callback then
+				TeamCheck = true
+			else
+				TeamCheck = false
+			end
+		end
+	})
+end)
+
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
@@ -2113,7 +2203,7 @@ spawn(function()
 		end
 	})
 	local ClipDistance = Clip:CreateSlider({
-		Name = "Distance",
+		Name = "Distancez",
 		Min = 0,
 		Max = 12,
 		Default = 6,
@@ -2235,75 +2325,75 @@ spawn(function()
 	Raycast.IgnoreWater = true
 	
 	local Distance, Selected = nil, nil
-	local IsBreaking = false
-	local Loop = nil
+	local Direction, Result = nil, nil
+	local Pickaxe, Bed = nil, nil
 	local Blocks = {}
-	local Bed = nil
+	local Loop = nil
 	local Breaker = Tabs.World:CreateToggle({
 		Name = "Breaker",
 		Callback = function(callback)
 			if callback then
-				IsBreaking = false
 				if not Loop then
 					Loop = Service.RunService.Stepped:Connect(function()
 						if IsAlive(LocalPlayer.Character) then
 							if BridgeDuel.Blink then
-								Bed = GetBed(Distance)
-								if Bed then
-									local Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position
-									local Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
-									if Selected == "Blatant" then
-										local Pickaxe = CheckTool("Pickaxe")
-										if Pickaxe then
-											if not Bed:FindFirstChildWhichIsA("Highlight") then
-												local highlight = Instance.new("Highlight")
-												highlight.Parent = Bed
-												highlight.FillTransparency = 1
-												highlight.OutlineTransparency = 0.45
-												highlight.OutlineColor = Color3.new(1, 1, 1)
-											end
-											if not IsBreaking then
-												BridgeDuel.Blink.item_action.start_break_block.fire({
-													position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
-													pickaxe_name = Pickaxe.Name,
-												})
-												task.wait(3)
-												IsBreaking = true
-											end
-										end
-									elseif Selected == "Legit" then
-										if Result and Result.Instance then
-											if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
-												table.insert(Blocks, Result.Instance)
-												Result.Instance.CanCollide = false
-												Result.Instance.CanTouch = false
-												Result.Instance.CanQuery = false
-												Result.Instance.Transparency = 0.75
-											end
-										end
-									end
-								else
-									if Selected == "Legit" then
-										for i = #Blocks, 1, -1 do
-											local v = Blocks[i]
-											if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
-												local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
-												if Distances > Distance then
-													v.CanCollide = true
-													v.CanTouch = true
-													v.CanQuery = true
-													v.Transparency = 0
-													table.remove(Blocks, i)
-												end
-											end
-										end
-									end
-									if IsBreaking then
-										BridgeDuel.Blink.item_action.stop_break_block.fire()
-										print("Unbreaking")
-										IsBreaking = false
+							Bed = GetBed(Distance)
+							if Bed then
+								Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position
+								Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
+								for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+									if v:IsA("Tool") and v.Name:match("Pickaxe") then
+										Pickaxe = v
 									end
 								end
+								for i, b in pairs(LocalPlayer.Character:GetChildren()) do
+									if b:IsA("Tool") and b.Name:match("Pickaxe") then
+										Pickaxe = b
+									end
+								end
+								if Selected == "Blatant" then
+									if Pickaxe then
+										if not Bed:FindFirstChildWhichIsA("Highlight") then
+											local highlight = Instance.new("Highlight")
+											highlight.Parent = Bed
+											highlight.FillTransparency = 1
+											highlight.OutlineTransparency = 0.45
+											highlight.OutlineColor = Color3.new(1, 1, 1)
+										end
+										BridgeDuel.Blink.item_action.start_break_block.fire({
+												position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
+												pickaxe_name = Pickaxe.Name,
+											})
+										end
+									end
+								elseif Selected == "Legit" then
+									if Result and Result.Instance then
+										if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
+											table.insert(Blocks, Result.Instance)
+											Result.Instance.CanCollide = false
+											Result.Instance.CanTouch = false
+											Result.Instance.CanQuery = false
+											Result.Instance.Transparency = 0.75
+										end
+									end
+								end
+							else
+								if Selected == "Legit" then
+									for i = #Blocks, 1, -1 do
+										local v = Blocks[i]
+										if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
+											local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
+											if Distances > Distance then
+												v.CanCollide = true
+												v.CanTouch = true
+												v.CanQuery = true
+												v.Transparency = 0
+												table.remove(Blocks, i)
+											end
+										end
+									end
+								end
+								BridgeDuel.Blink.item_action.stop_break_block.fire()
 							end
 						end
 					end)
@@ -2323,7 +2413,7 @@ spawn(function()
 						Bed = nil
 					end
 				end
-				IsBreaking = false
+				Direction, Result = nil, nil
 				if Selected == "Legit" then
 					for i, v in ipairs(Blocks) do
 						if v and v.Parent then
