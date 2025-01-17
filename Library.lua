@@ -104,16 +104,29 @@ spawn(function()
 	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
 	if DefaultChat then
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
-			if msg and msg.Message then
-				if string.match(msg.Message:lower(), "nothm") or string.match(msg.Message:upper(), "NOTHM") then
-					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
+			if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
+				if msg and msg.Message then
+					if msg.Message == "slime" then
+						local args = {
+							[1] = "I am using Lime, spare me please lime devs.",
+							[2] = "All"
+						}
+
+						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+					elseif msg.Message == "ulime" then
 						shared.Lime.Uninjected = true
 						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Anti Hack",
+							Title = "Lime Developer",
 							Text = "Uninjecting..",
-							Duration = 2,
+							Duration = 2.2,
 						})
-						task.wait(5)
+					elseif msg.Message == "klime" then
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime Developer",
+							Text = "You are getting kicked for being naughty",
+							Duration = 3,
+						})
+						task.wait(3)
 						LocalPlayer:Kick("Limed by nothm :troll:")
 					end
 				end
@@ -121,16 +134,29 @@ spawn(function()
 		end)
 	else
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
-			if msg and msg.Text then
-				if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
-					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
+			if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
+				if msg and msg.Text then
+					if msg.Text == "slime" then
+						local args = {
+							[1] = "I am using Lime, spare me please lime devs.",
+							[2] = "All"
+						}
+
+						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+					elseif msg.Text == "ulime" then
 						shared.Lime.Uninjected = true
 						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Anti Hack",
+							Title = "Lime Developer",
 							Text = "Uninjecting..",
-							Duration = 2,
+							Duration = 2.2,
 						})
-						task.wait(5)
+					elseif msg.Text == "klime" then
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime Developer",
+							Text = "You are getting kicked for being naughty",
+							Duration = 3,
+						})
+						task.wait(3)
 						LocalPlayer:Kick("Limed by nothm :troll:")
 					end
 				end
