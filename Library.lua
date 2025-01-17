@@ -105,23 +105,20 @@ spawn(function()
 	if DefaultChat then
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
 			if msg and msg.Message then
-				if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
+				if not string.find(LocalPlayer.Name:lower(), "lime") then
 					if msg.Message == "slime" then
-						if msg.Text == "slime" then
-							local args = {
-								[1] = "I love lime!",
-								[2] = "All"
-							}
-
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						elseif msg.Message == "limereal" then
-							shared.Lime.Uninjected = true
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime Developer",
-								Text = "Uninjecting..",
-								Duration = 2.2,
-							})
-						end
+						local args = {
+							[1] = "I love lime!",
+							[2] = "All"
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+					elseif msg.Message == "limereal" then
+						shared.Lime.Uninjected = true
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime Developer",
+							Text = "Uninjecting..",
+							Duration = 2.2,
+						})
 					end
 				end
 			end
@@ -129,23 +126,20 @@ spawn(function()
 	else
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
 			if msg and msg.Text then
-				if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
+				if not string.find(LocalPlayer.Name:lower(), "lime") then
 					if msg.Text == "slime" then
-						if msg.Text == "slime" then
-							local args = {
-								[1] = "I love lime!",
-								[2] = "All"
-							}
-
-							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-						elseif msg.Text == "limereal" then
-							shared.Lime.Uninjected = true
-							game:GetService("StarterGui"):SetCore("SendNotification", { 
-								Title = "Lime Developer",
-								Text = "Uninjecting..",
-								Duration = 2.2,
-							})
-						end
+						local args = {
+							[1] = "I love lime!",
+							[2] = "All"
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+					elseif msg.Text == "limereal" then
+						shared.Lime.Uninjected = true
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime Developer",
+							Text = "Uninjecting..",
+							Duration = 2.2,
+						})
 					end
 				end
 			end
@@ -521,13 +515,14 @@ function Library:CreateMain()
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 		
 		spawn(function()
+			local Existed = false
 			RunService.RenderStepped:Connect(function()
 				if ManagerMenu and isfolder(PlaceIdFolder) then
 					for i, v in ipairs(listfiles(PlaceIdFolder)) do
 						if isfile(v) then
 							local SavedName = v:match("([^/\\]+)$")
 							for i , b in pairs(ManagerMenu:GetChildren()) do
-								local Existed = false
+								Existed = false
 								if b:IsA("TextLabel") and b.Text == SavedName then
 									Existed = true
 									break
@@ -550,7 +545,7 @@ function Library:CreateMain()
 				end
 			end)
 		end)
-		
+
 		local TextLabel_3 = Instance.new("TextLabel")
 		TextLabel_3.Parent = ManagerMenu
 		TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
