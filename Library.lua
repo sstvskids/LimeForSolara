@@ -517,7 +517,7 @@ function Library:CreateMain()
 		spawn(function()
 			local Existed = false
 			RunService.RenderStepped:Connect(function()
-				if ManagerMenu and isfolder(PlaceIdFolder) then
+				if ManagerMenu and PlaceIdFolder and isfolder(PlaceIdFolder) then
 					for i, v in ipairs(listfiles(PlaceIdFolder)) do
 						if isfile(v) then
 							local SavedName = v:match("([^/\\]+)$")
