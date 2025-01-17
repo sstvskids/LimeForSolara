@@ -240,6 +240,7 @@ end
 local AntiBotGlobal = false
 spawn(function()
 	local Selected, Distance, TeamCheck, IsHolding = nil, nil, false, false
+	local Tween = nil
 	local Loop = nil
 	local AimAssist = Tabs.Combat:CreateToggle({
 		Name = "Aim Assist",
@@ -251,23 +252,34 @@ spawn(function()
 							local Entity = GetNearestEntity(Distance, AntiBotGlobal, "Distance", TeamCheck, true)
 							if Entity then
 								local NewCFrame = CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, Entity:FindFirstChild("HumanoidRootPart").Position)
-								if Selected == "Lock" then
-									if IsHolding then
-										if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-											game.Workspace.CurrentCamera.CFrame = NewCFrame
-										end
-									else
-										game.Workspace.CurrentCamera.CFrame = NewCFrame
-									end
-								elseif Selected == "Smooth" then
-									if NewCFrame then
+								if NewCFrame then
+									Tween = Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame})
+									if Selected == "Lock" then
 										if IsHolding then
 											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-												Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame}):Play()
+												game.Workspace.CurrentCamera.CFrame = NewCFrame
 											end
 										else
-											Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame}):Play()										
+											game.Workspace.CurrentCamera.CFrame = NewCFrame
 										end
+									elseif Selected == "Smooth" then
+										if IsHolding then
+											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+												if Tween then
+													Tween:Play()
+												end
+											end
+										else
+											if Tween then
+												Tween:Play()
+											end
+										end
+									end
+								end
+							else
+								if Selected == "Smooth" then
+									if Tween then
+										Tween:Pause()
 									end
 								end
 							end
@@ -281,6 +293,9 @@ spawn(function()
 				if Loop then
 					Loop:Disconnect()
 					Loop = nil
+				end
+				if Tween then
+					Tween = nil
 				end
 			end
 		end
