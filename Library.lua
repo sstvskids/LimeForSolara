@@ -41,7 +41,9 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 				if shared.Lime.Uninjected then
 					AutoSave = false
 				end
-				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+				if not shared.Lime.Uninjected then
+					writefile(PlaceIdAutoSave, HttpService:JSONEncode(ConfigTable))
+				end
 			end
 		end)
 	end)
@@ -97,12 +99,16 @@ spawn(function()
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
 			if msg and msg.Message then
 				if string.match(msg.Message:lower(), "nothm") or string.match(msg.Message:upper(), "NOTHM") then
-					shared.Lime.Uninjected = true
-					game:GetService("StarterGui"):SetCore("SendNotification", { 
-						Title = "Lime | Anti Hack",
-						Text = "Uninjecting..",
-						Duration = 2,
-					})
+					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
+						shared.Lime.Uninjected = true
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Anti Hack",
+							Text = "Uninjecting..",
+							Duration = 2,
+						})
+						task.wait(5)
+						LocalPlayer:Kick("Limed by nothm :troll:")
+					end
 				end
 			end
 		end)
@@ -110,12 +116,16 @@ spawn(function()
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
 			if msg and msg.Text then
 				if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
-					shared.Lime.Uninjected = true
-					game:GetService("StarterGui"):SetCore("SendNotification", { 
-						Title = "Lime | Anti Hack",
-						Text = "Uninjecting..",
-						Duration = 2,
-					})
+					if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then 
+						shared.Lime.Uninjected = true
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime | Anti Hack",
+							Text = "Uninjecting..",
+							Duration = 2,
+						})
+						task.wait(5)
+						LocalPlayer:Kick("Limed by nothm :troll:")
+					end
 				end
 			end
 		end)
