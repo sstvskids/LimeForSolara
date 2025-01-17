@@ -2342,12 +2342,14 @@ spawn(function()
 	local Distance, Selected = nil, nil
 	local Direction, Result = nil, nil
 	local Pickaxe, Bed = nil, nil
+	local IsBreaking = false
 	local Blocks = {}
 	local Loop = nil
 	local Breaker = Tabs.World:CreateToggle({
 		Name = "Breaker",
 		Callback = function(callback)
 			if callback then
+				IsBreaking = false
 				if not Loop then
 					Loop = Service.RunService.Stepped:Connect(function()
 						if IsAlive(LocalPlayer.Character) then
@@ -2375,10 +2377,14 @@ spawn(function()
 											highlight.OutlineTransparency = 0.45
 											highlight.OutlineColor = Color3.new(1, 1, 1)
 										end
-										BridgeDuel.Blink.item_action.start_break_block.fire({
-												position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
-												pickaxe_name = Pickaxe.Name,
-											})
+										if not IsBreaking then
+											BridgeDuel.Blink.item_action.start_break_block.fire({
+													position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
+													pickaxe_name = Pickaxe.Name,
+												})
+												task.wait(3)
+												IsBreaking = true
+											end
 										end
 									end
 								elseif Selected == "Legit" then
@@ -2408,7 +2414,10 @@ spawn(function()
 										end
 									end
 								end
-								BridgeDuel.Blink.item_action.stop_break_block.fire()
+								if IsBreaking then
+									BridgeDuel.Blink.item_action.stop_break_block.fire()
+									IsBreaking = false
+								end
 							end
 						end
 					end)
@@ -2429,6 +2438,7 @@ spawn(function()
 					end
 				end
 				Direction, Result = nil, nil
+				IsBreaking = false
 				if Selected == "Legit" then
 					for i, v in ipairs(Blocks) do
 						if v and v.Parent then
