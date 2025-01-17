@@ -533,18 +533,17 @@ function Library:CreateMain()
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 
 		spawn(function()
+			local Exists = false
 			RunService.RenderStepped:Connect(function()
-				if ManagerMenu and isfolder(PlaceIdFolder) then
+				if isfolder(PlaceIdFolder) and ManagerMenu then
 					for i, v in ipairs(listfiles(PlaceIdFolder)) do
 						local SavedName = v:match("([^/\\]+)$")
-						local Exists = false
-						for i, b in ipairs(ManagerMenu:GetChildren()) do
-							if b:IsA("TextLabel") and b.Text == SavedName then
+						for i, l in ipairs(ManagerMenu:GetChildren()) do
+							if l:IsA("TextLabel") and l.Text == SavedName then
 								Exists = true
 								break
 							end
 						end
-
 						if not Exists then
 							local TextLabel_2 = Instance.new("TextLabel")
 							TextLabel_2.Parent = ManagerMenu
