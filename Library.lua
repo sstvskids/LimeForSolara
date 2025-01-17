@@ -120,14 +120,6 @@ spawn(function()
 							Text = "Uninjecting..",
 							Duration = 2.2,
 						})
-					elseif msg.Message == "klime" then
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime Developer",
-							Text = "You are getting kicked for being naughty",
-							Duration = 3,
-						})
-						task.wait(3)
-						LocalPlayer:Kick("Limed by nothm :troll:")
 					end
 				end
 			end
@@ -150,20 +142,13 @@ spawn(function()
 							Text = "Uninjecting..",
 							Duration = 2.2,
 						})
-					elseif msg.Text == "klime" then
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime Developer",
-							Text = "You are getting kicked for being naughty",
-							Duration = 3,
-						})
-						task.wait(3)
-						LocalPlayer:Kick("Limed by nothm :troll:")
 					end
 				end
 			end
 		end)
 	end
 end)
+
 
 function Library:CreateMain()
 	local Main = {}
