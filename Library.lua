@@ -104,12 +104,12 @@ spawn(function()
 	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
 	if DefaultChat then
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
-			if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
-				if msg and msg.Message then
+			if msg and msg.Message then
+				if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
 					if msg.Message == "slime" then
 						if msg.Text == "slime" then
 							local args = {
-								[1] = "I am a lime user!",
+								[1] = "I love lime!",
 								[2] = "All"
 							}
 
@@ -128,22 +128,24 @@ spawn(function()
 		end)
 	else
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
-			if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
-				if msg and msg.Text then
+			if msg and msg.Text then
+				if not string.match(LocalPlayer.Name:lower(), "lime") or not string.match(LocalPlayer.Name:upper(), "LIME") then
 					if msg.Text == "slime" then
-						local args = {
-							[1] = "I am a lime user!",
-							[2] = "All"
-						}
+						if msg.Text == "slime" then
+							local args = {
+								[1] = "I love lime!",
+								[2] = "All"
+							}
 
-						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Text == "limereal" then
-						shared.Lime.Uninjected = true
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime Developer",
-							Text = "Uninjecting..",
-							Duration = 2.2,
-						})
+							game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+						elseif msg.Text == "limereal" then
+							shared.Lime.Uninjected = true
+							game:GetService("StarterGui"):SetCore("SendNotification", { 
+								Title = "Lime Developer",
+								Text = "Uninjecting..",
+								Duration = 2.2,
+							})
+						end
 					end
 				end
 			end
@@ -517,7 +519,7 @@ function Library:CreateMain()
 		local UIListLayout_5 = Instance.new("UIListLayout")
 		UIListLayout_5.Parent = ManagerMenu
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
-
+		
 		spawn(function()
 			local SavedTable = {}
 			RunService.RenderStepped:Connect(function()
@@ -528,13 +530,12 @@ function Library:CreateMain()
 							if b:IsA("TextButton") then
 								if not table.find(SavedTable, SavedName) and b.Text ~= SavedName then
 									table.insert(SavedTable, SavedName)
-									local TextLabel_2 = Instance.new("TextButton")
+									local TextLabel_2 = Instance.new("TextLabel")
 									TextLabel_2.Parent = ManagerMenu
 									TextLabel_2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
 									TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
 									TextLabel_2.BorderSizePixel = 0
 									TextLabel_2.Size = UDim2.new(1, 0, 0, 25)
-									TextLabel_2.AutoButtonColor = false
 									TextLabel_2.Font = Enum.Font.SourceSans
 									TextLabel_2.Text = SavedName
 									TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
