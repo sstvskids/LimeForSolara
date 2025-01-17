@@ -514,7 +514,7 @@ function Library:CreateMain()
 						local Exists = false
 
 						for i, b in ipairs(ManagerMenu:GetChildren()) do
-							if b:IsA("TextButton") and b.Text == SavedName then
+							if b:IsA("TextLabel") and b.Text == SavedName then
 								Exists = true
 								break
 							end
