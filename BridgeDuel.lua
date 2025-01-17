@@ -250,7 +250,7 @@ spawn(function()
 						if IsAlive(LocalPlayer.Character) then
 							local Entity = GetNearestEntity(Distance, AntiBotGlobal, "Distance", TeamCheck, true)
 							if Entity then
-								local NewCFrame = CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.Position + (Entity:FindFirstChild("HumanoidRootPart").Position - game.Workspace.CurrentCamera.CFrame.Position).unit)
+								local NewCFrame = CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, Entity:FindFirstChild("HumanoidRootPart").Position)
 								if Selected == "Lock" then
 									if IsHolding then
 										if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
@@ -263,10 +263,10 @@ spawn(function()
 									if NewCFrame then
 										if IsHolding then
 											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-												Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4), {CFrame = NewCFrame}):Play()
+												Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame}):Play()
 											end
 										else
-											Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4), {CFrame = NewCFrame}):Play()
+											Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame}):Play()										
 										end
 									end
 								end
