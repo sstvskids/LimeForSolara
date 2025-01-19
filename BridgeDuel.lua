@@ -1928,16 +1928,16 @@ spawn(function()
 end)
 
 spawn(function()
+	local Loop = nil
+	local Selected = nil
 	local KillTable = {}
+	local Dead, Alive = nil, nil
 	for _, v in pairs(game:GetService("ReplicatedStorage").Assets.KillEffects:GetChildren()) do
 		if v:IsA("ModuleScript") then
 			table.insert(KillTable, v.Name)
 		end
 	end
-	local Alive, Dead = nil, nil
-	local Selected = nil
-	local Loop = nil
-	local KillEffects = Tabs.Visual:CreateToggle({
+	local KillEffects = Tabs.Player:CreateToggle({
 		Name = "Kill Effects",
 		Callback = function(callback)
 			if callback then
@@ -1970,12 +1970,21 @@ spawn(function()
 								end
 							end
 						end
-						if Alive.Name == LocalPlayer.Name and Dead.Name ~= LocalPlayer.Name then
+						if Alive.Name == LocalPlayer.Name and Dead.Name ~= LocalPlayer.Name and Selected then
 							for _, v in pairs(game:GetService("ReplicatedStorage").Assets.KillEffects:GetChildren()) do
 								if v:IsA("ModuleScript") and v.Name == Selected then
 									local EffectResult = require(v)
 									if EffectResult then
 										EffectResult(Dead.Character:FindFirstChild("HumanoidRootPart").Position)
+									end
+								end
+							end
+						elseif Alive.Name ~= LocalPlayer.Name and Dead.Name == LocalPlayer.Name and Selected then
+							for _, v in pairs(game:GetService("ReplicatedStorage").Assets.KillEffects:GetChildren()) do
+								if v:IsA("ModuleScript") and v.Name == Selected then
+									local EffectResult = require(v)
+									if EffectResult then
+										EffectResult(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position)
 									end
 								end
 							end
@@ -2455,15 +2464,15 @@ spawn(function()
 												IsBreaking = true
 											end
 										end
-									end
-								elseif Selected == "Legit" then
-									if Result and Result.Instance then
-										if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
-											table.insert(Blocks, Result.Instance)
-											Result.Instance.CanCollide = false
-											Result.Instance.CanTouch = false
-											Result.Instance.CanQuery = false
-											Result.Instance.Transparency = 0.75
+									elseif Selected == "Legit" then
+										if Result and Result.Instance then
+											if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
+												table.insert(Blocks, Result.Instance)
+												Result.Instance.CanCollide = false
+												Result.Instance.CanTouch = false
+												Result.Instance.CanQuery = false
+												Result.Instance.Transparency = 0.75
+											end
 										end
 									end
 								end
@@ -2538,7 +2547,9 @@ spawn(function()
 		Max = 28,
 		Default = 28,
 		Callback = function(callback)
-			Distance = callback
+			if callback then
+				Distance = callback
+			end
 		end
 	})
 end)
