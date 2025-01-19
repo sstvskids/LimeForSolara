@@ -965,6 +965,32 @@ spawn(function()
 end)
 
 spawn(function()
+	local DamageSize = nil
+	local Damage = Tabs.Exploit:CreateToggle({
+		Name = "Damage",
+		AutoDisable = true,
+		Callback = function(callback)
+			if callback then
+				if BridgeDuel.Blink then
+					BridgeDuel.Blink.player_state.take_fall_damage.fire(DamageSize)
+				end
+			end
+		end
+	})
+	local CustomDamageSize = Damage:CreateSlider({
+		Name = "Damages",
+		Min = 0,
+		Max = 100,
+		Default = 1,
+		Callback = function(callback)
+			if callback then
+				DamageSize = callback
+			end
+		end
+	})
+end)
+
+spawn(function()
 	local Loop = nil
 	local Phase = Tabs.Exploit:CreateToggle({
 		Name = "Phase",
