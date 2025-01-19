@@ -1937,7 +1937,7 @@ spawn(function()
 			table.insert(KillTable, v.Name)
 		end
 	end
-	local KillEffects = Tabs.Player:CreateToggle({
+	local KillEffects = Tabs.Visual:CreateToggle({
 		Name = "Kill Effects",
 		Callback = function(callback)
 			if callback then
