@@ -23,8 +23,7 @@ local Tabs = {
 	Move = Main:CreateTab("Move", 91366694317593, Color3.fromRGB(82, 246, 255)),
 	Player = Main:CreateTab("Player", 103157697311305, Color3.fromRGB(255, 255, 127)),
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
-	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0)),
-	Manager = Main:CreateManager()
+	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0))
 }
 
 local BridgeDuel = {
