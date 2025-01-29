@@ -1,5 +1,5 @@
 repeat task.wait() until game:IsLoaded()
-local ConfigTable = {Library = {Keybind = nil, Notify = false}}
+local ConfigTable = {Keybind = nil, Notification = false, ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -17,8 +17,8 @@ local Library = {
 		Arraylist = true,
 		Watermark = true
 	},
-	Notification = ConfigTable.Library.Notify or false,
-	Keybinds = ConfigTable.Library.Keybind or "RightShift"
+	Notification = ConfigTable.Notification or false,
+	Keybinds = ConfigTable.Keybind or "RightShift"
 }
 
 local CurrentFile = nil
@@ -590,9 +590,6 @@ function Library:CreateMain()
 			Name = Tabs.Name,
 			Advance = Tabs.Advance or false
 		}
-		if not ConfigTable.Library[Tabs.Name] then
-			ConfigTable.Library[Tabs.Name] = {}
-		end
 		
 		local TabHolder = Instance.new("Frame")
 		TabHolder.Parent = MainFrame
@@ -732,11 +729,11 @@ function Library:CreateMain()
 				IsToggleNotif = not IsToggleNotif
 				if IsToggleNotif then
 					Library.Notification = false
-					ConfigTable.Library.Notify = false
+					ConfigTable.Notification = false
 					ToggleNotifStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 				else
 					Library.Notification = true
-					ConfigTable.Library.Notify = true
+					ConfigTable.Notification = true
 					ToggleNotifStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 				end
 			end)
@@ -790,7 +787,7 @@ function Library:CreateMain()
 						task.wait(0.1)
 						LibraryKeybind.Text = ""
 						LibraryKeybind.PlaceholderText = Input.KeyCode.Name
-						ConfigTable.Library.Keybind = Input.KeyCode.Name
+						ConfigTable.Keybind = Input.KeyCode.Name
 					end       
 				end
 			end)
@@ -864,14 +861,14 @@ function Library:CreateMain()
 					AutoDisable = ToggleButton.AutoDisable or false,
 					Callback = ToggleButton.Callback or function() end,
 				}
-				if not ConfigTable.Library[Tabs.Name][ToggleButton.Name] then
-					ConfigTable.Library.Tabs[ToggleButton.Name] = {
+				if not ConfigTable.ToggleButton[ToggleButton.Name] then
+					ConfigTable.ToggleButton[ToggleButton.Name] = {
 						Enabled = ToggleButton.Enabled,
 						Keybind = ToggleButton.Keybind,
 					}
 				else
-					ToggleButton.Enabled = ConfigTable.Library[Tabs.Name][ToggleButton.Name].Enabled
-					ToggleButton.Keybind = ConfigTable.Library[Tabs.Name][ToggleButton.Name].Keybind
+					ToggleButton.Enabled = ConfigTable.ToggleButton[ToggleButton.Name].Enabled
+					ToggleButton.Keybind = ConfigTable.ToggleButton[ToggleButton.Name].Keybind
 				end
 				
 				local ToggleMain = Instance.new("TextButton")
@@ -991,10 +988,12 @@ function Library:CreateMain()
 							KeyBinds:ReleaseFocus()
 							KeyBinds.PlaceholderText = Input.KeyCode.Name
 							KeyBinds.Text = ""
+							ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 						elseif ToggleButton.Keybind == "Backspace" then
 							ToggleButton.Keybind = "Euro"
 							KeyBinds.PlaceholderText = "None"
 							KeyBinds.Text = ""
+							ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 						end
 					end
 					task.spawn(function()
@@ -1201,12 +1200,14 @@ function Library:CreateMain()
 				ToggleMain.MouseButton1Click:Connect(function()
 					ToggleButton.Enabled = not ToggleButton.Enabled
 					if ToggleButton.Enabled then
+						ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 						ToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 						AddArray(ToggleButton.Name, ToggleButton.Suffix)
 						if Library.Notification then
 							Main:Notify(ToggleButton.Name, ToggleButton.Name .. " enabled", "i", 5, true)
 						end
 					else
+						ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 						ToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 						RemoveArray(ToggleButton.Name)
 						if Library.Notification then
@@ -1248,12 +1249,12 @@ function Library:CreateMain()
 					Enabled = MiniToggle.Enabled or false,
 					Callback = MiniToggle.Callback or function() end
 				}
-				if not ConfigTable.Library[Tabs.Name][ToggleButton.Name][MiniToggle.Name] then
-					ConfigTable.Library[Tabs.Name][ToggleButton.Name][MiniToggle.Name] = {
+				if not ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name] then
+					ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name] = {
 						Enabled = MiniToggle.Enabled,
 					}
 				else
-					MiniToggle.Enabled =  ConfigTable.Library[Tabs.Name][ToggleButton.Name][MiniToggle.Name].Enabled
+					MiniToggle.Enabled =  ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
 				end
 				
 				local MiniToggleMain = Instance.new("TextButton")
@@ -1301,8 +1302,10 @@ function Library:CreateMain()
 				MiniToggleMain.MouseButton1Click:Connect(function()
 					MiniToggle.Enabled = not MiniToggle.Enabled
 					if MiniToggle.Enabled then
+						ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						MiniToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 					else
+						ConfigTable.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 						MiniToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 					end
 					if MiniToggle.Callback then
@@ -1321,12 +1324,12 @@ function Library:CreateMain()
 					Default = Slider.Default,
 					Callback = Slider.Callback or function() end
 				}
-				if not ConfigTable.Library[Tabs.Name][ToggleButton.Name][Slider.Name] then
-					ConfigTable.Library[Tabs.Name][ToggleButton.Name][Slider.Name] = {
+				if not ConfigTable.ToggleButton.Sliders[Slider.Name] then
+					ConfigTable.ToggleButton.Sliders[Slider.Name] = {
 						Default = Slider.Default
 					}
 				else
-					Slider.Default = ConfigTable.Library[Tabs.Name][ToggleButton.Name][Slider.Name].Default
+					Slider.Default = ConfigTable.ToggleButton.Sliders[Slider.Name].Default
 				end
 				
 				local Value
@@ -1390,6 +1393,7 @@ function Library:CreateMain()
 					SliderFront.Size = UDim2.new(percent, 0, 1, 0)
 					SliderName.Text = string.format(Slider.Name .. ": %.1f", Value)
 					Slider.Callback(Value)
+					ConfigTable.ToggleButton.Sliders[Slider.Name].Default = Value
 				end
 
 				SliderDrag.MouseButton1Down:Connect(function()
@@ -1432,14 +1436,15 @@ function Library:CreateMain()
 					Default = Dropdown.Default,
 					Callback = Dropdown.Callback or function() end
 				}
-				if not ConfigTable.Library[Tabs.Name][ToggleButton.Name][Dropdown.Name] then
-					ConfigTable.Library[Tabs.Name][ToggleButton.Name][Dropdown.Name] = {
+				if not ConfigTable.ToggleButton.Dropdown[Dropdown.Name] then
+					ConfigTable.ToggleButton.Dropdown[Dropdown.Name] = {
 						Default = Dropdown.Default
 					}
 				else
-					Dropdown.Default = ConfigTable.Library[Tabs.Name][ToggleButton.Name][Dropdown.Name].Default
+					Dropdown.Default = ConfigTable.ToggleButton.Dropdown[Dropdown.Name].Default
 				end
 				
+				local Selected
 				local CurrentDropdown = 1
 				local DropdownMain = Instance.new("TextButton")
 				DropdownMain.Parent = ToggleMenu
@@ -1468,15 +1473,19 @@ function Library:CreateMain()
 				DropdownResult.TextXAlignment = Enum.TextXAlignment.Left
 				
 				DropdownMain.MouseButton1Click:Connect(function()
-					DropdownResult.Text = Dropdown.Name .. ": " .. Dropdown.List[CurrentDropdown]
-					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
+					DropdownResult.Text = Dropdown.Name .. ": " .. Dropdown.List[CurrentDropdown]
+					Selected = Dropdown.List[CurrentDropdown]
+					Dropdown.Callback(Selected)
+					ConfigTable.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
 				end)
 				
 				DropdownMain.MouseButton2Click:Connect(function()
 					CurrentDropdown = (CurrentDropdown - 2) % #Dropdown.List + 1
 					DropdownResult.Text = Dropdown.Name .. ": " .. Dropdown.List[CurrentDropdown]
-					Dropdown.Callback(Dropdown.List[CurrentDropdown])
+					Selected = Dropdown.List[CurrentDropdown]
+					Dropdown.Callback(Selected)
+					ConfigTable.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				if Dropdown.Default then
