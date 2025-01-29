@@ -586,7 +586,7 @@ function Library:CreateMain()
 	end)
 	
 	function Main:CreateTab(name, advance)
-		
+		local Tabs = {}
 		local TabHolder = Instance.new("Frame")
 		TabHolder.Parent = MainFrame
 		TabHolder.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
