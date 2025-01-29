@@ -585,11 +585,7 @@ function Library:CreateMain()
 		end
 	end)
 	
-	function Main:CreateTab(Tabs)
-		Tabs = {
-			Name = Tabs.Name,
-			Advance = Tabs.Advance or false
-		}
+	function Main:CreateTab(name, advance)
 		
 		local TabHolder = Instance.new("Frame")
 		TabHolder.Parent = MainFrame
@@ -606,7 +602,7 @@ function Library:CreateMain()
 		TabName.BorderSizePixel = 0
 		TabName.Size = UDim2.new(1, 0, 1, 0)
 		TabName.Font = Enum.Font.Roboto
-		TabName.Text = Tabs.Name
+		TabName.Text = name
 		TabName.TextColor3 = Color3.fromRGB(255, 255, 255)
 		TabName.TextSize = 16.000
 		TabName.TextWrapped = true
@@ -624,7 +620,7 @@ function Library:CreateMain()
 		UIListLayout_2.Parent = ToggleList
 		UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
 		
-		if Tabs.Advance then
+		if advance then
 			local IsLibraryMenu = false
 			local LibraryMain = Instance.new("TextButton")
 			LibraryMain.Parent = ToggleList
