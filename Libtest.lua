@@ -19,8 +19,8 @@ local Library = {
 		Arraylist = true,
 		Watermark = true
 	},
-	Notification = ConfigTable.Notification or true,
-	Keybinds = ConfigTable.Keybind or "RightShift"
+	Notification = ConfigTable.Notification,
+	Keybinds = ConfigTable.Keybind
 }
 
 if not isfolder(MainFolder) then makefolder(MainFolder) end
