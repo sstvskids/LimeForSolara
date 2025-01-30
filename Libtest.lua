@@ -1,7 +1,6 @@
 repeat task.wait() until game:IsLoaded()
-local ConfigSetting = {ToggleButton = {MiniToggle = {}, Sliders = {}, Dropdown = {}}}
+local ConfigTable = {Keybind = "RightShift", Notification = true, ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}
 local UserInputService = game:GetService("UserInputService")
-local MainFolder, ConfigFolder = "Eternal", "Eternal/config"
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
@@ -11,7 +10,6 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local clonerf = cloneref
-local MainFile = nil
 local DeviceType
 local Library = {
 	Render = {
@@ -19,9 +17,32 @@ local Library = {
 		Arraylist = true,
 		Watermark = true
 	},
-	Notification = true,
-	Keybinds = "RightShift"
+	Notification = ConfigTable.Notification or true,
+	Keybinds = ConfigTable.Keybind or "RightShift"
 }
+
+local MainFile = nil
+local MainFolder, ConfigFolder = "Eternal", "Eternal/config"
+if isfolder(MainFolder) and isfolder(ConfigFolder) then
+	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+	if isfile(MainFile) then
+		local GetMain = readfile(MainFile)
+		if GetMain then
+			local OldSettings = HttpService:JSONDecode(GetMain)
+			if OldSettings then
+				ConfigTable = OldSettings
+			end
+		end
+	end
+	
+	task.spawn(function()
+		repeat
+			task.wait(3)
+			writefile(MainFile, HttpService:JSONEncode(ConfigTable))
+		until not game
+	end)
+end
+
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
 	if not DeviceType then
@@ -31,26 +52,6 @@ elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled an
 	if not DeviceType then
 		DeviceType = "Mouse"
 	end
-end
-
-if isfolder(MainFolder) and isfolder(ConfigFolder) then
-	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
-	if isfile(MainFile) then
-		local GetMain = readfile(MainFile)
-		if GetMain then
-			local OldSettings = HttpService:JSONDecode(GetMain)
-			if OldSettings then
-				ConfigSetting = OldSettings
-			end
-		end
-	end
-	
-	task.spawn(function()
-		repeat
-			task.wait(3)
-			writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
-		until not game
-	end)
 end
 
 local function MakeDraggable(v)
@@ -733,9 +734,11 @@ function Library:CreateMain()
 				IsToggleNotif = not IsToggleNotif
 				if IsToggleNotif then
 					Library.Notification = false
+					ConfigTable.Notification = false
 					ToggleNotifStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 				else
 					Library.Notification = true
+					ConfigTable.Notification = true
 					ToggleNotifStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 				end
 			end)
@@ -789,6 +792,7 @@ function Library:CreateMain()
 						task.wait(0.1)
 						LibraryKeybind.Text = ""
 						LibraryKeybind.PlaceholderText = Input.KeyCode.Name
+						ConfigTable.Keybind = Input.KeyCode.Name
 					end       
 				end
 			end)
@@ -862,14 +866,14 @@ function Library:CreateMain()
 				AutoDisable = ToggleButton.AutoDisable or false,
 				Callback = ToggleButton.Callback or function() end,
 			}
-			if not ConfigSetting.ToggleButton[ToggleButton.Name] then
-				ConfigSetting.ToggleButton[ToggleButton.Name] = {
+			if not ConfigTable.ToggleButton[ToggleButton.Name] then
+				ConfigTable.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
 				}
 			else
-				ToggleButton.Enabled = ConfigSetting.ToggleButton[ToggleButton.Name].Enabled
-				ToggleButton.Keybind = ConfigSetting.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.Enabled = ConfigTable.ToggleButton[ToggleButton.Name].Enabled
+				ToggleButton.Keybind = ConfigTable.ToggleButton[ToggleButton.Name].Keybind
 			end
 
 			local ToggleMain = Instance.new("TextButton")
@@ -1032,12 +1036,14 @@ function Library:CreateMain()
 						MiniKeybind.MouseButton1Click:Connect(function()
 							ToggleButton.Enabled = not ToggleButton.Enabled
 							if ToggleButton.Enabled then
+								ConfigTable.ToggleButton[ToggleButton.Name].Enabled = true
 								ToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 								AddArray(ToggleButton.Name, ToggleButton.Suffix)
 								if Library.Notification then
 									Main:Notify(ToggleButton.Name, ToggleButton.Name .. " enabled", "i", 5, true)
 								end
 							else
+								ConfigTable.ToggleButton[ToggleButton.Name].Enabled = false
 								ToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 								RemoveArray(ToggleButton.Name)
 								if Library.Notification then
@@ -1069,12 +1075,12 @@ function Library:CreateMain()
 						KeyBinds:ReleaseFocus()
 						KeyBinds.PlaceholderText = Input.KeyCode.Name
 						KeyBinds.Text = ""
-						ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+						ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 					elseif ToggleButton.Keybind == "Backspace" then
 						ToggleButton.Keybind = "Euro"
 						KeyBinds.PlaceholderText = "None"
 						KeyBinds.Text = ""
-						ConfigSetting.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+						ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 					end
 				end
 				task.spawn(function()
@@ -1171,14 +1177,14 @@ function Library:CreateMain()
 			ToggleMain.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
 				if ToggleButton.Enabled then
-					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = true
 					ToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 					AddArray(ToggleButton.Name, ToggleButton.Suffix)
 					if Library.Notification then
 						Main:Notify(ToggleButton.Name, ToggleButton.Name .. " enabled", "i", 5, true)
 					end
 				else
-					ConfigSetting.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = false
 					ToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 					RemoveArray(ToggleButton.Name)
 					if Library.Notification then
@@ -1195,12 +1201,14 @@ function Library:CreateMain()
 					if Input.KeyCode == Enum.KeyCode[ToggleButton.Keybind] and not isTyping then
 						ToggleButton.Enabled = not ToggleButton.Enabled
 						if ToggleButton.Enabled then
+							ConfigTable.ToggleButton[ToggleButton.Name].Enabled = true
 							ToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 							AddArray(ToggleButton.Name, ToggleButton.Suffix)
 							if Library.Notification then
 								Main:Notify(ToggleButton.Name, ToggleButton.Name .. " enabled", "i", 5, true)
 							end
 						else
+							ConfigTable.ToggleButton[ToggleButton.Name].Enabled = false
 							ToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 							RemoveArray(ToggleButton.Name)
 							if Library.Notification then
@@ -1220,12 +1228,12 @@ function Library:CreateMain()
 					Enabled = MiniToggle.Enabled or false,
 					Callback = MiniToggle.Callback or function() end
 				}
-				if not ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] then
-					ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name] = {
-						Enabled = MiniToggle.Enabled,
+				if not ConfigTable.MiniToggle[MiniToggle.Name] then
+					ConfigTable.MiniToggle[MiniToggle.Name] = {
+						Enabled = MiniToggle.Enabled
 					}
 				else
-					MiniToggle.Enabled = ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled
+					MiniToggle.Enabled = ConfigTable.MiniToggle[MiniToggle.Name].Enabled
 				end
 
 				local MiniToggleMain = Instance.new("TextButton")
@@ -1273,10 +1281,10 @@ function Library:CreateMain()
 				MiniToggleMain.MouseButton1Click:Connect(function()
 					MiniToggle.Enabled = not MiniToggle.Enabled
 					if MiniToggle.Enabled then
-						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigTable.MiniToggle[MiniToggle.Name].Enabled = true
 						MiniToggleStatus.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 					else
-						ConfigSetting.ToggleButton.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigTable.MiniToggle[MiniToggle.Name].Enabled = false
 						MiniToggleStatus.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 					end
 					if MiniToggle.Callback then
@@ -1295,12 +1303,12 @@ function Library:CreateMain()
 					Default = Slider.Default,
 					Callback = Slider.Callback or function() end
 				}
-				if not ConfigSetting.ToggleButton.Sliders[Slider.Name] then
-					ConfigSetting.ToggleButton.Sliders[Slider.Name] = {
+				if not ConfigTable.Slider[Slider.Name] then
+					ConfigTable.Slider[Slider.Name] = {
 						Default = Slider.Default
 					}
 				else
-					Slider.Default = ConfigSetting.ToggleButton.Sliders[Slider.Name].Default
+					Slider.Default = ConfigTable.Slider[Slider.Name].Default
 				end
 
 				local Value
@@ -1364,7 +1372,7 @@ function Library:CreateMain()
 					SliderFront.Size = UDim2.new(percent, 0, 1, 0)
 					SliderName.Text = string.format(Slider.Name .. ": %.1f", Value)
 					Slider.Callback(Value)
-					ConfigSetting.ToggleButton.Sliders[Slider.Name].Default = Value
+					ConfigTable.Slider[Slider.Name].Default = Value
 				end
 
 				SliderDrag.MouseButton1Down:Connect(function()
@@ -1400,7 +1408,6 @@ function Library:CreateMain()
 				return Slider
 			end
 
-
 			function ToggleButton:CreateDropdown(Dropdown)
 				Dropdown = {
 					Name = Dropdown.Name,
@@ -1408,14 +1415,14 @@ function Library:CreateMain()
 					Default = Dropdown.Default,
 					Callback = Dropdown.Callback or function() end
 				}
-				if not ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] then
-					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name] = {
+				if not ConfigTable.Dropdown[Dropdown.Name] then
+					ConfigTable.Dropdown[Dropdown.Name] = {
 						Default = Dropdown.Default
 					}
 				else
-					Dropdown.Default = ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default
+					Dropdown.Default = ConfigTable.Dropdown[Dropdown.Name].Default
 				end
-
+				
 				local Selected
 				local CurrentDropdown = 1
 				local DropdownMain = Instance.new("TextButton")
@@ -1449,15 +1456,15 @@ function Library:CreateMain()
 					DropdownResult.Text = Dropdown.Name .. ": " .. Dropdown.List[CurrentDropdown]
 					Selected = Dropdown.List[CurrentDropdown]
 					Dropdown.Callback(Selected)
-					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
+					ConfigTable.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				DropdownMain.MouseButton2Click:Connect(function()
 					CurrentDropdown = (CurrentDropdown - 2) % #Dropdown.List + 1
 					DropdownResult.Text = Dropdown.Name .. ": " .. Dropdown.List[CurrentDropdown]
 					Selected = Dropdown.List[CurrentDropdown]
-					Dropdown.Callback(Selected)
-					ConfigSetting.ToggleButton.Dropdown[Dropdown.Name].Default = Selected
+					Dropdown.Callback(Dropdown.List[CurrentDropdown])
+					ConfigTable.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				if Dropdown.Default then
