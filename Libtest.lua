@@ -1,6 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 local ConfigTable = {Keybind = "RightShift", Notification = true, ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}
 local UserInputService = game:GetService("UserInputService")
+local MainFolder, ConfigFolder = "Eternal", "Eternal/config"
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
@@ -10,6 +11,7 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local clonerf = cloneref
+local MainFile = nil
 local DeviceType
 local Library = {
 	Render = {
@@ -21,8 +23,9 @@ local Library = {
 	Keybinds = ConfigTable.Keybind or "RightShift"
 }
 
-local MainFile = nil
-local MainFolder, ConfigFolder = "Eternal", "Eternal/config"
+if not isfolder(MainFolder) then makefolder(MainFolder) end
+if not isfolder(ConfigFolder) then makefolder(ConfigFolder) end
+
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
 	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
 	if isfile(MainFile) then
