@@ -91,27 +91,6 @@ function Spoof(length)
 	return table.concat(Letter)
 end
 
-spawn(function()
-	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-	if DefaultChat then
-		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg)
-			if msg and msg.Message then
-				if msg.Message == "slime" then
-					local args = {
-						[1] = "Im using lime by nothm",
-						[2] = "All"
-						     }
-					game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Message == "ulime" then
-					shared.Lime.Uninjected = true
-				elseif msg.Message == "klime" then
-					LocalPlayer:Kick("Lime Detected :troll:")
-				end
-			end
-		end)
-	end
-end)
-
 function Library:CreateMain()
 	local Main = {}
 
