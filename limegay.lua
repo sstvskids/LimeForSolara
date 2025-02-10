@@ -141,19 +141,30 @@ function Library:CreateMain()
 			ScreenGui.Parent = PlayerGui:FindFirstChild("MainGui")
 		end
 	end
-
-	local MainFrame = Instance.new("ScrollingFrame")
-	MainFrame.Parent = ScreenGui
-	MainFrame.Active = true
-	MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	MainFrame.BackgroundTransparency = 1.000
-	MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	MainFrame.BorderSizePixel = 0
-	MainFrame.Size = UDim2.new(1, 0, 1, 0)
-	MainFrame.CanvasPosition = Vector2.new(240, 0)
-	MainFrame.CanvasSize = UDim2.new(2.5, 0, 0, 0)
-	MainFrame.ScrollBarThickness = 8
-	MainFrame.Visible = false
+	
+	local MainFrame
+	if DeviceType == "Mouse" then
+		MainFrame = Instance.new("Frame")
+		MainFrame.Parent = ScreenGui
+		MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		MainFrame.BackgroundTransparency = 1.000
+		MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		MainFrame.Size = UDim2.new(1, 0, 1, 0)
+		MainFrame.Visible = false
+	elseif DeviceType == "Touch" then
+		MainFrame = Instance.new("ScrollingFrame")
+		MainFrame.Parent = ScreenGui
+		MainFrame.Active = true
+		MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		MainFrame.BackgroundTransparency = 1.000
+		MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		MainFrame.BorderSizePixel = 0
+		MainFrame.Size = UDim2.new(1, 0, 1, 0)
+		MainFrame.CanvasPosition = Vector2.new(240, 0)
+		MainFrame.CanvasSize = UDim2.new(2.5, 0, 0, 0)
+		MainFrame.ScrollBarThickness = 8
+		MainFrame.Visible = false
+	end
 
 	task.defer(function()
 		local NewX = 0
