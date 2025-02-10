@@ -37,7 +37,7 @@ if not isfolder(LimeFolder) then makefolder(LimeFolder) end
 if not isfolder(ConfigsFolder) then makefolder(ConfigsFolder) end
 
 local AutoSave = true
-if isfolder(LimeFolder) and isfolder(AssetsFolder) and isfolder(ConfigsFolder) then
+if isfolder(LimeFolder) and isfolder(ConfigsFolder) then
 	CurrentGameConfig = LimeFolder .. "/" .. game.PlaceId .. ".lua"
 	if not isfolder(ConfigsFolder .. "/" .. game.PlaceId) then
 		CurrentGameFolder = ConfigsFolder .. "/" .. game.PlaceId
