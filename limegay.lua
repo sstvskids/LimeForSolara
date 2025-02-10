@@ -19,7 +19,7 @@ local Library = {
 		Arraylist = true,
 		Watermark = true,
 		Notification = true,
-		Fonts = Enum.Font.SourceSans,
+		Fonts = Enum.Font.SourceSans
 	},
 	Stopped = false,
 	Uninject = false
@@ -30,7 +30,7 @@ local LimeFolder = "Lime"
 local CurrentGameFolder = nil
 local CurrentGameConfig = nil
 local ConfigsFolder = "Lime/configs"
-local ConfigTable = {ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}
+local ConfigTable = {Libraries = {ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}}
 
 local Manager, ManagerMenu, ManagerBox, ManagerDelete, ManagerCreate, ManagerLoad
 if not isfolder(LimeFolder) then makefolder(LimeFolder) end
@@ -474,7 +474,7 @@ function Library:CreateMain()
 		ManagerDelete.Image = "rbxassetid://15921650550"
 		ManagerDelete.MouseButton1Click:Connect(function()
 			if isfile(CurrentGameConfig) and ConfigName then
-				local OldConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
+				local OldConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
 				if isfile(OldConfig) then
 					delfile(OldConfig)
 				end
@@ -494,7 +494,7 @@ function Library:CreateMain()
 		ManagerCreate.Image = "rbxassetid://9063830322"
 		ManagerCreate.MouseButton1Click:Connect(function()
 			if isfile(CurrentGameConfig) and ConfigName then
-				local NewConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
+				local NewConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
 				if not isfile(NewConfig) then
 					writefile(NewConfig, readfile(CurrentGameConfig))
 				end
@@ -724,14 +724,14 @@ function Library:CreateMain()
 				AutoDisable = ToggleButton.AutoDisable or false,
 				Callback = ToggleButton.Callback or function() end,
 			}
-			if not ConfigTable.ToggleButton[ToggleButton.Name] then
-				ConfigTable.ToggleButton[ToggleButton.Name] = {
+			if not ConfigTable.Libraries.ToggleButton[ToggleButton.Name] then
+				ConfigTable.Libraries.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind
 				}
 			else
-				ToggleButton.Enabled = ConfigTable.ToggleButton[ToggleButton.Name].Enabled
-				ToggleButton.Keybind = ConfigTable.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.Enabled = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled
+				ToggleButton.Keybind = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Keybind
 			end
 
 			local ToggleMain = Instance.new("TextButton")
@@ -865,12 +865,12 @@ function Library:CreateMain()
 							Keybinds.PlaceholderText = ""
 							Keybinds.Text = Input.KeyCode.Name
 							Keybinds:ReleaseFocus()
-							ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 						elseif ToggleButton.Keybind == "Backspace" then
 							ToggleButton.Keybind = "Euro"
 							Keybinds.Text = ""
 							Keybinds.PlaceholderText = "None"
-							ConfigTable.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 						end       
 					end
 					task.spawn(function()
@@ -943,10 +943,10 @@ function Library:CreateMain()
 							ToggleButton.Enabled = not ToggleButton.Enabled
 							if ToggleButton.Enabled then
 								AddArray(ToggleButton.Name)
-								ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 							else
 								RemoveArray(ToggleButton.Name)
-								ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 							end
 
 							if ToggleButton.Callback then
@@ -1021,12 +1021,12 @@ function Library:CreateMain()
 					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
-					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 				else
 					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 					RemoveArray(ToggleButton.Name)
-					ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 				end
 
 				if ToggleButton.Callback then
@@ -1100,12 +1100,12 @@ function Library:CreateMain()
 							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
 							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 							AddArray(ToggleButton.Name)
-							ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 						else
 							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 							RemoveArray(ToggleButton.Name)
-							ConfigTable.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 						end
 
 						if ToggleButton.Callback then
@@ -1122,12 +1122,12 @@ function Library:CreateMain()
 					Default = Dropdown.Default,
 					Callback = Dropdown.Callback or function() end
 				}
-				if not ConfigTable.Dropdown[Dropdown.Name] then
-					ConfigTable.Dropdown[Dropdown.Name] = {
+				if not ConfigTable.Libraries.Dropdown[Dropdown.Name] then
+					ConfigTable.Libraries.Dropdown[Dropdown.Name] = {
 						Default = Dropdown.Default
 					}
 				else
-					Dropdown.Default = ConfigTable.Dropdown[Dropdown.Name].Default
+					Dropdown.Default = ConfigTable.Libraries.Dropdown[Dropdown.Name].Default
 				end
 				
 				local Selected
@@ -1181,7 +1181,7 @@ function Library:CreateMain()
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
-					ConfigTable.Dropdown[Dropdown.Name].Default = Selected
+					ConfigTable.Libraries.Dropdown[Dropdown.Name].Default = Selected
 				end)
 
 				if Dropdown.Default then
@@ -1203,12 +1203,12 @@ function Library:CreateMain()
 					Default = Slider.Default,
 					Callback = Slider.Callback or function() end
 				}
-				if not ConfigTable.Slider[Slider.Name] then
-					ConfigTable.Slider[Slider.Name] = {
+				if not ConfigTable.Libraries.Slider[Slider.Name] then
+					ConfigTable.Libraries.Slider[Slider.Name] = {
 						Default = Slider.Default
 					}
 				else
-					Slider.Default = ConfigTable.Slider[Slider.Name].Default
+					Slider.Default = ConfigTable.Libraries.Slider[Slider.Name].Default
 				end
 
 				local Value
@@ -1278,7 +1278,7 @@ function Library:CreateMain()
 					SliderFront.Size = UDim2.new((Value - Slider.Min) / (Slider.Max - Slider.Min), 0, 1, 0)
 					SliderValue.Text = Value
 					Slider.Callback(Value)
-					ConfigTable.Slider[Slider.Name].Default = Value
+					ConfigTable.Libraries.Slider[Slider.Name].Default = Value
 				end
 
 				SliderBack.InputBegan:Connect(function(Input)
@@ -1338,12 +1338,12 @@ function Library:CreateMain()
 					Enabled = MiniToggle.Enabled or false,
 					Callback = MiniToggle.Callback or function() end
 				}
-				if not ConfigTable.MiniToggle[MiniToggle.Name] then
-					ConfigTable.MiniToggle[MiniToggle.Name] = {
+				if not ConfigTable.Libraries.MiniToggle[MiniToggle.Name] then
+					ConfigTable.Libraries.MiniToggle[MiniToggle.Name] = {
 						Enabled = MiniToggle.Enabled,
 					}
 				else
-					MiniToggle.Enabled = ConfigTable.MiniToggle[MiniToggle.Name].Enabled
+					MiniToggle.Enabled = ConfigTable.Libraries.MiniToggle[MiniToggle.Name].Enabled
 				end
 
 				local MiniToggleMain = Instance.new("Frame")
@@ -1396,10 +1396,10 @@ function Library:CreateMain()
 					MiniToggle.Enabled = not MiniToggle.Enabled
 					if MiniToggle.Enabled then
 						TweenService:Create(MiniToggleClick, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-						ConfigTable.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigTable.Libraries.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 					else
 						TweenService:Create(MiniToggleClick, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-						ConfigTable.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
+						ConfigTable.Libraries.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 					end
 					if MiniToggle.Callback then
 						MiniToggle.Callback(MiniToggle.Enabled)
