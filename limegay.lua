@@ -41,7 +41,7 @@ if isfolder(LimeFolder) and isfolder(ConfigsFolder) then
 	CurrentGameConfig = LimeFolder .. "/" .. game.PlaceId .. ".lua"
 	if not isfolder(ConfigsFolder .. "/" .. game.PlaceId) then
 		CurrentGameFolder = ConfigsFolder .. "/" .. game.PlaceId
-		makefolder(PlaceIdFolder)
+		makefolder(CurrentGameFolder)
 	end
 	if isfile(CurrentGameConfig) then
 		local GetMain = readfile(CurrentGameConfig)
