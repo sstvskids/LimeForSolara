@@ -388,11 +388,13 @@ function Library:CreateMain()
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
 		
 		task.spawn(function()
+			local FolderTable = {}
 			repeat
 				task.wait(3)
 				if ManagerMenu and isfolder(CurrentGameFolder) then
 					for _, v in ipairs(listfiles(CurrentGameFolder)) do
-						if isfile(v) then
+						if isfile(v) and not table.find(FolderTable, v) then
+							table.insert(FolderTable, v)
 							for _, b in pairs(ManagerMenu:GetChildren()) do
 								if b:IsA("TextLabel") and b.Text ~= v then
 									local TextLabel_1 = Instance.new("TextLabel")
@@ -408,7 +410,8 @@ function Library:CreateMain()
 									break
 								end
 							end
-						else
+						elseif not isfile(v) and table.find(FolderTable, v) then
+							table.remove(FolderTable, v)
 							for _ , b in pairs(ManagerMenu:GetChildren()) do
 								if b:IsA("TextLabel") and b.Text == v then
 									b:Destroy()
@@ -517,8 +520,8 @@ function Library:CreateMain()
 			if isfolder(CurrentGameFolder) and isfile(CurrentGameConfig) and ConfigName then
 				local GetConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
 				if isfile(GetConfig) then
-					shared.Lime.Uninjected = true
-					shared.Lime.LimeStopped = true
+					Library.Uninject = true
+					Library.Stopped = true
 					task.wait(2)
 					writefile(CurrentGameConfig, readfile(GetConfig))
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Loader.lua"))()
