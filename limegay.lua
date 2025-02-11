@@ -13,9 +13,6 @@ local DeviceType = nil
 local Library = {
 	Visual = {
 		Hud = true,
-		Suffix = false,
-		Separate1 = "[",
-		Separate2 = "]",
 		Arraylist = true,
 		Watermark = true,
 		Notification = true,
@@ -401,7 +398,7 @@ function Library:CreateMain()
 		task.spawn(function()
 			local FolderTable = {}
 			repeat
-				task.wait(3)
+				task.wait()
 				if ManagerMenu and isfolder(CurrentGameFolder) then
 					for _, v in ipairs(listfiles(CurrentGameFolder)) do
 						if isfile(v) and not table.find(FolderTable, v) then
@@ -488,7 +485,7 @@ function Library:CreateMain()
 		ManagerDelete.Image = "rbxassetid://15921650550"
 		ManagerDelete.MouseButton1Click:Connect(function()
 			if isfile(CurrentGameConfig) and ConfigName then
-				local OldConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
+				local OldConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 				if isfile(OldConfig) then
 					delfile(OldConfig)
 				end
@@ -508,7 +505,7 @@ function Library:CreateMain()
 		ManagerCreate.Image = "rbxassetid://9063830322"
 		ManagerCreate.MouseButton1Click:Connect(function()
 			if isfile(CurrentGameConfig) and ConfigName then
-				local NewConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
+				local NewConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 				if not isfile(NewConfig) then
 					writefile(NewConfig, readfile(CurrentGameConfig))
 				end
@@ -529,7 +526,7 @@ function Library:CreateMain()
 		ManagerLoad.Image = "rbxassetid://15911231575"
 		ManagerLoad.MouseButton1Click:Connect(function()
 			if isfolder(CurrentGameFolder) and isfile(CurrentGameConfig) and ConfigName then
-				local GetConfig = CurrentGameFolder .. "/" .. ConfigName .. ".lua"
+				local GetConfig = ConfigsFolder .. "/" .. game.PlaceId .. "/" .. ConfigName .. ".lua"
 				if isfile(GetConfig) then
 					Library.Uninject = true
 					Library.Stopped = true
