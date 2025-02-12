@@ -22,46 +22,39 @@ local Library = {
 	Uninject = false
 }
 
+local AutoSave = true
 local ConfigName = nil
 local LimeFolder = "Lime"
-local CurrentGameFolder = nil
-local CurrentGameConfig = nil
-local ConfigsFolder = "Lime/configs"
+local ConfigsFolder = LimeFolder .. "/configs"
+local CurrentGameFolder = ConfigsFolder .. "/" .. game.PlaceId
+local CurrentGameConfig = LimeFolder .. "/" .. game.PlaceId .. ".lua"
 local ConfigTable = {Libraries = {ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}}
-
 local Manager, ManagerMenu, ManagerBox, ManagerDelete, ManagerCreate, ManagerLoad
+
 if not isfolder(LimeFolder) then makefolder(LimeFolder) end
 if not isfolder(ConfigsFolder) then makefolder(ConfigsFolder) end
+if not isfolder(CurrentGameFolder) then makefolder(CurrentGameFolder) end
 
-local AutoSave = true
-if isfolder(LimeFolder) and isfolder(ConfigsFolder) then
-	CurrentGameConfig = LimeFolder .. "/" .. game.PlaceId .. ".lua"
-	if not isfolder(ConfigsFolder .. "/" .. game.PlaceId) then
-		CurrentGameFolder = ConfigsFolder .. "/" .. game.PlaceId
-		makefolder(CurrentGameFolder)
-	end
-	if isfile(CurrentGameConfig) then
-		local GetMain = readfile(CurrentGameConfig)
-		if GetMain then
-			local OldSettings = HttpService:JSONDecode(GetMain)
-			if OldSettings then
-				ConfigTable = OldSettings
-			end
+if isfile(CurrentGameConfig) then
+	local GetMain = readfile(CurrentGameConfig)
+	if GetMain and GetMain ~= "" then
+		local Success, OldSettings = pcall(HttpService.JSONDecode, HttpService, GetMain)
+		if Success and OldSettings then
+			ConfigTable = OldSettings
 		end
 	end
-	task.spawn(function()
-		repeat
-			task.wait()
-			if Library.Uninject then
-				AutoSave = false
-			else
-				if AutoSave then
-					writefile(CurrentGameConfig, HttpService:JSONEncode(ConfigTable))
-				end
-			end
-		until Library.Stopped
-	end)
 end
+
+task.spawn(function()
+	while AutoSave do
+		task.wait(2)
+		if not Library.Uninject then
+			writefile(CurrentGameConfig, HttpService:JSONEncode(ConfigTable))
+		else
+			AutoSave = false
+		end
+	end
+end)
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
 	if not DeviceType then
