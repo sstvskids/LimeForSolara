@@ -1037,6 +1037,15 @@ function Library:CreateMain()
 					end
 				until Library.Stopped
 			end)
+			
+			if ToggleButton.Enabled then
+				ToggleButton.Enabled = true
+				ToggleButtonClicked()
+
+				if ToggleButton.Callback then
+					ToggleButton.Callback(ToggleButton.Enabled)
+				end
+			end
 
 			ToggleMain.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
