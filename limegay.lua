@@ -932,6 +932,18 @@ function Library:CreateMain()
 						MiniKeybind.TextWrapped = true
 						MiniKeybind.TextScaled = true
 						MakeDraggable(MiniKeybind)
+						
+						local function MiniKeyClicked()
+							if ToggleButton.Enabled then
+								MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+								AddArray(ToggleButton.Name)
+								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							else
+								MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
+								RemoveArray(ToggleButton.Name)
+								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							end
+						end
 
 						task.spawn(function()
 							repeat
@@ -946,13 +958,7 @@ function Library:CreateMain()
 
 						MiniKeybind.MouseButton1Click:Connect(function()
 							ToggleButton.Enabled = not ToggleButton.Enabled
-							if ToggleButton.Enabled then
-								AddArray(ToggleButton.Name)
-								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-							else
-								RemoveArray(ToggleButton.Name)
-								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-							end
+							MiniKeyClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
@@ -989,6 +995,18 @@ function Library:CreateMain()
 				until Library.Stopped
 			end)
 
+			local function ToggleButtonClicked()
+				if ToggleButton.Enabled then
+					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
+					AddArray(ToggleButton.Name)
+					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+				else
+					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+					RemoveArray(ToggleButton.Name)
+					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+				end
+			end
+			
 			task.spawn(function()
 				repeat
 					task.wait()
@@ -1022,16 +1040,8 @@ function Library:CreateMain()
 
 			ToggleMain.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
-				if ToggleButton.Enabled then
-					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
-					AddArray(ToggleButton.Name)
-					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-				else
-					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-					RemoveArray(ToggleButton.Name)
-					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-				end
-
+				ToggleButtonClicked()
+				
 				if ToggleButton.Callback then
 					ToggleButton.Callback(ToggleButton.Enabled)
 				end
@@ -1099,18 +1109,8 @@ function Library:CreateMain()
 				UserInputService.InputBegan:Connect(function(Input, isTyping)
 					if Input.KeyCode == Enum.KeyCode[ToggleButton.Keybind] and not isTyping then
 						ToggleButton.Enabled = not ToggleButton.Enabled
-						if ToggleButton.Enabled then
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
-							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
-							AddArray(ToggleButton.Name)
-							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-						else
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
-							RemoveArray(ToggleButton.Name)
-							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
-						end
-
+						ToggleButtonClicked()
+						
 						if ToggleButton.Callback then
 							ToggleButton.Callback(ToggleButton.Enabled)
 						end
