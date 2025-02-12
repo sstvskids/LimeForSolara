@@ -1,3 +1,4 @@
+--Beta shit
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
@@ -273,7 +274,7 @@ function Library:CreateMain()
 		TextLabel.TextXAlignment = Enum.TextXAlignment.Right
 
 		local TextGradient = Instance.new("UIGradient")
-		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(138, 230, 255))}
+		TextGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 		TextGradient.Parent = TextLabel
 
 		local MaxWidth = ArrayFrame.AbsoluteSize.X
@@ -788,7 +789,7 @@ function Library:CreateMain()
 			local UIGradient = Instance.new("UIGradient")
 			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
 			UIGradient.Parent = ToggleMain
-			UIGradient.Enabled = false
+			UIGradient.Enabled = true
 
 			local IsToggleMenu =  false
 			local ToggleMenu = Instance.new("Frame")
@@ -1014,7 +1015,6 @@ function Library:CreateMain()
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 							RemoveArray(ToggleButton.Name)
 
 							if ToggleButton.Callback then
@@ -1027,7 +1027,6 @@ function Library:CreateMain()
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 							RemoveArray(ToggleButton.Name)
 
 							if ToggleButton.Callback then
