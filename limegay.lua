@@ -731,7 +731,7 @@ function Library:CreateMain()
 			if not ConfigTable.Libraries.ToggleButton[ToggleButton.Name] then
 				ConfigTable.Libraries.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
-					Keybind = ToggleButton.Keybind
+					Keybind = ToggleButton.Keybind,
 				}
 			else
 				ToggleButton.Enabled = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled
@@ -874,6 +874,7 @@ function Library:CreateMain()
 							ToggleButton.Keybind = "Euro"
 							Keybinds.Text = ""
 							Keybinds.PlaceholderText = "None"
+							Keybinds:ReleaseFocus()
 							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Keybind = ToggleButton.Keybind
 						end       
 					end
@@ -1023,12 +1024,10 @@ function Library:CreateMain()
 				ToggleButton.Enabled = not ToggleButton.Enabled
 				if ToggleButton.Enabled then
 					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
-					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = true}):Play()
 					AddArray(ToggleButton.Name)
 					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 				else
 					TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-					TweenService:Create(UIGradient, TweenInfo.new(0.4), {Enabled = false}):Play()
 					RemoveArray(ToggleButton.Name)
 					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 				end
