@@ -4,6 +4,7 @@ local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
@@ -55,6 +56,15 @@ task.spawn(function()
 			AutoSave = false
 		end
 	end
+end)
+
+task.spawn(function()
+	StarterGui:SetCore("SendNotification", { 
+		Title = "Lime",
+		Text = "Loaded. Press RShift or click the icon.",
+		Icon = "rbxassetid://12435962893",
+		Duration = 3,
+	})
 end)
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
@@ -132,7 +142,7 @@ function Library:CreateMain()
 			ScreenGui.Parent = PlayerGui:FindFirstChild("MainGui")
 		end
 	end
-	
+
 	local MainFrame
 	if DeviceType == "Mouse" then
 		MainFrame = Instance.new("Frame")
@@ -388,7 +398,7 @@ function Library:CreateMain()
 		local UIListLayout_5 = Instance.new("UIListLayout")
 		UIListLayout_5.Parent = ManagerMenu
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
-		
+
 		task.spawn(function()
 			local FolderTable = {}
 			repeat
@@ -933,7 +943,7 @@ function Library:CreateMain()
 						MiniKeybind.TextWrapped = true
 						MiniKeybind.TextScaled = true
 						MakeDraggable(MiniKeybind)
-						
+
 						local function MiniKeyClicked()
 							if ToggleButton.Enabled then
 								MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
@@ -1007,7 +1017,7 @@ function Library:CreateMain()
 					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 				end
 			end
-			
+
 			task.spawn(function()
 				repeat
 					task.wait()
@@ -1036,7 +1046,7 @@ function Library:CreateMain()
 					end
 				until Library.Stopped
 			end)
-			
+
 			if ToggleButton.Enabled then
 				ToggleButton.Enabled = true
 				ToggleButtonClicked()
@@ -1049,7 +1059,7 @@ function Library:CreateMain()
 			ToggleMain.MouseButton1Click:Connect(function()
 				ToggleButton.Enabled = not ToggleButton.Enabled
 				ToggleButtonClicked()
-				
+
 				if ToggleButton.Callback then
 					ToggleButton.Callback(ToggleButton.Enabled)
 				end
@@ -1118,7 +1128,7 @@ function Library:CreateMain()
 					if Input.KeyCode == Enum.KeyCode[ToggleButton.Keybind] and not isTyping then
 						ToggleButton.Enabled = not ToggleButton.Enabled
 						ToggleButtonClicked()
-						
+
 						if ToggleButton.Callback then
 							ToggleButton.Callback(ToggleButton.Enabled)
 						end
@@ -1140,7 +1150,7 @@ function Library:CreateMain()
 				else
 					Dropdown.Default = ConfigTable.Libraries.Dropdown[Dropdown.Name].Default
 				end
-				
+
 				local Selected
 				local DropdownHolder = Instance.new("TextButton")
 				DropdownHolder.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -1402,9 +1412,8 @@ function Library:CreateMain()
 				local UICorner = Instance.new("UICorner")
 				UICorner.CornerRadius = UDim.new(0, 4)
 				UICorner.Parent = MiniToggleClick
-
-				MiniToggleClick.MouseButton1Click:Connect(function()
-					MiniToggle.Enabled = not MiniToggle.Enabled
+				
+				local function MiniToggleClicked()
 					if MiniToggle.Enabled then
 						TweenService:Create(MiniToggleClick, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
 						ConfigTable.Libraries.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
@@ -1412,6 +1421,21 @@ function Library:CreateMain()
 						TweenService:Create(MiniToggleClick, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
 						ConfigTable.Libraries.MiniToggle[MiniToggle.Name].Enabled = MiniToggle.Enabled
 					end
+				end
+
+				if MiniToggle.Enabled then
+					MiniToggle.Enabled = true
+					MiniToggleClicked()
+
+					if MiniToggle.Callback then
+						MiniToggle.Callback(MiniToggle.Enabled)
+					end
+				end
+
+				MiniToggleClick.MouseButton1Click:Connect(function()
+					MiniToggle.Enabled = not MiniToggle.Enabled
+					MiniToggleClicked()
+
 					if MiniToggle.Callback then
 						MiniToggle.Callback(MiniToggle.Enabled)
 					end
