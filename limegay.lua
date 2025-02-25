@@ -58,22 +58,29 @@ task.spawn(function()
 	end
 end)
 
-task.spawn(function()
-	StarterGui:SetCore("SendNotification", { 
-		Title = "Lime",
-		Text = "Loaded. Press RShift or click the icon.",
-		Icon = "rbxassetid://12435962893",
-		Duration = 3,
-	})
-end)
-
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
 	if not DeviceType then
 		DeviceType = "Touch"
+		task.spawn(function()
+			StarterGui:SetCore("SendNotification", { 
+				Title = "Lime",
+				Text = "Loaded. Press click the icon.",
+				Icon = "rbxassetid://12435962893",
+				Duration = 3,
+			})
+		end)
 	end
 elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
 	if not DeviceType then
 		DeviceType = "Mouse"
+		task.spawn(function()
+			StarterGui:SetCore("SendNotification", { 
+				Title = "Lime",
+				Text = "Loaded. Press RightShift",
+				Icon = "rbxassetid://12435962893",
+				Duration = 3,
+			})
+		end)
 	end
 end
 
