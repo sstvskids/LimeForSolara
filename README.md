@@ -10,4 +10,5 @@ Christmas:
 ![image](https://github.com/user-attachments/assets/737fbf4a-3e33-4b9c-9287-bd31a3b530f2)
 
 Support: https://discord.gg/vbaKx8UWU9
+
 Note: Rewrite In Progress
