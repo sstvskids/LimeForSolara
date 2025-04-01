@@ -23,19 +23,13 @@ if not shared.Lime then
 end
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
-	delfolder(ConfigFolder)
-	task.wait(1.5)
-	if not isfolder(ConfigFolder) then
-		makefolder(ConfigFolder)
-		task.wait(1.5)
-		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
-		if isfile(MainFile) then
-			local GetMain = readfile(MainFile)
-			if GetMain then
-				local OldSettings = HttpService:JSONDecode(GetMain)
-				if OldSettings then
-					ConfigSetting = OldSettings
-				end
+	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+	if isfile(MainFile) then
+		local GetMain = readfile(MainFile)
+		if GetMain then
+			local OldSettings = HttpService:JSONDecode(GetMain)
+			if OldSettings then
+				ConfigSetting = OldSettings
 			end
 		end
 	end
@@ -47,9 +41,7 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 				if shared.Lime.Uninjected then
 					AutoSave = false
 				end
-				if MainFile and isfile(MainFile) then
-					writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
-				end
+				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
 			end
 		end)
 	end)
@@ -200,7 +192,7 @@ function Library:CreateMain()
 	end)
 
 	local function RandomTitle()
-		local WaterSex = {"Lime", "nothm_"  "Fuck Me", "Im Cumming", "Ahh~"}
+		local WaterSex = {"Lime", "nothm_", "Fuck Me", "Im Cumming", "Ahh~"}
 		return WaterSex[math.random(1, #WaterSex)]
 	end
 	
@@ -212,7 +204,7 @@ function Library:CreateMain()
 	LibraryTitle.BorderSizePixel = 0
 	LibraryTitle.Position = UDim2.new(0, 20, 0, 18)
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
-	LibraryTitle.Text = "nothm_"
+	LibraryTitle.Text = "Penis"
 	LibraryTitle.Font = Enum.Font.SourceSans
 	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
 	LibraryTitle.TextScaled = true
@@ -519,7 +511,7 @@ function Library:CreateMain()
 
 		function Tabs:CreateToggle(ToggleButton)
 			ToggleButton = {
-				Name = Spoof(math.random(8, 12)),
+				Name = ToggleButton.Name,
 				Keybind = ToggleButton.Keybind or "Home",
 				Enabled = ToggleButton.Enabled or false,
 				AutoEnable = ToggleButton.AutoEnable or false,
@@ -946,7 +938,7 @@ function Library:CreateMain()
 
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
-					Name = Spoof(math.random(8, 12)),
+					Name = MiniToggle.Name,
 					Enabled = MiniToggle.Enabled or false,
 					--AutoDisable = MiniToggle.AutoDisable or false,
 					Callback = MiniToggle.Callback or function() end
@@ -1060,7 +1052,7 @@ function Library:CreateMain()
 
 			function ToggleButton:CreateSlider(Slider)
 				Slider = {
-					Name = Spoof(math.random(8, 12)),
+					Name = Slider.Name,
 					Min = Slider.Min or 0,
 					Max = Slider.Max or 100,
 					Default = Slider.Default,
@@ -1251,7 +1243,7 @@ function Library:CreateMain()
 				DropdownMode.Position = UDim2.new(0, 5, 0, 0)
 				DropdownMode.Size = UDim2.new(0, 45, 1, 0)
 				DropdownMode.Font = Enum.Font.SourceSans
-				DropdownMode.Text = "Penis"
+				DropdownMode.Text = "Mode"
 				DropdownMode.TextColor3 = Color3.fromRGB(255, 255, 255)
 				DropdownMode.TextSize = 16.000
 				DropdownMode.TextWrapped = true
@@ -1259,7 +1251,7 @@ function Library:CreateMain()
 
 				local CurrentDropdown = 1
 				DropdownHolder.MouseButton1Click:Connect(function()
-					DropdownSelected.Text = Spoof(math.random(8, 12))
+					DropdownSelected.Text = Dropdown.List[CurrentDropdown]
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
