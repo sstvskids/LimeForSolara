@@ -23,13 +23,19 @@ if not shared.Lime then
 end
 
 if isfolder(MainFolder) and isfolder(ConfigFolder) then
-	MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
-	if isfile(MainFile) then
-		local GetMain = readfile(MainFile)
-		if GetMain then
-			local OldSettings = HttpService:JSONDecode(GetMain)
-			if OldSettings then
-				ConfigSetting = OldSettings
+	delfolder(ConfigFolder)
+	task.wait(1.5)
+	if not isfolder(ConfigFolder) then
+		makefolder(ConfigFolder)
+		task.wait(1.5)
+		MainFile = ConfigFolder .. "/" .. game.PlaceId .. ".lua"
+		if isfile(MainFile) then
+			local GetMain = readfile(MainFile)
+			if GetMain then
+				local OldSettings = HttpService:JSONDecode(GetMain)
+				if OldSettings then
+					ConfigSetting = OldSettings
+				end
 			end
 		end
 	end
@@ -41,7 +47,9 @@ if isfolder(MainFolder) and isfolder(ConfigFolder) then
 				if shared.Lime.Uninjected then
 					AutoSave = false
 				end
-				writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+				if MainFile and isfile(MainFile) then
+					writefile(MainFile, HttpService:JSONEncode(ConfigSetting))
+				end
 			end
 		end)
 	end)
