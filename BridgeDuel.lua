@@ -1,4 +1,15 @@
 repeat wait() until game:IsLoaded()
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+	Title = "Bridge Duel",
+	Text = "Exploits Detected, please rejoin and play legit.",
+	Duration = 5,
+})
+task.wait(10)
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+	Title = "Lime",
+	Text = ":troll:",
+	Duration = 2,
+})
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
