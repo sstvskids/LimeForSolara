@@ -191,6 +191,11 @@ function Library:CreateMain()
 		end)
 	end)
 
+	local function RandomTitle()
+		local WaterSex = {"Lime", "nothm_"  "Fuck Me", "Im Cumming", "Ahh~"}
+		return WaterSex[math.random(1, #WaterSex)]
+	end
+	
 	local LibraryTitle = Instance.new("TextLabel")
 	LibraryTitle.Parent = HudFrame
 	LibraryTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -207,6 +212,12 @@ function Library:CreateMain()
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
+	
+	spawn(function()
+		while task.wait(5) do
+			LibraryTitle.Text = RandomTitle()
+		end
+	end)
 
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
