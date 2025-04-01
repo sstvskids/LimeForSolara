@@ -17,13 +17,13 @@ local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
 local uicont = require(game:GetService("Players").LocalPlayer.PlayerScripts.Controllers.All.UIController)
 
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
 	game:GetService("StarterGui"):SetCore("SendNotification", { 
 		Title = "NoGamingChair",
 		Text = "Exploiting is not allowed.",
 		Duration = 10,
 	})
-elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
 	if uicont then
 		if not uicont.EnabledMenu or uicont.EnabledMenu ~= "Popup" then
 			uicont:ToggleMenu("Popup", {
