@@ -1232,7 +1232,7 @@ function Library:CreateMain()
 				DropdownMode.Position = UDim2.new(0, 5, 0, 0)
 				DropdownMode.Size = UDim2.new(0, 45, 1, 0)
 				DropdownMode.Font = Enum.Font.SourceSans
-				DropdownMode.Text = "Mode"
+				DropdownMode.Text = "Penis"
 				DropdownMode.TextColor3 = Color3.fromRGB(255, 255, 255)
 				DropdownMode.TextSize = 16.000
 				DropdownMode.TextWrapped = true
@@ -1240,7 +1240,7 @@ function Library:CreateMain()
 
 				local CurrentDropdown = 1
 				DropdownHolder.MouseButton1Click:Connect(function()
-					DropdownSelected.Text = Dropdown.List[CurrentDropdown]
+					DropdownSelected.Text = Spoof(math.random(8, 12))
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
