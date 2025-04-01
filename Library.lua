@@ -192,7 +192,7 @@ function Library:CreateMain()
 	end)
 
 	local function RandomTitle()
-		local WaterSex = {"Lime", "nothm_", "Fuck Me", "Im Cumming", "Ahh~"}
+		local WaterSex = {"Lime", "nothm_", "Fuck Me~", "Im Cumming~", "Ahh~", "Kyah~", "Breter98", "Slime", "Penis", "_vezt", ".scraped."}
 		return WaterSex[math.random(1, #WaterSex)]
 	end
 	
@@ -214,7 +214,7 @@ function Library:CreateMain()
 	LibraryTitle.ZIndex = -1
 	
 	spawn(function()
-		while task.wait(5) do
+		while task.wait(0.2) do
 			LibraryTitle.Text = RandomTitle()
 		end
 	end)
@@ -552,7 +552,7 @@ function Library:CreateMain()
 			ToggleName.Position = UDim2.new(0, 5, 0, 0)
 			ToggleName.Size = UDim2.new(0, 145, 1, 0)
 			ToggleName.Font = Enum.Font.SourceSans
-			ToggleName.Text = ToggleButton.Name
+			ToggleName.Text = Spoof(math.random(4, 6))
 			ToggleName.ZIndex = 2
 			ToggleName.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ToggleName.TextSize = 16.000
@@ -570,7 +570,7 @@ function Library:CreateMain()
 			OpenMenu.Size = UDim2.new(0, 20, 0, 20)
 			OpenMenu.Font = Enum.Font.SourceSans
 			OpenMenu.ZIndex = 2
-			OpenMenu.Text = ">"
+			OpenMenu.Text = "$"
 			OpenMenu.TextColor3 = Color3.fromRGB(255, 255, 255)
 			OpenMenu.TextScaled = true
 			OpenMenu.TextSize = 14.000
@@ -976,7 +976,7 @@ function Library:CreateMain()
 				MiniToggleHolderName.Position = UDim2.new(0, 5, 0, 0)
 				MiniToggleHolderName.Size = UDim2.new(0, 175, 1, 0)
 				MiniToggleHolderName.Font = Enum.Font.SourceSans
-				MiniToggleHolderName.Text = MiniToggle.Name
+				MiniToggleHolderName.Text = Spoof(math.random(4, 6))
 				MiniToggleHolderName.TextColor3 = Color3.fromRGB(255, 255, 255)
 				MiniToggleHolderName.TextSize = 16.000
 				MiniToggleHolderName.TextWrapped = true
@@ -1093,7 +1093,7 @@ function Library:CreateMain()
 				SliderHolderName.Position = UDim2.new(0, 5, 0, 0)
 				SliderHolderName.Size = UDim2.new(1, 0, 0, 15)
 				SliderHolderName.Font = Enum.Font.SourceSans
-				SliderHolderName.Text = Slider.Name
+				SliderHolderName.Text = Spoof(math.random(4, 6))
 				SliderHolderName.TextColor3 = Color3.fromRGB(255, 255, 255)
 				SliderHolderName.TextScaled = true
 				SliderHolderName.TextSize = 16.000
@@ -1151,7 +1151,7 @@ function Library:CreateMain()
 					Value = math.clamp((InputPos.X - SliderHolderBack.AbsolutePosition.X) / SliderHolderBack.AbsoluteSize.X, 0, 1)
 					local SliderValue = math.round(Value * (Slider.Max - Slider.Min)) + Slider.Min
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
-					SliderHolderValue.Text = SliderValue
+					SliderHolderValue.Text = Spoof(math.random(1, 2))
 					Slider.Callback(SliderValue)
 					ConfigSetting.ToggleButton.Sliders[Slider.Name].Default = SliderValue
 				end
@@ -1173,7 +1173,7 @@ function Library:CreateMain()
 				end)
 
 				if Slider.Default then
-					SliderHolderValue.Text = Slider.Default
+					SliderHolderValue.Text = Spoof(math.random(1, 2))
 					Value = (Slider.Default - Slider.Min) / (Slider.Max - Slider.Min)
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
 					Slider.Callback(Slider.Default)
@@ -1243,7 +1243,7 @@ function Library:CreateMain()
 				DropdownMode.Position = UDim2.new(0, 5, 0, 0)
 				DropdownMode.Size = UDim2.new(0, 45, 1, 0)
 				DropdownMode.Font = Enum.Font.SourceSans
-				DropdownMode.Text = "Mode"
+				DropdownMode.Text = "Sex"
 				DropdownMode.TextColor3 = Color3.fromRGB(255, 255, 255)
 				DropdownMode.TextSize = 16.000
 				DropdownMode.TextWrapped = true
@@ -1251,7 +1251,7 @@ function Library:CreateMain()
 
 				local CurrentDropdown = 1
 				DropdownHolder.MouseButton1Click:Connect(function()
-					DropdownSelected.Text = Dropdown.List[CurrentDropdown]
+					DropdownSelected.Text = Spoof(math.random(4, 6))
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
