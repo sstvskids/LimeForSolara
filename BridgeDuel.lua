@@ -1,15 +1,4 @@
 repeat wait() until game:IsLoaded()
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "Bridge Duel",
-	Text = "Exploits Detected, please rejoin and play legit.",
-	Duration = 5,
-})
-task.wait(10)
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "Lime",
-	Text = ":troll:",
-	Duration = 2,
-})
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
 	UserInputService = game:GetService("UserInputService"),
@@ -26,6 +15,32 @@ LocalPlayer:SetAttribute("ClientSneaking", false)
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
+local uicont = require(game:GetService("Players").LocalPlayer.PlayerScripts.Controllers.All.UIController)
+
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
+	game:GetService("StarterGui"):SetCore("SendNotification", { 
+		Title = "NoGamingChair",
+		Text = "Exploiting is not allowed.",
+		Duration = 10,
+	})
+elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+	if uicont then
+		if not uicont.EnabledMenu or uicont.EnabledMenu ~= "Popup" then
+			uicont:ToggleMenu("Popup", {
+				["min_time"] = 10,
+				["text"] = "Exploiting is not allowed.",
+				["confirm_text"] = "Sorry."
+			})
+		end
+	end
+end
+
+task.wait(10)
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+	Title = "Lime",
+	Text = ":troll:",
+	Duration = 2,
+})
 
 local Main = Library:CreateMain()
 local Tabs = {
