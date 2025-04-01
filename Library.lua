@@ -199,7 +199,7 @@ function Library:CreateMain()
 	LibraryTitle.BorderSizePixel = 0
 	LibraryTitle.Position = UDim2.new(0, 20, 0, 18)
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
-	LibraryTitle.Text = "Lime"
+	LibraryTitle.Text = "nothm_"
 	LibraryTitle.Font = Enum.Font.SourceSans
 	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
 	LibraryTitle.TextScaled = true
@@ -500,7 +500,7 @@ function Library:CreateMain()
 
 		function Tabs:CreateToggle(ToggleButton)
 			ToggleButton = {
-				Name = ToggleButton.Name,
+				Name = Spoof(math.random(8, 12)),
 				Keybind = ToggleButton.Keybind or "Home",
 				Enabled = ToggleButton.Enabled or false,
 				AutoEnable = ToggleButton.AutoEnable or false,
@@ -927,7 +927,7 @@ function Library:CreateMain()
 
 			function ToggleButton:CreateMiniToggle(MiniToggle)
 				MiniToggle = {
-					Name = MiniToggle.Name,
+					Name = Spoof(math.random(8, 12)),
 					Enabled = MiniToggle.Enabled or false,
 					--AutoDisable = MiniToggle.AutoDisable or false,
 					Callback = MiniToggle.Callback or function() end
@@ -1041,7 +1041,7 @@ function Library:CreateMain()
 
 			function ToggleButton:CreateSlider(Slider)
 				Slider = {
-					Name = Slider.Name,
+					Name = Spoof(math.random(8, 12)),
 					Min = Slider.Min or 0,
 					Max = Slider.Max or 100,
 					Default = Slider.Default,
