@@ -15,41 +15,15 @@ LocalPlayer:SetAttribute("ClientSneaking", false)
 local Mouse = LocalPlayer:GetMouse()
 local OldTorsoC0 = LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0.p
 local OldC0 = nil
-local uicont = require(game:GetService("Players").LocalPlayer.PlayerScripts.Controllers.All.UIController)
-
-if Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-	game:GetService("StarterGui"):SetCore("SendNotification", { 
-		Title = "NoGamingChair",
-		Text = "Exploiting is not allowed.",
-		Duration = 10,
-	})
-elseif not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
-	if uicont then
-		if not uicont.EnabledMenu or uicont.EnabledMenu ~= "Popup" then
-			uicont:ToggleMenu("Popup", {
-				["min_time"] = 10,
-				["text"] = "Exploiting is not allowed.",
-				["confirm_text"] = "Sorry."
-			})
-		end
-	end
-end
-
-task.wait(10)
-game:GetService("StarterGui"):SetCore("SendNotification", { 
-	Title = "Lime",
-	Text = ":troll:",
-	Duration = 2,
-})
 
 local Main = Library:CreateMain()
 local Tabs = {
-	Combat = Main:CreateTab("Cumbath", 138185990548352, Color3.fromRGB(255, 85, 127)),
-	Exploit = Main:CreateTab("Sexploit", 71954798465945, Color3.fromRGB(0, 255, 187)),
-	Move = Main:CreateTab("Mogger", 91366694317593, Color3.fromRGB(82, 246, 255)),
-	Player = Main:CreateTab("Fucker", 103157697311305, Color3.fromRGB(255, 255, 127)),
-	Visual = Main:CreateTab("Sexual", 118420030502964, Color3.fromRGB(170, 85, 255)),
-	World = Main:CreateTab("Lewd", 76313147188124, Color3.fromRGB(255, 170, 0))
+	Combat = Main:CreateTab("Combat", 138185990548352, Color3.fromRGB(255, 85, 127)),
+	Exploit = Main:CreateTab("Exploit", 71954798465945, Color3.fromRGB(0, 255, 187)),
+	Move = Main:CreateTab("Move", 91366694317593, Color3.fromRGB(82, 246, 255)),
+	Player = Main:CreateTab("Player", 103157697311305, Color3.fromRGB(255, 255, 127)),
+	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
+	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0))
 }
 
 local BridgeDuel = {
@@ -264,111 +238,6 @@ local function GetBed(MaxDist)
 end
 
 local AntiBotGlobal = false
-spawn(function()
-	local Selected, Distance, TeamCheck, IsHolding = nil, nil, false, false
-	local Tween = nil
-	local Loop = nil
-	local AimAssist = Tabs.Combat:CreateToggle({
-		Name = "Aim Assist",
-		Callback = function(callback)
-			if callback then
-				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
-						if IsAlive(LocalPlayer.Character) then
-							local Entity = GetNearestEntity(Distance, AntiBotGlobal, "Distance", TeamCheck, true)
-							if Entity then
-								local NewCFrame = CFrame.new(game.Workspace.CurrentCamera.CFrame.Position, Entity:FindFirstChild("HumanoidRootPart").Position)
-								if NewCFrame then
-									Tween = Service.TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = NewCFrame})
-									if Selected == "Lock" then
-										if IsHolding then
-											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-												game.Workspace.CurrentCamera.CFrame = NewCFrame
-											end
-										else
-											game.Workspace.CurrentCamera.CFrame = NewCFrame
-										end
-									elseif Selected == "Smooth" then
-										if IsHolding then
-											if Service.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-												if Tween then
-													Tween:Play()
-												end
-											end
-										else
-											if Tween then
-												Tween:Play()
-											end
-										end
-									end
-								end
-							else
-								if Selected == "Smooth" then
-									if Tween then
-										Tween:Pause()
-									end
-								end
-							end
-						end
-					end)
-				else
-					Loop:Disconnect()
-					Loop = nil
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-				if Tween then
-					Tween = nil
-				end
-			end
-		end
-	})
-	local AimAssistMethods = AimAssist:CreateDropdown({
-		Name = "Aiming Methods",
-		List = {"Lock", "Smooth"},
-		Default = "Smooth",
-		Callback = function(callback)
-			if callback then
-				Selected = callback
-			end
-		end
-	})
-	local AutoClickerMin = AimAssist:CreateSlider({
-		Name = "Distance",
-		Min = 0,
-		Max = 20,
-		Default = 10,
-		Callback = function(callback)
-			if callback then
-				Distance = callback
-			end
-		end
-	})
-	local AimAssistHold = AimAssist:CreateMiniToggle({
-		Name = "Hold",
-		Callback = function(callback)
-			if callback then
-				IsHolding = true
-			else
-				IsHolding = false
-			end
-		end
-	})
-	local AimAssistTeam = AimAssist:CreateMiniToggle({
-		Name = "Team",
-		Callback = function(callback)
-			if callback then
-				TeamCheck = true
-			else
-				TeamCheck = false
-			end
-		end
-	})
-end)
-
 spawn(function()
 	local AntiBot = Tabs.Combat:CreateToggle({
 		Name = "Anti Bot",
