@@ -94,41 +94,27 @@ end
 spawn(function()
 	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
 	if DefaultChat then
-		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, player)
-			if player == LocalPlayer and string.find(LocalPlayer.Name:lower(), "lime") then
-				if msg and msg.Message then
-					if msg.Message:lower() == "slime" then
-						local args = {
-							"Lime User, " .. LocalPlayer.Name,
-							"All"
-						}
-						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Message:lower() == "ulime" then
-						shared.Lime.Uninjected = true
-						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime | Anti Hack",
-							Text = "Uninjecting..",
-							Duration = 2
-						})
-					end
+		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
+			if msg and msg.Message then
+				if string.match(msg.Message:lower(), "nothm") or string.match(msg.Message:upper(), "NOTHM") then
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Bridge Duel",
+						Text = "Uninjecting..",
+						Duration = 2,
+					})
 				end
 			end
 		end)
 	else
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
-			if msg and msg.Text and msg.TextSource and msg.TextSource.UserId == LocalPlayer.UserId and string.find(LocalPlayer.Name:lower(), "lime") then
-				if msg.Text:lower() == "slime" then
-					local args = {
-						"Lime User, " .. LocalPlayer.Name,
-						"All"
-					}
-					game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-				elseif msg.Text:lower() == "ulime" then
+			if msg and msg.Text then
+				if string.match(msg.Text:lower(), "nothm") or string.match(msg.Text:upper(), "NOTHM") then
 					shared.Lime.Uninjected = true
 					game:GetService("StarterGui"):SetCore("SendNotification", { 
-						Title = "Lime | Anti Hack",
+						Title = "Bridge Duel",
 						Text = "Uninjecting..",
-						Duration = 2
+						Duration = 2,
 					})
 				end
 			end
