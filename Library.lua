@@ -97,13 +97,13 @@ spawn(function()
 		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, player)
 			if player == LocalPlayer and string.find(LocalPlayer.Name:lower(), "lime") then
 				if msg and msg.Message then
-					if msg.Message:lower() == "breter69" then
+					if msg.Message:lower() == "slime" then
 						local args = {
 							"Lime User, " .. LocalPlayer.Name,
 							"All"
 						}
 						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Message:lower() == "nothmuwu" then
+					elseif msg.Message:lower() == "ulime" then
 						shared.Lime.Uninjected = true
 						game:GetService("StarterGui"):SetCore("SendNotification", { 
 							Title = "Lime | Anti Hack",
@@ -117,13 +117,13 @@ spawn(function()
 	else
 		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
 			if msg and msg.Text and msg.TextSource and msg.TextSource.UserId == LocalPlayer.UserId and string.find(LocalPlayer.Name:lower(), "lime") then
-				if msg.Text:lower() == "breter69" then
+				if msg.Text:lower() == "slime" then
 					local args = {
 						"Lime User, " .. LocalPlayer.Name,
 						"All"
 					}
 					game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-				elseif msg.Text:lower() == "nothmuwu" then
+				elseif msg.Text:lower() == "ulime" then
 					shared.Lime.Uninjected = true
 					game:GetService("StarterGui"):SetCore("SendNotification", { 
 						Title = "Lime | Anti Hack",
