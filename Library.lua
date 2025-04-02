@@ -191,11 +191,6 @@ function Library:CreateMain()
 		end)
 	end)
 
-	local function RandomTitle()
-		local WaterSex = {"Lime", "nothm_", "Fuck Me~", "Im Cumming~", "Ahh~", "Kyah~", "Breter98", "Slime", "Penis", "_vezt", ".scraped."}
-		return WaterSex[math.random(1, #WaterSex)]
-	end
-	
 	local LibraryTitle = Instance.new("TextLabel")
 	LibraryTitle.Parent = HudFrame
 	LibraryTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -204,7 +199,7 @@ function Library:CreateMain()
 	LibraryTitle.BorderSizePixel = 0
 	LibraryTitle.Position = UDim2.new(0, 20, 0, 18)
 	LibraryTitle.Size = UDim2.new(0, 345, 0, 30)
-	LibraryTitle.Text = "Penis"
+	LibraryTitle.Text = "Lime"
 	LibraryTitle.Font = Enum.Font.SourceSans
 	LibraryTitle.TextColor3 = Color3.fromRGB(255, 0, 127)
 	LibraryTitle.TextScaled = true
@@ -212,12 +207,6 @@ function Library:CreateMain()
 	LibraryTitle.TextWrapped = true
 	LibraryTitle.TextXAlignment = Enum.TextXAlignment.Left
 	LibraryTitle.ZIndex = -1
-	
-	spawn(function()
-		while task.wait(0.2) do
-			LibraryTitle.Text = RandomTitle()
-		end
-	end)
 
 	local TitleGradient = Instance.new("UIGradient")
 	TitleGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(138, 230, 255))}
@@ -552,7 +541,7 @@ function Library:CreateMain()
 			ToggleName.Position = UDim2.new(0, 5, 0, 0)
 			ToggleName.Size = UDim2.new(0, 145, 1, 0)
 			ToggleName.Font = Enum.Font.SourceSans
-			ToggleName.Text = Spoof(math.random(4, 6))
+			ToggleName.Text = ToggleButton.Name
 			ToggleName.ZIndex = 2
 			ToggleName.TextColor3 = Color3.fromRGB(255, 255, 255)
 			ToggleName.TextSize = 16.000
@@ -570,7 +559,7 @@ function Library:CreateMain()
 			OpenMenu.Size = UDim2.new(0, 20, 0, 20)
 			OpenMenu.Font = Enum.Font.SourceSans
 			OpenMenu.ZIndex = 2
-			OpenMenu.Text = "$"
+			OpenMenu.Text = ">"
 			OpenMenu.TextColor3 = Color3.fromRGB(255, 255, 255)
 			OpenMenu.TextScaled = true
 			OpenMenu.TextSize = 14.000
@@ -976,7 +965,7 @@ function Library:CreateMain()
 				MiniToggleHolderName.Position = UDim2.new(0, 5, 0, 0)
 				MiniToggleHolderName.Size = UDim2.new(0, 175, 1, 0)
 				MiniToggleHolderName.Font = Enum.Font.SourceSans
-				MiniToggleHolderName.Text = Spoof(math.random(4, 6))
+				MiniToggleHolderName.Text = MiniToggle.Name
 				MiniToggleHolderName.TextColor3 = Color3.fromRGB(255, 255, 255)
 				MiniToggleHolderName.TextSize = 16.000
 				MiniToggleHolderName.TextWrapped = true
@@ -1093,7 +1082,7 @@ function Library:CreateMain()
 				SliderHolderName.Position = UDim2.new(0, 5, 0, 0)
 				SliderHolderName.Size = UDim2.new(1, 0, 0, 15)
 				SliderHolderName.Font = Enum.Font.SourceSans
-				SliderHolderName.Text = Spoof(math.random(4, 6))
+				SliderHolderName.Text = Slider.Name
 				SliderHolderName.TextColor3 = Color3.fromRGB(255, 255, 255)
 				SliderHolderName.TextScaled = true
 				SliderHolderName.TextSize = 16.000
@@ -1151,7 +1140,7 @@ function Library:CreateMain()
 					Value = math.clamp((InputPos.X - SliderHolderBack.AbsolutePosition.X) / SliderHolderBack.AbsoluteSize.X, 0, 1)
 					local SliderValue = math.round(Value * (Slider.Max - Slider.Min)) + Slider.Min
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
-					SliderHolderValue.Text = Spoof(math.random(1, 2))
+					SliderHolderValue.Text = SliderValue
 					Slider.Callback(SliderValue)
 					ConfigSetting.ToggleButton.Sliders[Slider.Name].Default = SliderValue
 				end
@@ -1173,7 +1162,7 @@ function Library:CreateMain()
 				end)
 
 				if Slider.Default then
-					SliderHolderValue.Text = Spoof(math.random(1, 2))
+					SliderHolderValue.Text = Slider.Default
 					Value = (Slider.Default - Slider.Min) / (Slider.Max - Slider.Min)
 					SliderHolderFront.Size = UDim2.fromScale(Value, 1)
 					Slider.Callback(Slider.Default)
@@ -1243,7 +1232,7 @@ function Library:CreateMain()
 				DropdownMode.Position = UDim2.new(0, 5, 0, 0)
 				DropdownMode.Size = UDim2.new(0, 45, 1, 0)
 				DropdownMode.Font = Enum.Font.SourceSans
-				DropdownMode.Text = "Sex"
+				DropdownMode.Text = "Mode"
 				DropdownMode.TextColor3 = Color3.fromRGB(255, 255, 255)
 				DropdownMode.TextSize = 16.000
 				DropdownMode.TextWrapped = true
@@ -1251,7 +1240,7 @@ function Library:CreateMain()
 
 				local CurrentDropdown = 1
 				DropdownHolder.MouseButton1Click:Connect(function()
-					DropdownSelected.Text = Spoof(math.random(4, 6))
+					DropdownSelected.Text = Dropdown.List[CurrentDropdown]
 					Dropdown.Callback(Dropdown.List[CurrentDropdown])
 					Selected = Dropdown.List[CurrentDropdown]
 					CurrentDropdown = CurrentDropdown % #Dropdown.List + 1
