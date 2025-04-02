@@ -94,30 +94,47 @@ end
 spawn(function()
 	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
 	if DefaultChat then
-		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
-			if not string.match(LocalPlayer.Name:lower(), "lime") and not string.match(LocalPlayer.Name:upper(), "LIME") then
+		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, player)
+			if player == LocalPlayer and string.find(LocalPlayer.Name:lower(), "lime") then
 				if msg and msg.Message then
-					if msg.Message == "showmenow" then
+					if msg.Message:lower() == "breter69" then
 						local args = {
-							[1] = "Lime User, " .. LocalPlayer.Name,
-							[2] = "All"
+							"Lime User, " .. LocalPlayer.Name,
+							"All"
 						}
-
 						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
-					elseif msg.Message == "removeitnow" then
+					elseif msg.Message:lower() == "nothmuwu" then
 						shared.Lime.Uninjected = true
 						game:GetService("StarterGui"):SetCore("SendNotification", { 
-							Title = "Lime Developer",
+							Title = "Lime | Anti Hack",
 							Text = "Uninjecting..",
-							Duration = 2.2
+							Duration = 2
 						})
 					end
 				end
 			end
 		end)
+	else
+		game:GetService("TextChatService").MessageReceived:Connect(function(msg)
+			if msg and msg.Text and msg.TextSource and msg.TextSource.UserId == LocalPlayer.UserId and string.find(LocalPlayer.Name:lower(), "lime") then
+				if msg.Text:lower() == "breter69" then
+					local args = {
+						"Lime User, " .. LocalPlayer.Name,
+						"All"
+					}
+					game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+				elseif msg.Text:lower() == "nothmuwu" then
+					shared.Lime.Uninjected = true
+					game:GetService("StarterGui"):SetCore("SendNotification", { 
+						Title = "Lime | Anti Hack",
+						Text = "Uninjecting..",
+						Duration = 2
+					})
+				end
+			end
+		end)
 	end
 end)
-
 
 function Library:CreateMain()
 	local Main = {}
