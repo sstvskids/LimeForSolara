@@ -91,6 +91,34 @@ function Spoof(length)
 	return table.concat(Letter)
 end
 
+spawn(function()
+	local DefaultChat = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
+	if DefaultChat then
+		DefaultChat:FindFirstChild("OnMessageDoneFiltering").OnClientEvent:Connect(function(msg, ...)
+			if not string.match(LocalPlayer.Name:lower(), "lime") and not string.match(LocalPlayer.Name:upper(), "LIME") then
+				if msg and msg.Message then
+					if msg.Message == "showmenow" then
+						local args = {
+							[1] = "Lime User, " .. LocalPlayer.Name,
+							[2] = "All"
+						}
+
+						game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest"):FireServer(unpack(args))
+					elseif msg.Message == "removeitnow" then
+						shared.Lime.Uninjected = true
+						game:GetService("StarterGui"):SetCore("SendNotification", { 
+							Title = "Lime Developer",
+							Text = "Uninjecting..",
+							Duration = 2.2
+						})
+					end
+				end
+			end
+		end)
+	end
+end)
+
+
 function Library:CreateMain()
 	local Main = {}
 
