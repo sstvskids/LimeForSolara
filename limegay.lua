@@ -16,9 +16,7 @@ local Library = {
 	Visual = {
 		Hud = true,
 		Arraylist = true,
-		Watermark = true,
-		Notification = true,
-		Fonts = Enum.Font.SourceSans
+		Watermark = true
 	},
 	Stopped = false,
 	Uninject = false
