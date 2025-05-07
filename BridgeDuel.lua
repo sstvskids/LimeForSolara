@@ -29,8 +29,8 @@ local Tabs = {
 local BridgeDuel = {
 	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
 	Entity = require(game:GetService("ReplicatedStorage").Modules.Entity),
-	BlockPlacementController = require(LocalPlayer.PlayerScripts.Controllers.All.BlockPlacementController),
-	EffectsController = require(game:GetService("Players").LocalPlayer.PlayerScripts.Controllers.All.EffectsController),
+	BlockPlacementController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.BlockPlacementController),
+	EffectsController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.EffectsController),
 }
 
 local function IsAlive(v)
