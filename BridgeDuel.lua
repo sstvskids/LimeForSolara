@@ -31,6 +31,7 @@ local BridgeDuel = {
 	Entity = require(game:GetService("ReplicatedStorage").Modules.Entity),
 	BlockPlacementController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.BlockPlacementController),
 	EffectsController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.EffectsController),
+	ToolService = game:GetService("ReplicatedStorage").Services.ToolService
 }
 
 local function IsAlive(v)
