@@ -2559,6 +2559,11 @@ spawn(function()
 								if LocalPlayer.Character:WaitForChild("Head"):FindFirstChild("Neck") and LocalPlayer.Character:WaitForChild("LowerTorso"):FindFirstChild("Root") then
 									if Rotations == "Normal" then
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.Angles(0, math.pi, 0)
+										task.spawn(function()
+											LocalPlayer:SetAttribute("ClientSneaking", true)
+											task.wait(0.8)
+											LocalPlayer:SetAttribute("ClientSneaking", false)
+										end)
 									elseif Rotations == "None" then
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
