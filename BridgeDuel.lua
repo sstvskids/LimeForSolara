@@ -753,58 +753,6 @@ spawn(function()
 end)
 
 spawn(function()
-	local Loop, Reported, Notify = nil, {}, false
-
-	local AutoReport = Tabs.Exploit:CreateToggle({
-		Name = "Auto Report",
-		Callback = function(callback)
-			if callback then
-				if not Loop then
-					Loop = Service.RunService.RenderStepped:Connect(function()
-						for i, v in pairs(Service.Players:GetPlayers()) do
-							if v and v ~= LocalPlayer and not table.find(Reported, v.Name) then
-								table.insert(Reported, v.Name)
-								local args = {
-									[1] = v.Name
-								}
-
-								game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NetworkService"):WaitForChild("RF"):FindFirstChild("ReportPlayer"):InvokeServer(unpack(args))
-								if Notify then
-									game:GetService("StarterGui"):SetCore("SendNotification", { 
-										Title = "Lime | Auto Report",
-										Text = "Reported " .. v.Name,
-										Icon = Service.Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size60x60),
-										Duration = 5,
-									})
-								end
-							end
-						end
-					end)
-				else
-					Loop:Disconnect()
-					Loop = nil
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-			end
-		end
-	})
-	local AutoReportNotify = AutoReport:CreateMiniToggle({
-		Name = "Notify",
-		Callback = function(callback)
-			if callback then
-				Notify = true
-			else
-				Notify = false
-			end
-		end
-	})
-end)
-
-spawn(function()
 	local Loop, AutoLeave, IsStaff = nil, false, false
 	local Detector = Tabs.Exploit:CreateToggle({
 		Name = "Anti Staff",
