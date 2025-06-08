@@ -1,23 +1,23 @@
 --Beta shit
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local TextService = game:GetService("TextService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
-local Lighting = game:GetService("Lighting")
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer.PlayerGui
-local clonerf = cloneref
-local DeviceType = nil
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local TweenService = cloneref(game:GetService("TweenService"))
+local SoundService = cloneref(game:GetService("SoundService"))
+local TextService = cloneref(game:GetService("TextService"))
+local HttpService = cloneref(game:GetService("HttpService"))
+local RunService = cloneref(game:GetService("RunService"))
+local StarterGui = cloneref(game:GetService("StarterGui"))
+local Lighting = cloneref(game:GetService("Lighting"))
+local Players = cloneref(game:GetService("Players"))
+local CoreGui = cloneref(game:GetService("CoreGui"))
+local LocalPlayer = cloneref(Players.LocalPlayer)
+local PlayerGui = cloneref(LocalPlayer.PlayerGui)
 local Library = {
 	Visual = {
 		Hud = true,
 		Arraylist = true,
 		Watermark = true
 	},
+	DeviceType = nil,
 	Stopped = false,
 	Uninject = false
 }
@@ -57,8 +57,8 @@ task.spawn(function()
 end)
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled then
-	if not DeviceType then
-		DeviceType = "Touch"
+	if not Library.DeviceType then
+		Library.DeviceType = "Touch"
 		task.spawn(function()
 			StarterGui:SetCore("SendNotification", { 
 				Title = "Lime",
@@ -69,8 +69,8 @@ if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and no
 		end)
 	end
 elseif not UserInputService.TouchEnabled and UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
-	if not DeviceType then
-		DeviceType = "Mouse"
+	if not Library.DeviceType then
+		Library.DeviceType = "Mouse"
 		task.spawn(function()
 			StarterGui:SetCore("SendNotification", { 
 				Title = "Lime",
@@ -126,6 +126,16 @@ local function GetChildrenY(obj)
 	return UDim2.new(obj.Size.X.Scale, obj.Size.X.Offset, 0, OldY)
 end
 
+local function PlaySound(id)
+	local Sound = Instance.new("Sound")
+	Sound.SoundId = "rbxassetid://" .. id
+	Sound.Parent = SoundService
+	Sound:Play()
+	Sound.Ended:Connect(function()
+		Sound:Destroy()
+	end)
+end
+
 function Library:CreateMain()
 	local Main = {}
 
@@ -135,21 +145,21 @@ function Library:CreateMain()
 	if RunService:IsStudio() then
 		ScreenGui.Parent = PlayerGui
 	elseif game.PlaceId == 11630038968 or game.PlaceId == 10810646982 then
-		if clonerf then
-			ScreenGui.Parent= clonerf(CoreGui)
+		if CoreGui then
+			ScreenGui.Parent = CoreGui
 		else
 			ScreenGui.Parent = PlayerGui:FindFirstChild("MainGui")
 		end
 	else
-		if clonerf then
-			ScreenGui.Parent= clonerf(CoreGui)
+		if CoreGui then
+			ScreenGui.Parent= CoreGui
 		else
 			ScreenGui.Parent = PlayerGui:FindFirstChild("MainGui")
 		end
 	end
 
 	local MainFrame
-	if DeviceType == "Mouse" then
+	if Library.DeviceType == "Mouse" then
 		MainFrame = Instance.new("Frame")
 		MainFrame.Parent = ScreenGui
 		MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -157,7 +167,7 @@ function Library:CreateMain()
 		MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		MainFrame.Size = UDim2.new(1, 0, 1, 0)
 		MainFrame.Visible = false
-	elseif DeviceType == "Touch" then
+	elseif Library.DeviceType == "Touch" then
 		MainFrame = Instance.new("ScrollingFrame")
 		MainFrame.Parent = ScreenGui
 		MainFrame.Active = true
@@ -185,7 +195,7 @@ function Library:CreateMain()
 	end)
 
 	local MainOpen, UICorner_2
-	if DeviceType == "Touch" then
+	if Library.DeviceType == "Touch" then
 		MainOpen = Instance.new("TextButton")
 		MainOpen.Parent = ScreenGui
 		MainOpen.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -403,7 +413,7 @@ function Library:CreateMain()
 		local UIListLayout_5 = Instance.new("UIListLayout")
 		UIListLayout_5.Parent = ManagerMenu
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
-
+		
 		task.spawn(function()
 			local FolderTable = {}
 			repeat
@@ -521,7 +531,6 @@ function Library:CreateMain()
 			end
 		end)
 
-
 		ManagerLoad = Instance.new("ImageButton")
 		ManagerLoad.Parent = ManagerControl
 		ManagerLoad.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -632,6 +641,21 @@ function Library:CreateMain()
 
 		return TargetHUD
 	end
+	
+	function Main:CreateLine(Origin, Destination)
+		local Position = (Origin + Destination) / 2
+		local Line = Instance.new("Frame")
+		Line.Name = "Line"
+		Line.AnchorPoint = Vector2.new(0.5, 0.5)
+		Line.Parent = HudFrame
+		Line.Position = UDim2.new(0, Position.X, 0, Position.Y)
+		Line.Size = UDim2.new(0, (Origin - Destination).Magnitude, 0, 0.02)
+		Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Line.BorderColor3 = Color3.fromRGB(255, 255, 255)
+		Line.Rotation = math.deg(math.atan2(Destination.Y - Origin.Y, Destination.X - Origin.X))
+
+		return Line
+	end
 
 	task.spawn(function()
 		repeat
@@ -645,6 +669,13 @@ function Library:CreateMain()
 				task.wait(1.5)
 				Library.Uninject = false
 				Library.Stopped = true
+				PlaySound(140994215)
+				StarterGui:SetCore("SendNotification", { 
+					Title = game.Name,
+					Text = "Closed.",
+					Icon = "rbxassetid://138618215589985",
+					Duration = 2,
+				})
 			end
 		until Library.Stopped
 	end)
@@ -863,7 +894,7 @@ function Library:CreateMain()
 			end
 			--]]
 			local Keybinds
-			if DeviceType == "Mouse" then
+			if Library.DeviceType == "Mouse" then
 				Keybinds = Instance.new("TextBox")
 				Keybinds.Parent = ToggleMenu
 				Keybinds.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -910,7 +941,7 @@ function Library:CreateMain()
 						until Library.Stopped
 					end)
 				end)
-			elseif DeviceType == "Touch" then
+			elseif Library.DeviceType == "Touch" then
 				local SmallKeybinds, IsKeybind = nil, false
 				Keybinds = Instance.new("TextButton")
 				Keybinds.Parent = ToggleMenu
@@ -1417,7 +1448,7 @@ function Library:CreateMain()
 				local UICorner = Instance.new("UICorner")
 				UICorner.CornerRadius = UDim.new(0, 4)
 				UICorner.Parent = MiniToggleClick
-				
+
 				local function MiniToggleClicked()
 					if MiniToggle.Enabled then
 						TweenService:Create(MiniToggleClick, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
