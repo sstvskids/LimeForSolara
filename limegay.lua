@@ -47,7 +47,7 @@ end
 
 task.spawn(function()
 	while AutoSave do
-		task.wait(2)
+		task.wait(0.5)
 		if not Library.Uninject then
 			writefile(CurrentGameConfig, HttpService:JSONEncode(ConfigTable))
 		else
@@ -664,16 +664,17 @@ function Library:CreateMain()
 				HudFrame.Visible = Library.Visual.Hud
 				ArrayFrame.Visible = Library.Visual.Arraylist
 				Watermark.Visible = Library.Visual.Watermark
-			elseif Library.Uninject then
+			end
+			if Library.Uninject then
 				ScreenGui:Destroy()
 				task.wait(1.5)
 				Library.Uninject = false
 				Library.Stopped = true
-				PlaySound(140994215)
+				PlaySound(190478398)
 				StarterGui:SetCore("SendNotification", { 
 					Title = game.Name,
 					Text = "Closed.",
-					Icon = "rbxassetid://138618215589985",
+					Icon = "rbxassetid://182496371",
 					Duration = 2,
 				})
 			end
@@ -1069,7 +1070,7 @@ function Library:CreateMain()
 						end
 					end
 					if Library.Uninject then
-						task.wait(1.2)
+						task.wait(1.5)
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
 							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
