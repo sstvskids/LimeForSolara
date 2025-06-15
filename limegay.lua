@@ -839,22 +839,8 @@ function Library:CreateMain()
 			UIGradient.Enabled = true
 
 			local IsToggleMenu =  false
-			local ToggleMenu = Instance.new("Frame")
-			ToggleMenu.Parent = TogglesList
-			ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-			ToggleMenu.BackgroundTransparency = 0.150
-			ToggleMenu.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			ToggleMenu.BorderSizePixel = 0
-			ToggleMenu.Position = UDim2.new(0, 0, 25, 0)
-			ToggleMenu.Size = UDim2.new(1, 0, 0, 0)
-			ToggleMenu.Visible = false
-
-			local UIListLayout_2 = Instance.new("UIListLayout")
-			UIListLayout_2.Parent = ToggleMenu
-			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			--[[
 			local ToggleMenu, ScrollingMenu, UIListLayout_2
-			if DeviceType == "Mouse" then
+			if Library.DeviceType == "Mouse" then
 				ToggleMenu = Instance.new("Frame")
 				ToggleMenu.Parent = TogglesList
 				ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -868,7 +854,7 @@ function Library:CreateMain()
 				UIListLayout_2 = Instance.new("UIListLayout")
 				UIListLayout_2.Parent = ToggleMenu
 				UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			elseif DeviceType == "Touch" then
+			elseif Library.DeviceType == "Touch" then
 				ToggleMenu = Instance.new("Frame")
 				ToggleMenu.Parent = TogglesList
 				ToggleMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -893,7 +879,7 @@ function Library:CreateMain()
 				UIListLayout_2.Parent = ScrollingMenu
 				UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
 			end
-			--]]
+			
 			local Keybinds
 			if Library.DeviceType == "Mouse" then
 				Keybinds = Instance.new("TextBox")
