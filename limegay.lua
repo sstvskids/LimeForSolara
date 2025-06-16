@@ -1,4 +1,4 @@
---Beta shit
+--Coffee addiction keeps me going on this project.
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local TweenService = cloneref(game:GetService("TweenService"))
 local SoundService = cloneref(game:GetService("SoundService"))
@@ -936,7 +936,7 @@ function Library:CreateMain()
 				Keybinds.BackgroundTransparency = 1.000
 				Keybinds.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Keybinds.BorderSizePixel = 0
-				Keybinds.LayoutOrder = 99
+				Keybinds.LayoutOrder = -1
 				Keybinds.Position = UDim2.new(0.273255825, 0, 2.98461533, 0)
 				Keybinds.Size = UDim2.new(1, 0, 0, 34)
 				Keybinds.Text = "Show"
@@ -1188,7 +1188,11 @@ function Library:CreateMain()
 				DropdownHolder.TextSize = 16.000
 				DropdownHolder.TextWrapped = true
 				DropdownHolder.TextXAlignment = Enum.TextXAlignment.Left
-				DropdownHolder.Parent = ToggleMenu
+				if Library.DeviceType == "Touch" then
+					DropdownHolder.Parent = ScrollingMenu
+				elseif Library.DeviceType == "Mouse" then
+					DropdownHolder.Parent = ToggleMenu
+				end
 
 				local DropdownSelected = Instance.new("TextLabel")
 				DropdownSelected.Parent = DropdownHolder
@@ -1263,7 +1267,11 @@ function Library:CreateMain()
 				SliderMain.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				SliderMain.BorderSizePixel = 0
 				SliderMain.Size = UDim2.new(1, 0, 0, 42)
-				SliderMain.Parent = ToggleMenu
+				if Library.DeviceType == "Touch" then
+					SliderMain.Parent = ScrollingMenu
+				elseif Library.DeviceType == "Mouse" then
+					SliderMain.Parent = ToggleMenu
+				end
 
 				local SliderName = Instance.new("TextLabel")
 				SliderName.Parent = SliderMain
@@ -1396,7 +1404,11 @@ function Library:CreateMain()
 				MiniToggleMain.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				MiniToggleMain.BorderSizePixel = 0
 				MiniToggleMain.Size = UDim2.new(1, 0, 0, 28)
-				MiniToggleMain.Parent = ToggleMenu
+				if Library.DeviceType == "Touch" then
+					MiniToggleMain.Parent = ScrollingMenu
+				elseif Library.DeviceType == "Mouse" then
+					MiniToggleMain.Parent = ToggleMenu
+				end
 
 				local MiniToggleName = Instance.new("TextLabel")
 				MiniToggleName.Parent = MiniToggleMain
