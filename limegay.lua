@@ -415,7 +415,7 @@ function Library:CreateMain()
 		local UIListLayout_5 = Instance.new("UIListLayout")
 		UIListLayout_5.Parent = ManagerMenu
 		UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
-		
+
 		task.spawn(function()
 			local FolderTable = {}
 			repeat
@@ -643,7 +643,7 @@ function Library:CreateMain()
 
 		return TargetHUD
 	end
-	
+
 	function Main:CreateLine(Origin, Destination)
 		local Position = (Origin + Destination) / 2
 		local Line = Instance.new("Frame")
@@ -881,7 +881,7 @@ function Library:CreateMain()
 				UIListLayout_2.Parent = ScrollingMenu
 				UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
 			end
-			
+
 			local Keybinds
 			if Library.DeviceType == "Mouse" then
 				Keybinds = Instance.new("TextBox")
