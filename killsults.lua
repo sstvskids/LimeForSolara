@@ -1,9 +1,9 @@
 return {
-	"Better luck next time, {plr}",
+	"{plr} almost had it... not really",
 	"{plr} forgot how to play",
-	"{plr}, Ha Ha",
+	"me when {plr} tries lime",
 	"{plr} = walking free kill",
-	"{plr} im just lagging",
-	"good game, {plr}",
-	"{plr} just got Lime'd 🍋‍🟩"
+	"{plr} im lagging",
+	"nice skills, {plr}",
+	"{plr} just got Lime'd"
 }
