@@ -26,6 +26,7 @@ local AutoSave = true
 local ConfigName = nil
 local LimeFolder = "Lime"
 local ConfigsFolder = LimeFolder .. "/configs"
+local KillsultsTable = LimeFolder .. "/killsults.lua"
 local CurrentGameFolder = ConfigsFolder .. "/" .. game.PlaceId
 local CurrentGameConfig = LimeFolder .. "/" .. game.PlaceId .. ".lua"
 local ConfigTable = {Libraries = {ToggleButton = {}, MiniToggle = {}, Slider = {}, Dropdown = {}}}
@@ -34,6 +35,7 @@ local Manager, ManagerMenu, ManagerBox, ManagerDelete, ManagerCreate, ManagerLoa
 if not isfolder(LimeFolder) then makefolder(LimeFolder) end
 if not isfolder(ConfigsFolder) then makefolder(ConfigsFolder) end
 if not isfolder(CurrentGameFolder) then makefolder(CurrentGameFolder) end
+if not isfile(KillsultsTable) then writefile(KillsultsTable, game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/main/killsults.lua")) end
 
 if isfile(CurrentGameConfig) then
 	local GetMain = readfile(CurrentGameConfig)
