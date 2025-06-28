@@ -776,16 +776,26 @@ function Library:CreateMain()
 				Enabled = ToggleButton.Enabled or false,
 				Keybind = ToggleButton.Keybind or "Euro",
 				AutoDisable = ToggleButton.AutoDisable or false,
+				MiniKeybind = {
+					Visibility = ToggleButton.MiniKeybind.Visibility or false,
+					Position = ToggleButton.MiniKeybind.Position or {0.5, 0, 0.5, 0}
+				},
 				Callback = ToggleButton.Callback or function() end,
 			}
 			if not ConfigTable.Libraries.ToggleButton[ToggleButton.Name] then
 				ConfigTable.Libraries.ToggleButton[ToggleButton.Name] = {
 					Enabled = ToggleButton.Enabled,
 					Keybind = ToggleButton.Keybind,
+					MiniKeybind = {
+						Visibility = ToggleButton.MiniKeybind.Visibility,
+						Position = ToggleButton.MiniKeybind.Position
+					},
 				}
 			else
 				ToggleButton.Enabled = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled
 				ToggleButton.Keybind = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Keybind
+				ToggleButton.MiniKeybind.Visibility = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].MiniKeybind.Visibility
+				ToggleButton.MiniKeybind.Position = ConfigTable.Libraries.ToggleButton[ToggleButton.Name].MiniKeybind.Position
 			end
 
 			local ToggleMain = Instance.new("TextButton")
@@ -946,60 +956,71 @@ function Library:CreateMain()
 				Keybinds.TextColor3 = Color3.fromRGB(255, 255, 255)
 				Keybinds.TextSize = 16.000
 				Keybinds.Visible = true
-				Keybinds.MouseButton1Click:Connect(function()
-					IsKeybind = not IsKeybind
-					if IsKeybind then
-						Keybinds.TextTransparency = 0.5
-						local NewSize4 = game:GetService("TextService"):GetTextSize(ToggleButton.Name, 14, Enum.Font.Roboto, Vector2.new(200, math.huge))
-						local MiniKeybind = Instance.new("TextButton")
-						MiniKeybind.Parent = KeybindFrame
-						MiniKeybind.AnchorPoint = Vector2.new(0.5, 0.5)
-						MiniKeybind.BackgroundTransparency = 0.750
-						MiniKeybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
-						MiniKeybind.BorderSizePixel = 0
-						MiniKeybind.Position = UDim2.new(0.5, 0, 0.5, 0)
-						MiniKeybind.Size = UDim2.new(0, 65, 0, NewSize4.Y + 15)
-						MiniKeybind.Font = Enum.Font.SourceSans
-						MiniKeybind.Text = ToggleButton.Name
-						MiniKeybind.Name = ToggleButton.Name
-						MiniKeybind.TextColor3 = Color3.fromRGB(0, 0, 0)
-						MiniKeybind.TextScaled = true
-						MiniKeybind.TextSize = 14.000
-						MiniKeybind.TextWrapped = true
-						MiniKeybind.TextScaled = true
-						MakeDraggable(MiniKeybind)
 
-						local function MiniKeyClicked()
+				local function CreateMiniKeybind()
+					local NewSize4 = game:GetService("TextService"):GetTextSize(ToggleButton.Name, 14, Enum.Font.Roboto, Vector2.new(200, math.huge))
+					local MiniKeybind = Instance.new("TextButton")
+					MiniKeybind.Parent = KeybindFrame
+					MiniKeybind.AnchorPoint = Vector2.new(0.5, 0.5)
+					MiniKeybind.BackgroundTransparency = 0.750
+					MiniKeybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					MiniKeybind.BorderSizePixel = 0
+					MiniKeybind.Position = ToggleButton.MiniKeybind.Position or UDim2.new(0.5, 0, 0.5, 0)
+					MiniKeybind.Size = UDim2.new(0, 65, 0, NewSize4.Y + 15)
+					MiniKeybind.Font = Enum.Font.SourceSans
+					MiniKeybind.Text = ToggleButton.Name
+					MiniKeybind.Name = ToggleButton.Name
+					MiniKeybind.TextColor3 = Color3.fromRGB(0, 0, 0)
+					MiniKeybind.TextScaled = true
+					MiniKeybind.TextSize = 14.000
+					MiniKeybind.TextWrapped = true
+					MiniKeybind.TextScaled = true
+					MakeDraggable(MiniKeybind)
+
+					local function MiniKeyClicked()
+						if ToggleButton.Enabled then
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+							AddArray(ToggleButton.Name)
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+						else
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
+							RemoveArray(ToggleButton.Name)
+							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+						end
+					end
+					
+					task.spawn(function()
+						repeat
+							task.wait()
 							if ToggleButton.Enabled then
 								MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-								AddArray(ToggleButton.Name)
-								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 							else
 								MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
-								RemoveArray(ToggleButton.Name)
-								ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
 							end
+						until Library.Stopped
+					end)
+					
+					MiniKeybind.MouseButton1Click:Connect(function()
+						ToggleButton.Enabled = not ToggleButton.Enabled
+						MiniKeyClicked()
+						if ToggleButton.Callback then
+							ToggleButton.Callback(ToggleButton.Enabled)
 						end
+					end)
 
-						task.spawn(function()
-							repeat
-								task.wait()
-								if ToggleButton.Enabled then
-									MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-								else
-									MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
-								end
-							until Library.Stopped
-						end)
-
-						MiniKeybind.MouseButton1Click:Connect(function()
-							ToggleButton.Enabled = not ToggleButton.Enabled
-							MiniKeyClicked()
-
-							if ToggleButton.Callback then
-								ToggleButton.Callback(ToggleButton.Enabled)
-							end
-						end)
+					MiniKeybind:GetPropertyChangedSignal("Position"):Connect(function()
+						ToggleButton.MiniKeybind.Position = MiniKeybind.Position
+						ConfigTable.Libraries.ToggleButton[ToggleButton.Name].MiniKeybind.Position = MiniKeybind.Position
+					end)
+				end
+				
+				Keybinds.MouseButton1Click:Connect(function()
+					IsKeybind = not IsKeybind
+					ToggleButton.MiniKeybind.Visibility = IsKeybind
+					ConfigTable.Libraries.ToggleButton[ToggleButton.Name].MiniKeybind.Visibility = IsKeybind
+					if IsKeybind then
+						Keybinds.TextTransparency = 0.5
+						CreateMiniKeybind()
 					else
 						for _, v in ipairs(KeybindFrame:GetChildren()) do
 							if v.Name == ToggleButton.Name then
@@ -1009,8 +1030,14 @@ function Library:CreateMain()
 						Keybinds.TextTransparency = 0
 					end
 				end)
+				
+				if ToggleButton.MiniKeybind.Visibility then
+					IsKeybind = true
+					Keybinds.TextTransparency = 0.5
+					CreateMiniKeybind()
+				end
 			end
-
+			
 			local MenuTween = "C"
 			task.spawn(function()
 				repeat
