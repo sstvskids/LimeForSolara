@@ -772,6 +772,7 @@ function Library:CreateMain()
 		end
 
 		function Tabs:CreateToggle(ToggleButton)
+			ToggleButton.MiniKeybind = ToggleButton.MiniKeybind or {}
 			ToggleButton = {
 				Name = ToggleButton.Name,
 				Enabled = ToggleButton.Enabled or false,
