@@ -1,4 +1,5 @@
 --Coffee addiction keeps me going on this project.
+repeat task.wait() until game:IsLoaded()
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local TweenService = cloneref(game:GetService("TweenService"))
 local SoundService = cloneref(game:GetService("SoundService"))
