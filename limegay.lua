@@ -37,7 +37,7 @@ if not isfolder(LimeFolder) then makefolder(LimeFolder) end
 if not isfolder(ConfigsFolder) then makefolder(ConfigsFolder) end
 if not isfolder(CurrentGameFolder) then makefolder(CurrentGameFolder) end
 if not isfile(KillsultsTable) then writefile(KillsultsTable, game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/main/killsults.lua")) end
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/whitelist.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/main/whitelist.lua"))()
 if isfile(CurrentGameConfig) then
 	local GetMain = readfile(CurrentGameConfig)
 	if GetMain and GetMain ~= "" then
