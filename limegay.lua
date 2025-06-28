@@ -780,7 +780,7 @@ function Library:CreateMain()
 				AutoDisable = ToggleButton.AutoDisable or false,
 				MiniKeybind = {
 					Visibility = ToggleButton.MiniKeybind.Visibility or false,
-					Position = ToggleButton.MiniKeybind.Position or {0.5, 0, 0.5, 0}
+					Position = ToggleButton.MiniKeybind.Position or UDim2.new(0.5, 0, 0.5, 0)
 				},
 				Callback = ToggleButton.Callback or function() end,
 			}
