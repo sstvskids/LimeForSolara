@@ -1045,7 +1045,7 @@ function Library:CreateMain()
 
 			task.spawn(function()
 				repeat
-					task.wait()
+					task.wait(1)
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
