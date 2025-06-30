@@ -1,4 +1,4 @@
---Coffee addiction keeps me going on this project. AquaVGay forced me soo
+--Coffee addiction keeps me going on this project.
 repeat task.wait() until game:IsLoaded()
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local TweenService = cloneref(game:GetService("TweenService"))
@@ -675,7 +675,7 @@ function Library:CreateMain()
 				Library.Stopped = true
 				PlaySound(190478398)
 				StarterGui:SetCore("SendNotification", { 
-					Title = game.Name,
+					Title = "nothm_",
 					Text = "Closed.",
 					Icon = "rbxassetid://182496371",
 					Duration = 2,
@@ -934,8 +934,10 @@ function Library:CreateMain()
 								Keybinds.Text = ToggleButton.Keybind
 							end
 							if Library.Uninject then
-								if Keybinds then
+								task.wait(1.5)
+								if Keybinds and ToggleButton.Keybind then
 									Keybinds.Text = ""
+									ToggleButton.Keybind = "Euro"
 									Keybinds.PlaceholderText = "None"
 								end
 							end
