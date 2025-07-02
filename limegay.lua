@@ -983,13 +983,15 @@ function Library:CreateMain()
 
 					local function MiniKeyClicked()
 						if ToggleButton.Enabled then
-							MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 							AddArray(ToggleButton.Name)
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
 						else
-							MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 							RemoveArray(ToggleButton.Name)
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 						end
 					end
 					
@@ -1080,8 +1082,7 @@ function Library:CreateMain()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							RemoveArray(ToggleButton.Name)
+							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
@@ -1092,8 +1093,7 @@ function Library:CreateMain()
 						task.wait(1.5)
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							RemoveArray(ToggleButton.Name)
+							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
