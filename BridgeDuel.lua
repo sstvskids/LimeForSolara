@@ -2225,17 +2225,28 @@ end)
 	})
 end)]]
 
-local NoFallDamage
 spawn(function()
+	local NoFallDamage
+	local Loop
 	NoFallDamage = Tabs.Player:CreateToggle({
 		Name = "NoFall",
 		Callback = function(callback)
 			if callback then
-				repeat task.wait()
-					if LocalPlayer.Character.Humanoid.FloorMaterial == Enum.Material.Air and (LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.FallingDown) then
-						LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-					end
-				until not NoFallDamage.Enabled
+				if not Loop then
+					Loop = Service.RunService.RenderStepped:Connect(function()
+						if LocalPlayer.Character.Humanoid.FloorMaterial == Enum.Material.Air and (LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.FallingDown) then
+							LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+						end
+					end)
+				else
+					Loop:Disconnect()
+					Loop = nil
+				end
+			else
+				if Loop then
+					Loop:Disconnect()
+					Loop = nil
+				end
 			end
 		end
 	})
