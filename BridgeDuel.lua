@@ -2232,8 +2232,8 @@ spawn(function()
 		Callback = function(callback)
 			if callback then
 				repeat task.wait()
-					if LocalPlayer.character.Humanoid.FloorMaterial == Enum.Material.Air and (LocalPlayer.character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or LocalPlayer.character.Humanoid:GetState() == Enum.HumanoidStateType.FallingDown) then
-						LocalPlayer.character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+					if LocalPlayer.Character.Humanoid.FloorMaterial == Enum.Material.Air and (LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or LocalPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.FallingDown) then
+						LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 					end
 				until not NoFallDamage.Enabled
 			end
