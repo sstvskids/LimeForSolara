@@ -1,13 +1,14 @@
 repeat wait() until game:IsLoaded()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/Library.lua"))()
 local Service = {
+    ReplicatedStorage = game:GetService('ReplicatedStorage'),
 	UserInputService = game:GetService("UserInputService"),
 	TextChatService = game:GetService("TextChatService"),
 	TweenService = game:GetService("TweenService"),
 	SoundService = game:GetService("SoundService"),
 	RunService = game:GetService("RunService"),
 	Lighting = game:GetService("Lighting"),
-	Players = game:GetService("Players")
+	Players = game:GetService("Players"),
 }
 
 local LocalPlayer = Service.Players.LocalPlayer
@@ -25,14 +26,32 @@ local Tabs = {
 	Visual = Main:CreateTab("Visual", 118420030502964, Color3.fromRGB(170, 85, 255)),
 	World = Main:CreateTab("World", 76313147188124, Color3.fromRGB(255, 170, 0))
 }
+local BridgeDuel = {}
 
-local BridgeDuel = {
-	Blink = require(game:GetService("ReplicatedStorage").Blink.Client),
-	Entity = require(game:GetService("ReplicatedStorage").Modules.Entity),
-	BlockPlacementController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.BlockPlacementController),
-	EffectsController = require(game:GetService("ReplicatedStorage").Client.Controllers.All.EffectsController),
-	ToolService = game:GetService("ReplicatedStorage").Services.ToolService
-}
+spawn(function()
+	BridgeDuel = {
+		Functions = {},
+		Remotes = {}
+	}
+
+	BridgeDuel.Functions.GetRemote = function(name: RemoteEvent | RemoteFunction): RemoteEvent | RemoteFunction
+		local remote
+		for _, v in pairs(game:GetDescendants()) do
+			if (v:IsA('RemoteEvent') or v:IsA('RemoteFunction')) and v.Name == name then
+				remote = v
+				break
+			end
+		end
+		if name == nil then Instance.new('RemoteEvent', name) end
+		return remote
+	end
+	BridgeDuel.Remotes = {
+		AttackPlr = BridgeDuel.Functions.GetRemote('AttackPlayerWithSword'),
+		BlockSword = BridgeDuel.Functions.GetRemote('ToggleBlockSword'),
+        	PlaceBlock = BridgeDuel.Functions.GetRemote('PlaceBlock')
+	}
+	repeat task.wait() until BridgeDuel.Functions and BridgeDuel.Remotes
+end)
 
 local function IsAlive(v)
 	return v and v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("Humanoid").Health > 0
@@ -339,35 +358,10 @@ spawn(function()
 	})
 end)
 
-spawn(function()
-	local OldCrit
-	local Criticals = Tabs.Combat:CreateToggle({
-		Name = "Criticals",
-		Callback = function(callback)
-			if callback then
-				if not OldCrit then
-					OldCrit = hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, function(...)
-						local Args = ...
-						if type(Args) == 'table' then
-							rawset(Args, 'is_crit', 1)
-						end
-						return OldCrit(...)
-					end)
-				end
-			else
-				if OldCrit then
-					hookfunction(BridgeDuel.Blink.item_action.attack_entity.fire, OldCrit)
-					OldCrit = nil
-				end
-			end
-		end
-	})
-	local CriticalsMode = Criticals:CreateDropdown({
-		Name = "Critical Type",
-		List = {"Packet"},
-		Default = "Packet",
-		Callback = function(callback)
-		end
+local Criticals
+task.defer(function()
+	Criticals = Tabs.Combat:CreateToggle({
+		Name = "Criticals"
 	})
 end)
 
@@ -433,28 +427,13 @@ spawn(function()
 									Sword = CheckTool("Sword")
 									if Sword then
 										SwordModel = GetITemC0()
-										if KillAuraBlock == "Packet" then
-											local args = {
-												[1] = true,
-												[2] = Sword.Name
-											}
-											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
-										elseif KillAuraBlock == "None" then
-											local args = {
-												[1] = false,
-												[2] = Sword.Name
-											}
-											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+										if BridgeDuel.Functons and BridgeDuel.Remotes and KillAuraBlock == "Packet" then
+                                            BridgeDuel.Remotes.BlockSword:InvokeServer(true, Sword.Name)
+										elseif BridgeDuel.Functons and BridgeDuel.Remotes and KillAuraBlock == "None" then
+                                            BridgeDuel.Remotes.BlockSword:InvokeServer(true, Sword.Name)
 										end
-										if BridgeDuel.Blink and BridgeDuel.Entity then
-											local EntityID = BridgeDuel.Entity.FindByCharacter(Entity)
-											if EntityID then
-												BridgeDuel.Blink.item_action.attack_entity.fire({
-													target_entity_id = EntityID.Id,
-													is_crit = LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y < 0,
-													weapon_name = Sword.Name
-												})
-											end
+										if BridgeDuel.Functions and BridgeDuel.Remotes then
+                                            BridgeDuel.Remotes.AttackPlr:InvokeServer(Entity, Criticals.Enabled and true or LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y < 0, Sword.Name)
 										end
 									else
 										KillAuraTarget = nil
@@ -464,14 +443,14 @@ spawn(function()
 											end
 										end
 										if KillAuraBlock == "Packet" then
-											local args = {
-												[1] = false,
-												[2] = Sword.Name
-											}
-											game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+										    Sword = CheckTool("Sword")
+										    if Sword then
+											    BridgeDuel.Remotes.BlockSword:InvokeServer(false, Sword.Name)
+											end
 										end
 									end
 								else
+								    Sword = CheckTool("Sword")
 									KillAuraTarget = nil
 									if SwordModel and OldC0 then
 										if SwordModel.C0 ~= OldC0 then
@@ -479,11 +458,10 @@ spawn(function()
 										end
 									end
 									if KillAuraBlock == "Packet" then
-										local args = {
-											[1] = false,
-											[2] = Sword.Name
-										}
-										game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+									    Sword = CheckTool("Sword")
+									    if Sword then
+										    BridgeDuel.Remotes.BlockSword:InvokeServer(false, Sword.Name)
+										end
 									end
 									if not IsScaffold then
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
@@ -503,11 +481,10 @@ spawn(function()
 					Loop = nil
 				end
 				if KillAuraBlock == "Packet" then
-					local args = {
-						[1] = false,
-						[2] = Sword.Name
-					}
-					game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RF"):WaitForChild("ToggleBlockSword"):InvokeServer(unpack(args))
+				    Sword = CheckTool("Sword")
+				    if Sword then
+					    BridgeDuel.Remotes.BlockSword:InvokeServer(false, Sword.Name)
+					end
 				end
 				if SwordModel and OldC0 then
 					if SwordModel.C0 ~= OldC0 then
@@ -591,7 +568,7 @@ spawn(function()
 	})
 end)
 
-spawn(function()
+--[[spawn(function()
 	local Loop, Ranges, TeamCheck = nil, nil, false
 	local Entity, Sword = nil, nil
 	local TeleportAura = Tabs.Combat:CreateToggle({
@@ -660,7 +637,7 @@ spawn(function()
 			end
 		end
 	})
-end)
+end)]]
 
 --[[
 OLD TP AURA:
@@ -730,7 +707,7 @@ spawn(function()
 		Name = "Velocity",
 		Callback = function(callback)
 			if callback then
-				RemotePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+				RemotePath = Service.ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
 				if RemotePath then
 					OldRemote = RemotePath:FindFirstChild("KnockBackApplied"):Clone()
 					OldRemote.Parent = game.Workspace
@@ -738,7 +715,7 @@ spawn(function()
 				end
 			else
 				if RemotePath and not RemotePath:FindFirstChild("KnockBackApplied")	and OldRemote ~= nil then
-					OldRemote.Parent = game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
+					OldRemote.Parent = Service.ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("CombatService"):FindFirstChild("RE")
 				end
 			end
 		end
@@ -808,27 +785,16 @@ spawn(function()
 	})
 end)
 
-spawn(function()
-	local DamageSize = nil
-	local Damage = Tabs.Exploit:CreateToggle({
+local Damage
+task.defer(function()
+	Damage = Tabs.Exploit:CreateToggle({
 		Name = "Damage",
-		AutoDisable = true,
 		Callback = function(callback)
 			if callback then
-				if BridgeDuel.Blink then
-					BridgeDuel.Blink.player_state.take_fall_damage.fire(DamageSize)
-				end
-			end
-		end
-	})
-	local CustomDamageSize = Damage:CreateSlider({
-		Name = "Damages",
-		Min = 0,
-		Max = 100,
-		Default = 1,
-		Callback = function(callback)
-			if callback then
-				DamageSize = callback
+				task.spawn(function()
+					LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+					LocalPlayer.Character.Humanoid.Health = 0
+				end)
 			end
 		end
 	})
@@ -1797,7 +1763,7 @@ spawn(function()
 	})
 end)
 
-spawn(function()
+--[[spawn(function()
 	local Loop = nil
 	local Selected = nil
 	local KillTable = {}
@@ -1882,7 +1848,7 @@ spawn(function()
 			end
 		end
 	})
-end)
+end)]]
 
 spawn(function()
 	local Loop, UseDisplay = nil, false
@@ -2178,7 +2144,7 @@ spawn(function()
 	})
 end)
 
-spawn(function()
+--[[spawn(function()
 	local function Kill(plr)
 		local msg = {
 			plr.Name .. " Haha",
@@ -2257,168 +2223,19 @@ spawn(function()
 			end
 		end
 	})
-end)
+end)]]
 
+local NoFallDamage
 spawn(function()
-	local OldFall = nil
-	local NoFall = Tabs.Player:CreateToggle({
-		Name = "No Fall",
+	NoFallDamage = Tabs.Player:CreateToggle({
+		Name = "NoFall",
 		Callback = function(callback)
 			if callback then
-				if BridgeDuel.Blink then
-					if not OldFall then
-						OldFall = hookfunction(BridgeDuel.Blink.player_state.take_fall_damage.fire, function(...)
-						end)
+				repeat task.wait()
+					if LocalPlayer.character.Humanoid.FloorMaterial == Enum.Material.Air and (LocalPlayer.character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or LocalPlayer.character.Humanoid:GetState() == Enum.HumanoidStateType.FallingDown) then
+						LocalPlayer.character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 					end
-				end
-			else
-				if OldFall then
-					hookfunction(BridgeDuel.Blink.player_state.take_fall_damage.fire, OldFall)
-					OldFall = nil
-				end
-			end
-		end
-	})
-end)
-
-spawn(function()
-	local Raycast = RaycastParams.new()
-	Raycast.FilterDescendantsInstances = {LocalPlayer.Character}
-	Raycast.FilterType = Enum.RaycastFilterType.Exclude
-	Raycast.IgnoreWater = true
-
-	local Distance, Selected = nil, nil
-	local Direction, Result = nil, nil
-	local Pickaxe, Bed = nil, nil
-	local IsBreaking = false
-	local Blocks = {}
-	local Loop = nil
-	local Breaker = Tabs.World:CreateToggle({
-		Name = "Bed Breaker",
-		Callback = function(callback)
-			if callback then
-				IsBreaking = false
-				if not Loop then
-					Loop = Service.RunService.Stepped:Connect(function()
-						if IsAlive(LocalPlayer.Character) then
-							if BridgeDuel.Blink then
-								Bed = GetBed(Distance)
-								if Bed then
-									Direction = Bed.PrimaryPart.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position
-									Result = game.Workspace:Raycast(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position, Direction, Raycast)
-									for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-										if v:IsA("Tool") and v.Name:match("Pickaxe") then
-											Pickaxe = v
-										end
-									end
-									for i, b in pairs(LocalPlayer.Character:GetChildren()) do
-										if b:IsA("Tool") and b.Name:match("Pickaxe") then
-											Pickaxe = b
-										end
-									end
-									if Selected == "Blatant" then
-										if Pickaxe then
-											if not Bed:FindFirstChildWhichIsA("Highlight") then
-												local highlight = Instance.new("Highlight")
-												highlight.Parent = Bed
-												highlight.FillTransparency = 1
-												highlight.OutlineTransparency = 0.45
-												highlight.OutlineColor = Color3.new(1, 1, 1)
-											end
-											if not IsBreaking then
-												BridgeDuel.Blink.item_action.start_break_block.fire({
-													position = Vector3.new(Bed.PrimaryPart.Position.X, Bed.PrimaryPart.Position.Y, Bed.PrimaryPart.Position.Z),
-													pickaxe_name = Pickaxe.Name,
-												})
-												task.wait(3)
-												IsBreaking = true
-											end
-										end
-									elseif Selected == "Legit" then
-										if Result and Result.Instance then
-											if Result.Instance.Name == "Block" and not table.find(Blocks, Result.Instance) then
-												table.insert(Blocks, Result.Instance)
-												Result.Instance.CanCollide = false
-												Result.Instance.CanTouch = false
-												Result.Instance.CanQuery = false
-												Result.Instance.Transparency = 0.75
-											end
-										end
-									end
-								end
-							else
-								if Selected == "Legit" then
-									for i = #Blocks, 1, -1 do
-										local v = Blocks[i]
-										if v and v.Parent and not v.CanCollide and not v.CanTouch and not v.CanQuery and v.Transparency ~= 0 then
-											local Distances = (v.Position - LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
-											if Distances > Distance then
-												v.CanCollide = true
-												v.CanTouch = true
-												v.CanQuery = true
-												v.Transparency = 0
-												table.remove(Blocks, i)
-											end
-										end
-									end
-								end
-								if IsBreaking then
-									BridgeDuel.Blink.item_action.stop_break_block.fire()
-									IsBreaking = false
-								end
-							end
-						end
-					end)
-				else
-					Loop:Disconnect()
-					Loop = nil
-				end
-			else
-				if Loop then
-					Loop:Disconnect()
-					Loop = nil
-				end
-				if Bed then
-					if Bed:FindFirstChildWhichIsA("Highlight") then
-						Bed:FindFirstChildWhichIsA("Highlight"):Destroy()
-					else
-						Bed = nil
-					end
-				end
-				Direction, Result = nil, nil
-				IsBreaking = false
-				if Selected == "Legit" then
-					for i, v in ipairs(Blocks) do
-						if v and v.Parent then
-							v.CanCollide = true
-							v.CanTouch = true
-							v.CanQuery = true
-							v.Transparency = 0
-						end
-					end
-					Blocks = {}
-				end
-			end
-		end
-	})
-	local BreakerMode = Breaker:CreateDropdown({
-		Name = "Breaker Modes",
-		List = {"Legit", "Blatant"},
-		Default = "Blatant",
-		Callback = function(callback)
-			if callback then
-				Selected = callback
-			end
-		end
-	})
-	local BreakerDistance = Breaker:CreateSlider({
-		Name = "Distances",
-		Min = 0,
-		Max = 28,
-		Default = 28,
-		Callback = function(callback)
-			if callback then
-				Distance = callback
+				until not NoFallDamage.Enabled
 			end
 		end
 	})
@@ -2516,8 +2333,7 @@ spawn(function()
 										LocalPlayer.Character.LowerTorso:FindFirstChild("Root").C0 = CFrame.new(OldTorsoC0)
 									end
 								end
-								if not Service.UserInputService.TouchEnabled and Service.UserInputService.KeyboardEnabled and Service.UserInputService.MouseEnabled then
-									if BridgeDuel.BlockPlacementController then
+								if BridgeDuel.Functions and BridgeDuel.Remotes then
 										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
 											if table.find(BlockNames, v.Name) then
 												local GetBlockType = BlocksList[v.Name]
@@ -2539,37 +2355,9 @@ spawn(function()
 											end
 										end
 										if BlockType and Block then
-											BridgeDuel.BlockPlacementController.PlaceBlock(nil, PlacePos, BlockType)
+											BridgeDuel.Remotes.PlaceBlock:InvokeServer(nil, PlacePos, BlockType)
 										end
 									end
-								elseif Service.UserInputService.TouchEnabled and not Service.UserInputService.KeyboardEnabled and not Service.UserInputService.MouseEnabled then
-									if BridgeDuel.Blink then
-										for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-											if table.find(BlockNames, v.Name) then
-												local GetBlockType = BlocksList[v.Name]
-												if GetBlockType then
-													BlockType = GetBlockType
-													Block = v
-												end
-											end
-										end
-										for i, b in pairs(LocalPlayer.Character:GetChildren()) do
-											if table.find(BlockNames, b.Name) then
-												local GetBlockType = BlocksList[b.Name]
-												if GetBlockType then
-													BlockType = GetBlockType
-													Block = b
-												end
-											end
-										end
-										if BlockType and Block then
-											BridgeDuel.Blink.item_action.place_block.invoke({
-												position = PlacePos,
-												block_type = BlockType
-											})
-										end
-									end
-								end
 							end
 						end
 					end)
