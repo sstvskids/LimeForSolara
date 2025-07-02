@@ -2241,7 +2241,7 @@ spawn(function()
 	})
 end)
 
-spawn(function()
+--[[spawn(function()
 	local BlockNames = {"Blocks", "WoodPlanksBlock", "StoneBlock", "IronBlock", "BricksBlock", "DiamondBlock"}
 	local BlocksList = {
 		Blocks = "Clay",
@@ -2408,7 +2408,7 @@ spawn(function()
 			end
 		end
 	})
-end)
+end)]]
 
 spawn(function()
 	local OldTime, NewTime = Service.Lighting.ClockTime, nil
