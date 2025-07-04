@@ -8,7 +8,7 @@ for _, v in {'Lime', 'Lime/configs'} do
 end
 
 -- require / debug checks
-if string.find(({identifyexecutor()})[1], 'Xeno') or not (debug.getupvalue or debug.getconstants or hookfunction) then
+if (string.find(({identifyexecutor()})[1], 'Xeno') or not (debug.getupvalue or debug.getconstants or hookfunction)) and (game.PlaceId == 11630038968 or game.PlaceId == 12011959048 or game.PlaceId == 14191889582 or game.PlaceId == 14662411059) then
 	shared.badexecs = true
 	return loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/LimeForSolara/refs/heads/main/BridgeDuel.lua"))()
 end
