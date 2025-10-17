@@ -1,4 +1,3 @@
---Coffee addiction keeps me going on this project.
 repeat task.wait() until game:IsLoaded()
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local TweenService = cloneref(game:GetService("TweenService"))
@@ -37,7 +36,6 @@ if not isfolder(LimeFolder) then makefolder(LimeFolder) end
 if not isfolder(ConfigsFolder) then makefolder(ConfigsFolder) end
 if not isfolder(CurrentGameFolder) then makefolder(CurrentGameFolder) end
 if not isfile(KillsultsTable) then writefile(KillsultsTable, game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/main/killsults.lua")) end
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AfgMS/LimeForRoblox/refs/heads/main/whitelist.lua"))()
 if isfile(CurrentGameConfig) then
 	local GetMain = readfile(CurrentGameConfig)
 	if GetMain and GetMain ~= "" then
@@ -983,13 +981,15 @@ function Library:CreateMain()
 
 					local function MiniKeyClicked()
 						if ToggleButton.Enabled then
-							MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 							AddArray(ToggleButton.Name)
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0,BackgroundColor3 = Color3.fromRGB(232, 30, 100)}):Play()
 						else
-							MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 							RemoveArray(ToggleButton.Name)
+							MiniKeybind.BackgroundColor3 = Color3.fromRGB(192, 57, 43)
 							ConfigTable.Libraries.ToggleButton[ToggleButton.Name].Enabled = ToggleButton.Enabled
+							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230,BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 						end
 					end
 					
@@ -1080,8 +1080,7 @@ function Library:CreateMain()
 					if ToggleButton.AutoDisable then
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							RemoveArray(ToggleButton.Name)
+							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)
@@ -1092,8 +1091,7 @@ function Library:CreateMain()
 						task.wait(1.5)
 						if ToggleButton.Enabled then
 							ToggleButton.Enabled = false
-							TweenService:Create(ToggleMain, TweenInfo.new(0.4), {Transparency = 0.230, BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-							RemoveArray(ToggleButton.Name)
+							ToggleButtonClicked()
 
 							if ToggleButton.Callback then
 								ToggleButton.Callback(ToggleButton.Enabled)

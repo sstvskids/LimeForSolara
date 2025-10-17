@@ -5,5 +5,6 @@ return {
 	"{plr} = walking free kill",
 	"{plr} im lagging",
 	"nice skills, {plr}",
-	"{plr} just got Lime'd"
+	"{plr} just got Lime'd",
+	"{plr}, you are way worse than AquaVClip"
 }
